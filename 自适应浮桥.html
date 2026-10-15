@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>基于TRIZ理论的自适应浮桥结构及其施工方法 · 浮舟智控团队</title>
+<style>
+/* =========================================================
+   一、全局重置 —— 盒模型练习（box-sizing: border-box）
+   群组选择器：* 通配符；margin/padding 清零
+   ========================================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --navy: #0b2540;          /* 深蓝主色 */
+    --navy-2: #123c63;
+    --teal: #0e7c86;          /* 蓝绿 */
+    --cyan: #4cd0c0;          /* 高亮青 */
+    --gold: #dcb86a;          /* TRIZ杯金 */
+    --ink: #1f2d3a;           /* 深色文字 */
+    --paper: #f3f8fa;         /* 浅色分区底 */
+    --white: #ffffff;
+    --shadow: 0 16px 40px rgba(11, 37, 64, 0.18);
+}
+
+html {
+    scroll-behavior: smooth;   /* 锚点平滑滚动 */
+}
+
+body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+    color: var(--ink);
+    line-height: 1.75;
+    background: var(--paper);
+}
+
+ul { list-style: none; }
+img { display: block; max-width: 100%; }
+a { text-decoration: none; color: inherit; }
+
+/* 通用容器 */
+.wrap {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* =========================================================
+   二、分区标题：::before / ::after 伪元素
+   ========================================================= */
+.section {
+    padding: 86px 0;
+}
+.section--dark {
+    background: linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 60%, var(--teal) 130%);
+    color: #eaf4f6;
+}
+
+.sec-head {
+    text-align: center;
+    margin-bottom: 54px;
+}
+.sec-head .en {
+    font-size: 13px;
+    letter-spacing: 6px;
+    color: var(--gold);
+    text-transform: uppercase;
+}
+.sec-head h2 {
+    position: relative;
+    display: inline-block;
+    font-size: 32px;
+    letter-spacing: 3px;
+    margin-top: 8px;
+    padding-bottom: 16px;
+}
+/* 标题下方装饰短线：伪元素 + 渐变 */
+.sec-head h2::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 64px;
+    height: 4px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--cyan), var(--gold));
+}
+.sec-head p {
+    margin-top: 14px;
+    font-size: 15px;
+    opacity: .75;
+}
+
+/* =========================================================
+   三、导航栏 —— flex 一左一右（space-between）+ 毛玻璃
+   ========================================================= */
+.nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    transition: background .35s ease, box-shadow .35s ease;
+}
+.nav-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 68px;
+    display: flex;
+    justify-content: space-between;  /* 一左一右布局练习 */
+    align-items: center;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #fff;
+}
+/* 左侧图形标志：::before 伪元素画一个小浮桥抽象图 */
+.logo::before {
+    content: "";
+    width: 30px;
+    height: 22px;
+    border-radius: 4px;
+    background:
+        linear-gradient(var(--cyan), var(--cyan)) 6px 12px / 18px 3px no-repeat,
+        linear-gradient(var(--gold), var(--gold)) 9px 6px / 4px 10px no-repeat,
+        linear-gradient(var(--gold), var(--gold)) 19px 6px / 4px 10px no-repeat;
+}
+.nav-menu {
+    display: flex;
+    gap: 6px;
+}
+.nav-menu a {
+    display: block;
+    padding: 8px 14px;
+    font-size: 14.5px;
+    color: rgba(255,255,255,.82);
+    border-radius: 8px;
+    transition: color .25s, background .25s;
+}
+.nav-menu a:hover { color: #fff; background: rgba(255,255,255,.12); }
+.nav-menu a.active { color: var(--navy); background: var(--cyan); font-weight: 600; }
+
+/* 滚动后导航变实心毛玻璃 */
+.nav.scrolled {
+    background: rgba(11, 37, 64, 0.88);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 6px 24px rgba(0,0,0,.25);
+}
+
+/* =========================================================
+   四、首屏 Hero —— 渐变遮罩 + @keyframes 动画
+   ========================================================= */
+.hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #fff;
+    background: url("images/hero.png") center/cover no-repeat fixed;
+    overflow: hidden;
+}
+/* 深色渐变遮罩：::before，保证文字可读 */
+.hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(180deg, rgba(11,37,64,.72) 0%, rgba(11,37,64,.45) 45%, rgba(14,124,134,.78) 100%);
+    animation: heroFade 1.4s ease both;
+}
+@keyframes heroFade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 880px;
+    padding: 0 20px;
+    animation: floatUp 1s ease both;
+}
+.hero .cup {
+    display: inline-block;
+    padding: 6px 20px;
+    border-radius: 50px;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: #ffe8b8;
+    background: rgba(220, 184, 106, .16);
+    border: 1px solid rgba(220, 184, 106, .5);
+    margin-bottom: 24px;
+}
+.hero h1 {
+    font-size: 44px;
+    line-height: 1.4;
+    letter-spacing: 3px;
+    font-weight: 800;
+    text-shadow: 0 8px 28px rgba(0,0,0,.5);
+}
+.hero h1 .hl {
+    background: linear-gradient(90deg, var(--cyan), #9be7dd, var(--gold));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.hero .sub {
+    margin-top: 18px;
+    font-size: 16px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,.85);
+}
+.hero-btns {
+    margin-top: 38px;
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+.btn {
+    display: inline-block;
+    padding: 13px 34px;
+    border-radius: 50px;
+    font-size: 15px;
+    letter-spacing: 2px;
+    transition: transform .3s, box-shadow .3s;
+}
+.btn--primary {
+    color: var(--navy);
+    background: linear-gradient(90deg, var(--cyan), #8fe6da);
+    font-weight: 700;
+    box-shadow: 0 10px 26px rgba(76,208,192,.4);
+}
+.btn--ghost {
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.6);
+}
+.btn:hover { transform: translateY(-4px); }
+.btn--ghost:hover { background: rgba(255,255,255,.14); }
+
+/* 底部波浪（纯CSS双层动画） */
+.hero-wave {
+    position: absolute;
+    left: 0; right: 0; bottom: -1px;
+    height: 90px;
+    z-index: 2;
+}
+.hero-wave span {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 70px;
+    background: var(--paper);
+    clip-path: polygon(0 60%, 8% 48%, 18% 58%, 28% 42%, 40% 56%, 50% 40%, 62% 56%, 72% 44%, 82% 58%, 92% 48%, 100% 58%, 100% 100%, 0 100%);
+}
+.hero-wave .w2 {
+    height: 90px;
+    opacity: .35;
+    background: var(--cyan);
+    animation: waveMove 6s ease-in-out infinite alternate;
+}
+@keyframes waveMove {
+    from { transform: translateX(-12px); }
+    to   { transform: translateX(12px); }
+}
+
+@keyframes floatUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================================
+   五、数据统计条 —— flex + 数字动画
+   ========================================================= */
+.stats {
+    background: var(--white);
+}
+.stats-grid {
+    display: flex;
+    flex-wrap: wrap;
+}
+.stat-item {
+    flex: 1 1 200px;
+    text-align: center;
+    padding: 40px 16px;
+    border-right: 1px dashed #d5e2e6;
+}
+/* :last-child 去掉右边框 */
+.stat-item:last-child { border-right: none; }
+.stat-item .num {
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--teal);
+    font-family: Georgia, serif;
+}
+.stat-item .num small { font-size: 18px; }
+.stat-item .label {
+    margin-top: 6px;
+    font-size: 14px;
+    color: #6a7b88;
+    letter-spacing: 1px;
+}
+
+/* =========================================================
+   六、项目概述 —— 左图右文（flex 行方向）
+   ========================================================= */
+.intro {
+    display: flex;
+    gap: 44px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.intro-text { flex: 1 1 420px; }
+.intro-text p { margin-bottom: 14px; font-size: 15.5px; color: #3c4d5b; }
+.intro-text .tagline {
+    margin-top: 6px;
+    padding: 14px 18px;
+    border-left: 4px solid var(--teal);
+    background: #e9f4f4;
+    border-radius: 0 10px 10px 0;
+    font-size: 14.5px;
+    color: var(--navy-2);
+}
+.intro-fig {
+    flex: 1 1 380px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+.intro-fig img { transition: transform .6s ease; }
+.intro-fig:hover img { transform: scale(1.06); }
+
+/* 浮桥四大组成 —— 卡片网格 */
+.parts-grid {
+    margin-top: 56px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 22px;
+}
+.part-card {
+    position: relative;
+    background: var(--white);
+    border-radius: 14px;
+    padding: 28px 22px;
+    border: 1px solid #e1ecef;
+    box-shadow: 0 8px 24px rgba(11,37,64,.06);
+    transition: transform .3s, box-shadow .3s;
+    overflow: hidden;
+}
+.part-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--cyan), var(--teal));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .35s;
+}
+.part-card:hover { transform: translateY(-8px); box-shadow: var(--shadow); }
+.part-card:hover::before { transform: scaleX(1); }
+.part-card h3 { font-size: 19px; color: var(--navy); margin-bottom: 8px; }
+.part-card p { font-size: 13.5px; color: #61727f; }
+
+/* 实景图三栏 */
+.scenes {
+    margin-top: 30px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+.scene {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    height: 240px;
+    box-shadow: var(--shadow);
+}
+.scene img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform .5s;
+}
+/* ::after 底部文字遮罩 */
+.scene::after {
+    content: attr(data-cap);
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 26px 14px 12px;
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: #fff;
+    background: linear-gradient(transparent, rgba(11,37,64,.82));
+    transform: translateY(8px);
+    opacity: 0;
+    transition: .35s;
+}
+.scene:hover img { transform: scale(1.08); }
+.scene:hover::after { opacity: 1; transform: translateY(0); }
+
+/* =========================================================
+   七、问题描述
+   ========================================================= */
+/* 痛点编号卡：::before 圆形序号 */
+.pain-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 22px;
+}
+.pain-card {
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.16);
+    border-radius: 14px;
+    padding: 30px 24px 24px 78px;
+    position: relative;
+    transition: background .3s, transform .3s;
+}
+.pain-card::before {
+    content: attr(data-no);
+    position: absolute;
+    left: 22px; top: 26px;
+    width: 40px; height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--navy);
+    background: linear-gradient(135deg, var(--gold), #f4d99a);
+}
+.pain-card:hover { background: rgba(255,255,255,.13); transform: translateY(-6px); }
+.pain-card h3 { font-size: 17px; margin-bottom: 8px; }
+.pain-card p { font-size: 13.5px; opacity: .8; }
+
+/* 两体系对比：flex */
+.systems {
+    margin-top: 50px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+.sys-card {
+    background: var(--white);
+    color: var(--ink);
+    border-radius: 14px;
+    padding: 26px;
+    box-shadow: 0 10px 28px rgba(0,0,0,.18);
+}
+.sys-card h3 {
+    font-size: 18px;
+    color: var(--navy);
+    padding-bottom: 12px;
+    margin-bottom: 14px;
+    border-bottom: 2px solid #e4eef1;
+}
+.sys-card .good { color: #1b8a5a; font-size: 14px; }
+.sys-card .bad  { color: #c0392b; font-size: 14px; margin-top: 8px; }
+.sys-card li { padding-left: 22px; position: relative; margin-bottom: 6px; }
+.sys-card .good li::before { content: "✓"; position: absolute; left: 0; font-weight: 700; }
+.sys-card .bad li::before  { content: "✕"; position: absolute; left: 0; font-weight: 700; }
+
+/* 因果链大图 */
+.figure-box {
+    margin-top: 50px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: var(--shadow);
+}
+.figure-box img { margin: 0 auto; }
+.figure-box figcaption {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 13.5px;
+    color: #788895;
+    letter-spacing: 1px;
+}
+
+/* =========================================================
+   八、表格通用样式（外层横向滚动，防止列多崩坏）
+   ========================================================= */
+.table-scroll { overflow-x: auto; margin-top: 8px; border-radius: 12px; }
+table.tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    background: var(--white);
+    min-width: 640px;
+}
+.tbl caption {
+    text-align: left;
+    font-weight: 700;
+    color: var(--navy);
+    padding: 10px 4px;
+    letter-spacing: 1px;
+}
+.tbl th {
+    background: linear-gradient(135deg, var(--navy-2), var(--teal));
+    color: #fff;
+    padding: 12px 14px;
+    text-align: center;
+    font-weight: 600;
+    white-space: nowrap;
+}
+.tbl td {
+    padding: 11px 14px;
+    border-bottom: 1px solid #e7eef1;
+    text-align: center;
+    color: #43556a;
+}
+.tbl td:nth-child(2) { text-align: left; }
+/* nth-child(even) 偶数行斑马纹 */
+.tbl tbody tr:nth-child(even) { background: #f0f6f8; }
+.tbl tbody tr:hover { background: #dff3ef; }
+/* 有害作用标红 */
+.tag-harm { color: #c0392b; font-weight: 600; }
+.tag-insuff { color: #d68910; font-weight: 600; }
+.tag-good { color: #1b8a5a; font-weight: 600; }
+
+/* =========================================================
+   九、系统分析 —— 五大工具卡片
+   ========================================================= */
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+}
+.tool-card {
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 14px;
+    padding: 28px 20px;
+    text-align: center;
+    transition: transform .3s, border-color .3s;
+}
+.tool-card .ico {
+    width: 54px; height: 54px;
+    margin: 0 auto 14px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--navy);
+    background: linear-gradient(135deg, var(--cyan), #bdeee6);
+}
+.tool-card h3 { font-size: 16px; margin-bottom: 8px; letter-spacing: 1px; }
+.tool-card p { font-size: 12.5px; opacity: .72; }
+.tool-card:hover { transform: translateY(-8px); border-color: var(--cyan); }
+
+/* 分析详情块 */
+.analy-blocks { margin-top: 54px; display: grid; gap: 30px; }
+.analy-card {
+    background: var(--white);
+    color: var(--ink);
+    border-radius: 16px;
+    padding: 30px 32px;
+    box-shadow: 0 10px 30px rgba(11,37,64,.08);
+}
+.analy-card h3 {
+    font-size: 19px;
+    color: var(--navy);
+    margin-bottom: 6px;
+    padding-left: 14px;
+    border-left: 4px solid var(--teal);
+}
+.analy-card > p { font-size: 14px; color: #5c6c79; margin: 8px 0 16px; }
+
+/* 锚点跳转目标：避开固定导航遮挡 */
+[id^="an-"] { scroll-margin-top: 92px; }
+
+/* 因果链：四大根因小条目（::before 圆形序号） */
+.mini-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 14px;
+    margin-bottom: 14px;
+}
+.mini-list li {
+    position: relative;
+    background: #f0f6f8;
+    border-radius: 10px;
+    padding: 14px 14px 14px 46px;
+    font-size: 13px;
+    color: #3c4d5b;
+}
+.mini-list li::before {
+    content: attr(data-no);
+    position: absolute;
+    left: 12px; top: 13px;
+    width: 24px; height: 24px;
+    line-height: 24px;
+    text-align: center;
+    border-radius: 50%;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, var(--teal), var(--cyan));
+}
+.mini-list li b { color: var(--navy); }
+
+/* 九屏图 3×3 */
+.nine-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+.nine-cell {
+    border-radius: 10px;
+    padding: 12px 10px;
+    font-size: 12.5px;
+    background: #f0f6f8;
+    color: #3c4d5b;
+    text-align: center;
+}
+.nine-cell .t {
+    display: block;
+    font-size: 11px;
+    color: #8aa0ab;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+.nine-cell.hot { background: linear-gradient(160deg, #e2f6f2, #f3ead2); color: var(--navy); font-weight: 600; }
+
+/* 工具卡作为可点击链接 */
+a.tool-card { cursor: pointer; }
+.tool-card .tap {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--cyan);
+    letter-spacing: 1px;
+}
+/* 回到分析工具入口 */
+.back-tools {
+    display: inline-block;
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--teal);
+}
+.back-tools:hover { text-decoration: underline; }
+
+/* STC 三列 */
+.stc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 18px;
+}
+.stc-item {
+    border-radius: 12px;
+    padding: 22px 20px;
+    color: #fff;
+    background: linear-gradient(160deg, var(--navy-2), var(--teal));
+}
+.stc-item h4 { font-size: 16px; letter-spacing: 1px; }
+.stc-item .eff {
+    margin-top: 10px;
+    font-size: 22px;
+    font-weight: 800;
+    color: #ffe3a1;
+}
+.stc-item p { font-size: 13px; opacity: .85; margin-top: 8px; }
+
+/* =========================================================
+   十、TRIZ 求解 —— 技术/物理矛盾
+   ========================================================= */
+.solve-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+.solve-card {
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.16);
+    border-radius: 16px;
+    padding: 28px;
+}
+.solve-card h3 { font-size: 19px; color: var(--gold); margin-bottom: 14px; letter-spacing: 1px; }
+.param-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+.param-row .p-badge {
+    flex-shrink: 0;
+    padding: 3px 12px;
+    border-radius: 50px;
+    font-size: 12.5px;
+    font-weight: 600;
+}
+.p-badge.up   { background: rgba(76,208,192,.25); color: #a8f0e7; border: 1px solid var(--cyan); }
+.p-badge.down { background: rgba(220,120,100,.22); color: #ffc4b8; border: 1px solid #e0836f; }
+
+.principles { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.principles span {
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    background: rgba(220,184,106,.18);
+    border: 1px solid rgba(220,184,106,.5);
+    color: #ffe8b8;
+}
+/* 被否决的原理：删除线 */
+.principles .reject { opacity: .45; text-decoration: line-through; }
+
+/* 物理矛盾图 */
+.phys-fig {
+    margin-top: 26px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff;
+    padding: 16px;
+}
+
+/* IFR 六问 */
+.ifr-list { counter-reset: ifr; margin-top: 10px; }
+.ifr-list li {
+    position: relative;
+    padding: 12px 0 12px 52px;
+    font-size: 15px;
+    border-bottom: 1px dashed rgba(255,255,255,.2);
+}
+.ifr-list li::before {
+    counter-increment: ifr;
+    content: counter(ifr);
+    position: absolute;
+    left: 6px; top: 12px;
+    width: 30px; height: 30px;
+    line-height: 30px;
+    text-align: center;
+    border-radius: 50%;
+    font-weight: 700;
+    color: var(--navy);
+    background: var(--cyan);
+}
+.ifr-list li b { color: #ffe3a1; }
+
+/* 物场模型流程 */
+.sufield-flow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+.sufield-flow .node {
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.25);
+}
+.sufield-flow .node.hot { background: var(--gold); color: var(--navy); font-weight: 700; border-color: var(--gold); }
+.sufield-flow .arrow { font-size: 20px; color: var(--cyan); }
+
+/* =========================================================
+   十一、技术方案 —— 图廊 + 工作步骤（上图下文 flex 列方向）
+   ========================================================= */
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 22px;
+}
+.g-item {
+    background: var(--white);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 10px 28px rgba(11,37,64,.09);
+    display: flex;               /* 上图下文：flex 列方向 */
+    flex-direction: column;
+    cursor: zoom-in;
+    transition: transform .3s, box-shadow .3s;
+}
+.g-item:hover { transform: translateY(-8px); box-shadow: var(--shadow); }
+.g-item .g-img { overflow: hidden; }
+.g-item .g-img img {
+    width: 100%;
+    height: 230px;
+    object-fit: contain;
+    background: #fbfdfe;
+    padding: 10px;
+    transition: transform .5s;
+}
+.g-item:hover .g-img img { transform: scale(1.07); }
+.g-item .g-cap { padding: 16px 20px 20px; }
+.g-item .g-cap h3 { font-size: 15.5px; color: var(--navy); }
+.g-item .g-cap p { font-size: 13px; color: #70808d; margin-top: 4px; }
+
+/* 工作原理四步 */
+.steps-grid {
+    margin-top: 56px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 20px;
+}
+.step-card {
+    position: relative;
+    background: #fff;
+    border-radius: 14px;
+    padding: 26px 22px;
+    box-shadow: 0 8px 22px rgba(11,37,64,.07);
+}
+.step-card .step-no {
+    font-size: 34px;
+    font-weight: 800;
+    color: #d9e9ec;
+    font-family: Georgia, serif;
+}
+.step-card h3 { font-size: 16px; color: var(--navy); margin: 4px 0 8px; }
+.step-card p { font-size: 13px; color: #62727f; }
+
+/* =========================================================
+   十二、施工流程 —— 时间线（::before 中轴）
+   ========================================================= */
+.timeline {
+    position: relative;
+    max-width: 880px;
+    margin: 0 auto;
+}
+.timeline::before {
+    content: "";
+    position: absolute;
+    left: 28px; top: 6px; bottom: 6px;
+    width: 3px;
+    border-radius: 3px;
+    background: linear-gradient(var(--cyan), var(--gold));
+}
+.tl-item {
+    position: relative;
+    padding: 0 0 34px 76px;
+}
+/* 时间轴圆点 */
+.tl-item::before {
+    content: "";
+    position: absolute;
+    left: 19px; top: 4px;
+    width: 21px; height: 21px;
+    border-radius: 50%;
+    background: var(--teal);
+    border: 4px solid var(--paper);
+    box-shadow: 0 0 0 3px var(--cyan);
+}
+.tl-item h3 { font-size: 17px; color: var(--navy); }
+.tl-item p { font-size: 14px; color: #566675; margin-top: 4px; }
+/* 最后一项不需要下边距：nth-last-child */
+.tl-item:nth-last-child(1) { padding-bottom: 0; }
+
+/* =========================================================
+   十三、页脚 + 返回顶部
+   ========================================================= */
+.footer {
+    background: #081a2c;
+    color: rgba(255,255,255,.6);
+    padding: 54px 0 26px;
+    text-align: center;
+}
+.footer h3 {
+    color: #fff;
+    font-size: 19px;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+}
+.footer .meta { font-size: 13.5px; line-height: 2; }
+.footer .copy {
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255,255,255,.12);
+    font-size: 12.5px;
+    opacity: .6;
+}
+
+#toTop {
+    position: fixed;
+    right: 26px; bottom: 26px;
+    width: 48px; height: 48px;
+    border: none;
+    border-radius: 50%;
+    font-size: 20px;
+    color: var(--navy);
+    background: linear-gradient(135deg, var(--cyan), #9fe4da);
+    box-shadow: 0 8px 22px rgba(11,37,64,.3);
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(14px);
+    transition: .35s;
+    z-index: 90;
+}
+#toTop.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+#toTop:hover { transform: translateY(-4px); }
+
+/* =========================================================
+   灯箱（原生JS实现）
+   ========================================================= */
+.lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(6, 18, 30, .9);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 40px;
+}
+.lightbox.show { display: flex; }
+.lightbox img {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 12px;
+    box-shadow: 0 30px 80px rgba(0,0,0,.6);
+    animation: floatUp .35s ease both;
+}
+.lightbox .lb-cap {
+    position: absolute;
+    bottom: 26px;
+    left: 0; right: 0;
+    text-align: center;
+    color: #dce9ee;
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+.lightbox .lb-close {
+    position: absolute;
+    top: 22px; right: 30px;
+    width: 42px; height: 42px;
+    border: 1px solid rgba(255,255,255,.4);
+    border-radius: 50%;
+    color: #fff;
+    font-size: 20px;
+    background: transparent;
+    cursor: pointer;
+}
+.lightbox .lb-close:hover { background: rgba(255,255,255,.15); }
+
+/* =========================================================
+   滚动进入动画
+   ========================================================= */
+.reveal {
+    opacity: 0;
+    transform: translateY(34px);
+    transition: opacity .7s ease, transform .7s ease;
+}
+.reveal.in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* =========================================================
+   响应式
+   ========================================================= */
+@media (max-width: 860px) {
+    .nav-menu { display: none; }
+    .hero h1 { font-size: 30px; letter-spacing: 2px; }
+    .systems, .solve-grid { grid-template-columns: 1fr; }
+    .scenes { grid-template-columns: 1fr; }
+    .section { padding: 64px 0; }
+    .stat-item { border-right: none; border-bottom: 1px dashed #d5e2e6; }
+}
+</style>
+</head>
+<body>
+
+<!-- ================= 导航栏 ================= -->
+<nav class="nav" id="nav">
+    <div class="nav-inner">
+        <a class="logo" href="#top">浮舟智控</a>
+        <ul class="nav-menu">
+            <li><a href="#overview">项目概述</a></li>
+            <li><a href="#problem">问题描述</a></li>
+            <li><a href="#analysis">系统分析</a></li>
+            <li><a href="#solve">TRIZ求解</a></li>
+            <li><a href="#solution">技术方案</a></li>
+            <li><a href="#construct">施工方法</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- ================= 首屏 ================= -->
+<header class="hero" id="top">
+    <div class="hero-content">
+        <span class="cup">第十一届辽宁省“TRIZ”杯大学生创新方法大赛 · 创新设计类</span>
+        <h1>基于TRIZ理论的<span class="hl">自适应浮桥结构</span><br>及其施工方法的设计</h1>
+        <p class="sub">随河流水位自动调整高度 · 高度自锁 · 装配式施工 · 零能耗自适应</p>
+        <div class="hero-btns">
+            <a class="btn btn--primary" href="#solution">查看核心方案</a>
+            <a class="btn btn--ghost" href="#overview">了解项目背景</a>
+        </div>
+    </div>
+    <div class="hero-wave"><span class="w2"></span><span></span></div>
+</header>
+
+<!-- ================= 数据统计 ================= -->
+<section class="stats">
+    <div class="stats-grid wrap">
+        <div class="stat-item reveal">
+            <div class="num"><span data-count="5">0</span><small> 节</small></div>
+            <div class="label">封闭式主梁箱体</div>
+        </div>
+        <div class="stat-item reveal">
+            <div class="num"><span data-count="21">0</span><small> 个</small></div>
+            <div class="label">候选技术方案</div>
+        </div>
+        <div class="stat-item reveal">
+            <div class="num"><span data-count="9">0</span><small> 大</small></div>
+            <div class="label">TRIZ分析工具</div>
+        </div>
+        <div class="stat-item reveal">
+            <div class="num"><span data-count="91">0</span><small> 分</small></div>
+            <div class="label">最优方案得分（排名第1）</div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= 一、项目概述 ================= -->
+<section class="section" id="overview">
+    <div class="wrap">
+        <div class="sec-head reveal">
+            <div class="en">Project Overview</div>
+            <h2>项目概述</h2>
+            <p>从古代“以舟为梁”到现代智能自适应的浮桥技术演进</p>
+        </div>
+
+        <!-- 左图右文：flex 行方向 -->
+        <div class="intro">
+            <figure class="intro-fig reveal">
+                <img src="images/front-render.png" alt="自适应浮桥正面效果图">
+            </figure>
+            <div class="intro-text reveal">
+                <p>浮桥是人类历史上最古老的桥梁形式之一，它利用水浮力的自然规律支承自身恒载及活载，以浮动基础代替复杂的水下固定基础。目前国内黄河流域、松花江水系已建造近百座季节性临时浮桥，国外永久或半永久性大型浮桥已达 20 座之多，最大桥长达 2000m 以上。</p>
+                <p>浮桥因架设速度快、跨越江河障碍性能好、承载能力大、便于拆卸、使用灵活等优点，在经济落后、交通基础设施不完善的偏远地区得到广泛应用。</p>
+                <p class="tagline">本项目立足西部大开发与乡村振兴，针对西南山区汛期<strong>浮桥易损毁、传统技术被动适应</strong>的矛盾，运用 TRIZ 理论得出最优方案。</p>
+            </div>
+        </div>
+
+        <!-- 浮桥四大组成 -->
+        <div class="parts-grid">
+            <div class="part-card reveal">
+                <h3>浮箱（桥脚舟）</h3>
+                <p>类似常规桥梁的基础，部分浸没水中产生浮力，平衡上部结构全部荷载；可为箱形浮体、制式舟、民船或钢筋混凝土浮箱。</p>
+            </div>
+            <div class="part-card reveal">
+                <h3>桥跨</h3>
+                <p>直接承载行人与车辆交通荷载的上部结构，提供足够强度与刚度，将各浮箱联结成为整体。</p>
+            </div>
+            <div class="part-card reveal">
+                <h3>锚碇</h3>
+                <p>通过缆索将浮箱锚固于水下地基，在水平面内约束桥体位置，保持浮桥水平稳定。</p>
+            </div>
+            <div class="part-card reveal">
+                <h3>过渡段</h3>
+                <p>设置在浮桥两岸端部，连接固定岸坡与浮动桥体，适应两者间的高差与位移。</p>
+            </div>
+        </div>
+
+        <!-- 实景三栏：attr() + ::after 文字遮罩 -->
+        <div class="scenes">
+            <figure class="scene reveal" data-cap="景区浮桥"><img src="images/bridge-1.jpg" alt="景区浮桥"></figure>
+            <figure class="scene reveal" data-cap="通行浮桥"><img src="images/bridge-2.jpg" alt="通行浮桥"></figure>
+            <figure class="scene reveal" data-cap="救灾浮桥"><img src="images/bridge-3.jpg" alt="救灾浮桥"></figure>
+        </div>
+    </div>
+</section>
+
+<!-- ================= 二、问题描述 ================= -->
+<section class="section section--dark" id="problem">
+    <div class="wrap">
+        <div class="sec-head reveal">
+            <div class="en">Problem Statement</div>
+            <h2>问题描述</h2>
+            <p>技术难题长期困扰，寻找不到合适的解决方案</p>
+        </div>
+
+        <!-- 三大痛点：::before 圆形序号 -->
+        <div class="pain-grid">
+            <div class="pain-card reveal" data-no="1">
+                <h3>随水位变化上下起伏</h3>
+                <p>常见浮桥利用水的浮力将桥面浮起，没有桥墩造价低，但使用时会随河流水位变化而上下起伏。</p>
+            </div>
+            <div class="pain-card reveal" data-no="2">
+                <h3>水浪大时颠簸不稳</h3>
+                <p>水浪较大时颠簸厉害、很不稳定，影响行人与车辆的正常使用和通行安全。</p>
+            </div>
+            <div class="pain-card reveal" data-no="3">
+                <h3>汛期被淹没甚至冲毁</h3>
+                <p>汛期水量激增、水位明显上升，简易结构浮桥不能抵御凶猛河水，被淹没甚至直接冲毁，严重制约当地经济社会发展。</p>
+            </div>
+        </div>
+
+        <!-- 两大结构体系对比 -->
+        <div class="systems">
+            <div class="sys-card reveal">
+                <h3>连续浮箱体系</h3>
+                <ul class="good">
+                    <li>现场工作量小、架设速度快</li>
+                    <li>桥面通行舒适性好、效率高</li>
+                </ul>
+                <ul class="bad">
+                    <li>水阻力大，对行洪影响大，造价较高</li>
+                    <li>标高过低被淹没；过高则桥墩加深、引桥延长、造价提高且不便通行</li>
+                </ul>
+            </div>
+            <div class="sys-card reveal">
+                <h3>离散浮箱体系</h3>
+                <ul class="good">
+                    <li>受力明确、形式变化多样</li>
+                    <li>适应大流速水域</li>
+                </ul>
+                <ul class="bad">
+                    <li>现场拼装步骤多，架设速度较慢</li>
+                    <li>小幅上涨溅水湿滑；大幅上涨完全淹没桥面，无法通行</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 支座破坏三种失稳 -->
+        <div class="pain-grid" style="margin-top:24px">
+            <div class="pain-card reveal" data-no="①">
+                <h3>摩擦力不足</h3>
+                <p>支座摩擦力不足，桥梁梁体发生位移和错位。</p>
+            </div>
+            <div class="pain-card reveal" data-no="②">
+                <h3>剪切破坏</h3>
+                <p>支座剪切角较大，出现剪切破坏和塑性变形失效。</p>
+            </div>
+            <div class="pain-card reveal" data-no="③">
+                <h3>背水面压溃</h3>
+                <p>背水面支座承受压力太大，损失弹性，导致承载力减弱。</p>
+            </div>
+        </div>
+
+        <!-- 因果链分析图 -->
+        <figure class="figure-box reveal">
+            <img src="images/causal-chain.png" alt="因果链分析流程图">
+            <figcaption>图：浮式桥梁结构破坏因果链分析流程</figcaption>
+        </figure>
+    </div>
+</section>
+
+<!-- ================= 三、系统分析 ================= -->
+<section class="section" id="analysis">
+    <div class="wrap">
+        <div class="sec-head reveal">
+            <div class="en">System Analysis</div>
+            <h2>系统分析</h2>
+            <p>运用 TRIZ 五大分析工具，层层剖析问题本质</p>
+        </div>
+
+        <div class="tools-grid">
+            <a class="tool-card reveal" href="#an-causal">
+                <div class="ico">链</div>
+                <h3>因果链分析</h3>
+                <p>主梁板刚度不够、外部荷载过大、支座断裂、未借外力四大根因，导出方案1-9</p>
+                <span class="tap">点击查看详情 →</span>
+            </a>
+            <a class="tool-card reveal" href="#an-resource">
+                <div class="ico">资</div>
+                <h3>资源分析</h3>
+                <p>物质、能量、信息、空间、时间、功能六类资源，导出方案10-11</p>
+                <span class="tap">点击查看详情 →</span>
+            </a>
+            <a class="tool-card reveal" href="#an-nine">
+                <div class="ico">屏</div>
+                <h3>九屏图分析</h3>
+                <p>子系统/系统/超系统 × 过去/现在/未来，导出方案12-14</p>
+                <span class="tap">点击查看详情 →</span>
+            </a>
+            <a class="tool-card reveal" href="#an-stc">
+                <div class="ico">算</div>
+                <h3>STC算子分析</h3>
+                <p>尺寸、时间、成本极限化推演，突破“荷载只能被动承受”的思维定势</p>
+                <span class="tap">点击查看详情 →</span>
+            </a>
+            <a class="tool-card reveal" href="#an-function">
+                <div class="ico">能</div>
+                <h3>功能分析</h3>
+                <p>组件功能与相互作用，识别有益充分/不充分及有害作用，导出方案15-17</p>
+                <span class="tap">点击查看详情 →</span>
+            </a>
+        </div>
+
+        <div class="analy-blocks">
+            <!-- 因果链分析详情 -->
+            <div class="analy-card reveal" id="an-causal">
+                <h3>因果链分析</h3>
+                <p>对“水位大幅上涨造成浮桥被淹没甚至冲毁”逐层追因，先定位梁体漂移、错位、倾覆的直接原因，再向下深挖：</p>
+                <ul class="mini-list">
+                    <li data-no="①"><b>支座部分发生断裂：</b>受洪水冲击时竖向合力与合力弯矩使支座受力失衡，迎水面支座脱空、背水面支座承压，叠加摩擦力不足，最终错位倾覆</li>
+                    <li data-no="②"><b>主梁底板自身刚度不足：</b>铝合金板材与高分子聚乙烯浮箱等轻质材料强度有限，箱型主梁截面抵抗力不足，锚索张拉结构强度不足</li>
+                    <li data-no="③"><b>外部荷载过大：</b>承受水阻力、横风力、波浪力及漂浮物撞击力，交通量持续增加、通行载重变大，系统趋于不稳定</li>
+                    <li data-no="④"><b>外部支撑力过少：</b>仅设锚碇缆索的简单体系能维持水平面稳定，却抵御不了复杂恶劣的洪流冲击</li>
+                </ul>
+                <p>由四条根因共导出 <b>方案1–9</b>，包括均匀支座受力、增强主梁材质、增大截面、增加浮箱、提高缆索等级、限流通量、增设桥墩式构件与组合型桥梁等。</p>
+                <a class="back-tools" href="#problem">↩ 查看上方“因果链分析流程图”</a>
+            </div>
+
+            <!-- 资源分析表 -->
+            <div class="analy-card reveal" id="an-resource">
+                <h3>资源分析</h3>
+                <p>资源彼此关联性较弱；下部构件较多，上部空间可利用；超系统电能与化学能可用于定时监测维护。</p>
+                <div class="table-scroll">
+                    <table class="tbl">
+                        <caption>表1 · 浮式桥梁系统资源分析表</caption>
+                        <thead>
+                        <tr><th>层级</th><th>物质资源</th><th>能量资源</th><th>信息资源</th><th>空间资源</th><th>时间资源</th><th>功能资源</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>系统（浮式桥梁）</td>
+                            <td>—</td>
+                            <td>机械能、水能、风能</td>
+                            <td>力的传递</td>
+                            <td>桥梁所占用的空间</td>
+                            <td>作用时间</td>
+                            <td>支撑人和物体的荷载</td>
+                        </tr>
+                        <tr>
+                            <td>子系统</td>
+                            <td>主梁、桥墩、桩基、引桥、支座、缆索</td>
+                            <td>机械能、水能、风能</td>
+                            <td>力的传递</td>
+                            <td>子系统所占用的空间</td>
+                            <td>作用时间</td>
+                            <td>支撑主梁</td>
+                        </tr>
+                        <tr>
+                            <td>超系统</td>
+                            <td>地基、人、大气环境、水环境</td>
+                            <td>生物能、太阳能、风能、机械能、水能、电能化学能</td>
+                            <td>抵消结构、传递的力</td>
+                            <td>桥梁所处的气候带、地表气层</td>
+                            <td>四季变化</td>
+                            <td>提供支撑</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 九屏图分析详情 -->
+            <div class="analy-card reveal" id="an-nine">
+                <h3>九屏图分析</h3>
+                <p>沿“子系统—系统—超系统”三个层级与“过去—现在—未来”时间轴展开，考察系统的演进方向：</p>
+                <div class="nine-grid">
+                    <div class="nine-cell"><span class="t">子系统 · 过去</span>浮箱 + 铁链简易连接</div>
+                    <div class="nine-cell"><span class="t">子系统 · 现在</span>箱式主梁、支座、引桥、缆索</div>
+                    <div class="nine-cell hot"><span class="t">子系统 · 未来</span>连接钢索、预应力筋、加固支座</div>
+                    <div class="nine-cell"><span class="t">系统 · 过去</span>古代“以舟为梁”</div>
+                    <div class="nine-cell"><span class="t">系统 · 现在</span>随波起伏、汛期损毁的被动浮桥</div>
+                    <div class="nine-cell hot"><span class="t">系统 · 未来</span>水位自适应 + 高度自锁的智能浮桥</div>
+                    <div class="nine-cell"><span class="t">超系统 · 过去</span>—</div>
+                    <div class="nine-cell"><span class="t">超系统 · 现在</span>洪水冲击、交通量增长的外部环境</div>
+                    <div class="nine-cell hot"><span class="t">超系统 · 未来</span>装配式建筑趋势：工厂预制、现场组装，拓宽应用范围</div>
+                </div>
+                <p style="margin-top:16px">由此导出 <b>方案12–14</b>：添加新加固构件、入口限载、主梁底板及加固构件改进为装配式构件。</p>
+            </div>
+
+            <!-- STC算子 -->
+            <div class="analy-card reveal" id="an-stc">
+                <h3>STC 算子分析</h3>
+                <p>通过极限化推演系统要素，将外部荷载的波动性转化为结构自适应的驱动力。</p>
+                <div class="stc-grid">
+                    <div class="stc-item">
+                        <h4>尺寸 S → 0</h4>
+                        <p>毫米级齿扣 + MEMS 纳米咬合表面，压电效应瞬时自锁（&lt;1ms），形状记忆合金弹簧补偿磨损</p>
+                        <div class="eff">抗疲劳寿命 +300%</div>
+                    </div>
+                    <div class="stc-item">
+                        <h4>时间 T → 0</h4>
+                        <p>磁流变液爆震阻尼器：撞击时磁场 100μs 内增至 1.5T，液体瞬时固化吸收 90% 能量</p>
+                        <div class="eff">冲击加速度 500g → 50g</div>
+                    </div>
+                    <div class="stc-item">
+                        <h4>成本 C → 0</h4>
+                        <p>生态浮桥：流域枯木作辅助浮体，淤泥烧制纳米陶瓷涂层，植物根系增强稳定性</p>
+                        <div class="eff">建造成本 −85%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 功能分析表 -->
+            <div class="analy-card reveal" id="an-function">
+                <h3>功能分析</h3>
+                <p>静水浮力与浮箱对桥跨的支撑“有益但不充分”；流水冲击、人和汽车对结构为有害作用。</p>
+                <div class="table-scroll">
+                    <table class="tbl">
+                        <caption>表2 · 浮桥支撑系统功能分析表</caption>
+                        <thead>
+                        <tr><th>序号</th><th>功能组件</th><th>作用</th><th>功能对象</th><th>功能种类</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr><td>1</td><td>地基</td><td>支撑</td><td>锚碇</td><td class="tag-good">有益充分</td></tr>
+                        <tr><td>2</td><td>锚碇</td><td>支撑</td><td>浮箱</td><td class="tag-good">有益充分</td></tr>
+                        <tr><td>3</td><td>静水</td><td>支撑</td><td>浮箱</td><td class="tag-insuff">有益不充分</td></tr>
+                        <tr><td>4</td><td>浮箱</td><td>支撑</td><td>桥跨</td><td class="tag-insuff">有益不充分</td></tr>
+                        <tr><td>5</td><td>桥跨</td><td>支撑</td><td>汽车、人</td><td class="tag-good">有益充分</td></tr>
+                        <tr><td>6</td><td>过渡段</td><td>连接</td><td>桥跨</td><td class="tag-insuff">有益不充分</td></tr>
+                        <tr><td>7</td><td>流水</td><td>损坏</td><td>锚碇</td><td class="tag-harm">有害</td></tr>
+                        <tr><td>8</td><td>人</td><td>损坏</td><td>浮箱</td><td class="tag-harm">有害</td></tr>
+                        <tr><td>9</td><td>汽车</td><td>损坏</td><td>浮箱</td><td class="tag-harm">有害</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= 四、TRIZ 求解 ================= -->
+<section class="section section--dark" id="solve">
+    <div class="wrap">
+        <div class="sec-head reveal">
+            <div class="en">TRIZ Solving</div>
+            <h2>TRIZ 理论解决问题</h2>
+            <p>矛盾分析 · 物场模型 · 最终理想解</p>
+        </div>
+
+        <div class="solve-grid">
+            <!-- 技术矛盾 -->
+            <div class="solve-card reveal">
+                <h3>技术矛盾与创新原理</h3>
+                <div class="param-row">
+                    <span class="p-badge up">改善 No.34</span>
+                    <span>适应性及多用性</span>
+                </div>
+                <div class="param-row">
+                    <span class="p-badge down">恶化 No.15</span>
+                    <span>运动物体的时间</span>
+                </div>
+                <div class="param-row">
+                    <span class="p-badge up">改善 No.14</span>
+                    <span>强度</span>
+                </div>
+                <div class="param-row">
+                    <span class="p-badge down">恶化 No.21</span>
+                    <span>静止物体的重量</span>
+                </div>
+                <p style="font-size:13.5px;opacity:.8;margin-top:10px">查矛盾矩阵，评估可用创新原理：</p>
+                <div class="principles">
+                    <span>13 · 反向作用 ✓</span>
+                    <span>35 · 改变物理或化学参数 ✓</span>
+                    <span>40 · 复合材料 ✓</span>
+                    <span class="reject">1 · 分割</span>
+                    <span class="reject">26 · 复制</span>
+                    <span class="reject">27 · 廉价替代品</span>
+                </div>
+            </div>
+
+            <!-- 物理矛盾 -->
+            <div class="solve-card reveal">
+                <h3>物理矛盾与分离原理</h3>
+                <p style="font-size:14px;opacity:.85"><b style="color:#ffc4b8">矛盾一：</b>主梁底板在荷载与自重作用下，既要薄又要厚</p>
+                <p style="font-size:14px;opacity:.85;margin-top:8px"><b style="color:#ffc4b8">矛盾二：</b>桥梁既要灵活运动以适应突变水情，又要静止稳定以承载荷载</p>
+                <div class="principles">
+                    <span>时间分离（预先反向作用）</span>
+                    <span>条件分离（升降+离合自锁）</span>
+                </div>
+                <figure class="phys-fig">
+                    <img src="images/physical-contradiction.png" alt="物理矛盾分析图">
+                </figure>
+            </div>
+        </div>
+
+        <!-- 物场模型 -->
+        <div class="solve-card reveal" style="margin-top:24px">
+            <h3>物场模型分析</h3>
+            <p style="font-size:14px;opacity:.85">浮力场（场）作用于箱式主梁（工件），浮式桥梁（工具）效应不足——主梁无法承受水流冲击，系统稳定性不足。解法：加入新物质与新场。</p>
+            <div class="sufield-flow">
+                <span class="node">浮力场</span>
+                <span class="arrow">→</span>
+                <span class="node">浮式桥梁 × 箱式主梁</span>
+                <span class="arrow">→ 效应不足，引入 →</span>
+                <span class="node hot">机械场</span>
+                <span class="arrow">+</span>
+                <span class="node hot">齿轴 / 离合式齿扣新构件</span>
+            </div>
+        </div>
+
+        <!-- IFR 最终理想解 -->
+        <div class="solve-card reveal" style="margin-top:24px">
+            <h3>最终理想解（IFR）六问</h3>
+            <ul class="ifr-list">
+                <li><b>最终目标：</b>避免水位大幅上涨造成浮桥被淹没甚至冲毁</li>
+                <li><b>最终理想解：</b>主梁随水位自动调整高度并自锁，不被淹没、不随水位颠簸</li>
+                <li><b>障碍：</b>受力环境复杂，迎水面与背水面支座受力失衡，梁体位移错位</li>
+                <li><b>障碍原因：</b>主梁底板没有足够构件抵抗水流冲击，支座容易断裂</li>
+                <li><b>不出现障碍的条件：</b>充分利用已有结构减轻水流冲击，主梁随水位自动调整高度</li>
+                <li><b>所用资源：</b>主梁箱体、自动调节高度支座、离合式齿扣和箱体齿轴</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- ================= 五、技术方案 ================= -->
+<section class="section" id="solution">
+    <div class="wrap">
+        <div class="sec-head reveal">
+            <div class="en">Technical Solution</div>
+            <h2>技术方案</h2>
+            <p>齿轴—齿扣升降自锁结构，实现水位自适应与平稳锁定</p>
+        </div>
+
+        <div class="gallery">
+            <figure class="g-item reveal" data-cap="自动锁定高度支座结构图">
+                <div class="g-img"><img src="images/support-structure.png" alt="自动锁定高度支座结构图"></div>
+                <figcaption class="g-cap"><h3>① 自动锁定高度支座结构</h3><p>外壳、齿扣、滑轮、弹簧、拖拽手柄五大部分</p></figcaption>
+            </figure>
+            <figure class="g-item reveal" data-cap="自动调节高度支座俯视结构图">
+                <div class="g-img"><img src="images/support-topview.png" alt="自动调节高度支座俯视结构图"></div>
+                <figcaption class="g-cap"><h3>② 支座俯视结构</h3><p>开设孔洞、离心齿扣与固定齿柱，安装孔定位桥墩</p></figcaption>
+            </figure>
+            <figure class="g-item reveal" data-cap="浮桥正面工程图">
+                <div class="g-img"><img src="images/front-drawing.png" alt="浮桥正面工程图"></div>
+                <figcaption class="g-cap"><h3>③ 浮桥正面工程图</h3><p>引桥承台、滑轮、引桥板、合页铰、主梁、齿柱与桥墩</p></figcaption>
+            </figure>
+            <figure class="g-item reveal" data-cap="自适应浮桥轴测图">
+                <div class="g-img"><img src="images/axonometric.png" alt="自适应浮桥轴测图"></div>
+                <figcaption class="g-cap"><h3>④ 浮桥轴测图</h3><p>5 节封闭式主梁箱体沿桥走向前后接续</p></figcaption>
+            </figure>
+            <figure class="g-item reveal" data-cap="自适应浮桥正面效果图">
+                <div class="g-img"><img src="images/front-render.png" alt="自适应浮桥正面效果图"></div>
+                <figcaption class="g-cap"><h3>⑤ 正面效果图</h3><p>主梁箱体前后两端通过自动调节高度支座架设在桥墩上</p></figcaption>
+            </figure>
+            <figure class="g-item reveal" data-cap="主体结构细节图">
+                <div class="g-img"><img src="images/structure-detail.png" alt="主体结构细节图"></div>
+                <figcaption class="g-cap"><h3>⑥ 主体结构细节</h3><p>过水孔隙、箱式主梁、桥墩与自动锁定高度支座</p></figcaption>
+            </figure>
+        </div>
+
+        <!-- 工作原理四步骤 -->
+        <div class="steps-grid">
+            <div class="step-card reveal">
+                <div class="step-no">01</div>
+                <h3>浮力推动上移</h3>
+                <p>水位上涨至主梁腹部，河水对主梁箱体产生向上浮力，推动主梁箱体与齿轴上移。</p>
+            </div>
+            <div class="step-card reveal">
+                <div class="step-no">02</div>
+                <h3>齿扣错位打开</h3>
+                <p>齿轴对离合式齿扣施加压力，齿板克服压缩弹簧弹力分离，齿与齿相对错动，保证灵活升降。</p>
+            </div>
+            <div class="step-card reveal">
+                <div class="step-no">03</div>
+                <h3>平衡停止上移</h3>
+                <p>待浮力与主梁箱体重量平衡后，主梁箱体停止上移，桥梁升至最高水位对应位置。</p>
+            </div>
+            <div class="step-card reveal">
+                <div class="step-no">04</div>
+                <h3>压力解除锁定</h3>
+                <p>齿扣压力解除，四块齿板靠弹簧弹力恢复闭合、与齿轴重新啮合，主梁锁定不能下移。</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= 六、施工方法 ================= -->
+<section class="section" id="construct">
+    <div class="wrap">
+        <div class="sec-head reveal">
+            <div class="en">Construction Method</div>
+            <h2>施工方法</h2>
+            <p>装配式预制 + 现场快速组装，化弊为利、零能耗驱动</p>
+        </div>
+
+        <div class="timeline">
+            <div class="tl-item reveal">
+                <h3>① 制作主梁箱体</h3>
+                <p>工厂预制 5 节可在水中浮起的封闭式主梁箱体，事先在前后两端底面开设一组安装孔，并将齿轴通过孔道固定于箱体。</p>
+            </div>
+            <div class="tl-item reveal">
+                <h3>② 制作升降装置</h3>
+                <p>预制外壳、四块齿板（离合式齿扣）、压缩弹簧、滑轮与拖拽手柄，将齿轴与离合式齿扣逐个组装为升降装置。</p>
+            </div>
+            <div class="tl-item reveal">
+                <h3>③ 桥墩现场架设</h3>
+                <p>在河道设计位置浇筑桥墩，定位安装孔，吊装自动调节高度支座并完成支座与桥墩的固定。</p>
+            </div>
+            <div class="tl-item reveal">
+                <h3>④ 安装主梁箱体构成主梁</h3>
+                <p>将 5 节主梁箱体沿桥走向前后接续吊装，前后两端支座落位于桥墩，节段间通过合页铰连接形成整体主梁。</p>
+            </div>
+            <div class="tl-item reveal">
+                <h3>⑤ 过渡段与验收</h3>
+                <p>两岸架设引桥承台、引桥板与过渡段，调试齿轴—齿扣升降与自锁动作，验收后投入使用。</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ================= 页脚 ================= -->
+<footer class="footer">
+    <div class="wrap">
+        <h3>浮舟智控团队</h3>
+        <div class="meta">
+            作品名称：基于TRIZ理论的自适应浮桥结构及其施工方法的设计<br>
+            第十一届辽宁省“TRIZ”杯大学生创新方法大赛 · 创新设计类<br>
+            申报日期：2025 年 9 月 4 日
+        </div>
+        <div class="copy">© 2025 浮舟智控团队 · 本页内容依据作品申报书与答辩 PPT 整理制作 · 原生 HTML / CSS / JavaScript</div>
+    </div>
+</footer>
+
+<!-- 返回顶部按钮 -->
+<button id="toTop" title="返回顶部">↑</button>
+
+<!-- 灯箱 -->
+<div class="lightbox" id="lightbox">
+    <button class="lb-close" id="lbClose">×</button>
+    <img id="lbImg" src="" alt="">
+    <div class="lb-cap" id="lbCap"></div>
+</div>
+
+<script>
+/* =========================================================
+   原生 JavaScript：
+   1. 导航滚动样式 + 返回顶部显隐
+   2. scrollspy 滚动监听高亮当前栏目
+   3. IntersectionObserver 滚动进入动画 + 数字增长
+   4. 图廊灯箱
+   ========================================================= */
+
+// ---------- 1. 导航与返回顶部 ----------
+var nav = document.getElementById('nav');
+var toTop = document.getElementById('toTop');
+
+window.addEventListener('scroll', function () {
+    var y = window.scrollY || document.documentElement.scrollTop;
+    if (y > 60) {
+        nav.classList.add('scrolled');
+        toTop.classList.add('show');
+    } else {
+        nav.classList.remove('scrolled');
+        toTop.classList.remove('show');
+    }
+});
+
+toTop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// ---------- 2. scrollspy 导航高亮 ----------
+var navLinks = document.querySelectorAll('.nav-menu a');
+var sections = [];
+navLinks.forEach(function (a) {
+    var id = a.getAttribute('href').slice(1);
+    var el = document.getElementById(id);
+    if (el) sections.push({ el: el, link: a });
+});
+
+function spy() {
+    var pos = (window.scrollY || 0) + 120;
+    var current = null;
+    sections.forEach(function (s) {
+        if (s.el.offsetTop <= pos) current = s;
+    });
+    navLinks.forEach(function (a) { a.classList.remove('active'); });
+    if (current) current.link.classList.add('active');
+}
+window.addEventListener('scroll', spy);
+spy();
+
+// ---------- 3. 滚动进入动画 ----------
+var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('in');
+            // 若内部有计数器，触发数字动画
+            var counters = entry.target.querySelectorAll('[data-count]');
+            counters.forEach(runCount);
+            io.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.reveal').forEach(function (el) {
+    io.observe(el);
+});
+
+// ---------- 数字增长动画 ----------
+var counted = new WeakSet();
+function runCount(el) {
+    if (counted.has(el)) return;
+    counted.add(el);
+    var target = parseInt(el.getAttribute('data-count'), 10);
+    var dur = 1200;
+    var start = null;
+    function step(ts) {
+        if (!start) start = ts;
+        var p = Math.min((ts - start) / dur, 1);
+        // easeOutCubic 缓动
+        var v = Math.round(target * (1 - Math.pow(1 - p, 3)));
+        el.textContent = v;
+        if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+}
+
+// ---------- 4. 图廊灯箱 ----------
+var lightbox = document.getElementById('lightbox');
+var lbImg = document.getElementById('lbImg');
+var lbCap = document.getElementById('lbCap');
+
+document.querySelectorAll('.g-item').forEach(function (item) {
+    item.addEventListener('click', function () {
+        var img = item.querySelector('img');
+        lbImg.src = img.src;
+        lbCap.textContent = item.getAttribute('data-cap') || '';
+        lightbox.classList.add('show');
+    });
+});
+
+function closeLb() { lightbox.classList.remove('show'); }
+document.getElementById('lbClose').addEventListener('click', closeLb);
+lightbox.addEventListener('click', function (e) {
+    if (e.target === lightbox) closeLb();
+});
+// ESC 关闭灯箱
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeLb();
+});
+</script>
+
+</body>
+</html>

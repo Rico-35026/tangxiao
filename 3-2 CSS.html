@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>932 唐笑</title>
+    <style>
+        h3{
+            color: red;
+        }
+        p{
+            color: blue;
+        }
+        /* 标签选择器，选择器名称为标签 */
+        #box{
+            width: 500px;
+            height: 500px;
+            background-color: #ccc;
+        }
+        /*id选择器，选择器名称为#id名*/
+        /* 类选择器，选择器名称为.类名 */
+        .n1{
+            color: red;
+        }
+        .n2{
+            color: green;
+        }
+
+        /* 扩展1：h2黑底白字 */
+        h2{
+            background-color: black;
+            color: white;
+        }
+        /* 扩展3：“选择器”三个字白色（类选择器优先级高于标签选择器，会覆盖h3的红色） */
+        .white{
+            color: white;
+        }
+        /* 扩展4：新盒子，有宽高和背景 */
+        #box2{
+            width: 300px;
+            height: 100px;
+            background-color: rgb(192, 205, 255);
+        }
+    </style>
+</head>
+<body>
+    <h2>层叠样式表</h2>
+    <div id = "box">
+        <h3>css<span class="white">选择器</span></h3>
+        <p><span class="n1">唐</span><span class="n2">笑</span></p>
+        <p>CSS属性</p>
+
+    </div>
+    <!-- 扩展4：新盒子，文字为24001010903 -->
+    <div id="box2">24001010932</div>
+    <!--扩展1.h2黑底白字
+        2.张耀夫每个字不同颜色，在同一行
+        3.选择器三个字是白色
+        4.新加一个盒子，盒子里的文字是24001010932，盒子有宽高背景
+    -->
+</body>
+</html>

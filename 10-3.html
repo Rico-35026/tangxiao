@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10-3 媒体查询 · 唐笑</title>
+<style>
+/* ============================================================
+   全屏盒子：viewport 宽度变化时，背景颜色随之切换
+   ============================================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* ============================================================
+   根字号：所有 rem 单位都以 html 的 font-size 为基准
+   视口变化时，只调整 html 的 font-size，全部 rem 文字同步缩放
+   ============================================================ */
+html {
+    font-size: 18px;                /* 默认（> 1200px）基准 */
+    height: 100%;
+}
+
+html, body {
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: #fff;
+}
+
+body { height: 100%; }
+
+/* 全屏盒子：默认（超宽屏，>1200px）靛紫色 */
+.box {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    background: #4c1d95;            /* 默认：靛紫 */
+    transition: background-color .6s ease;
+}
+
+.box h1 {
+    font-size: 2.2rem;               /* rem：相对根字号 */
+    letter-spacing: 4px;
+    margin-bottom: 14px;
+    transition: font-size .4s ease;
+}
+
+.box p {
+    font-size: 1rem;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, .88);
+    transition: font-size .4s ease;
+}
+
+.box .me {
+    margin-top: 26px;
+    font-size: .85rem;
+    letter-spacing: 2px;
+    color: #ffd9b8;
+    transition: font-size .4s ease;
+}
+
+/* 当前断点提示 */
+.tip {
+    margin-top: 36px;
+    padding: .6rem 1.4rem;
+    font-size: .8rem;
+    letter-spacing: 1px;
+    background: rgba(255, 255, 255, .18);
+    border: 1px solid rgba(255, 255, 255, .35);
+    border-radius: 50px;
+    transition: font-size .4s ease, padding .4s ease;
+}
+
+/* ============================================================
+   媒体查询：根据 viewport 宽度切换背景颜色
+   ============================================================ */
+
+/* ≤ 1200px：靛蓝 */
+@media (max-width: 1200px) {
+    html { font-size: 17px; }       /* 根字号缩小，所有 rem 文字同步缩小 */
+    .box {
+        background: #1e3a8a;
+    }
+    .tip::after { content: "当前断点：≤ 1200px · 靛蓝 · 根字号 17px"; }
+}
+
+/* ≤ 992px：青绿 */
+@media (max-width: 992px) {
+    html { font-size: 16px; }
+    .box {
+        background: #0e7c86;
+    }
+    .tip::after { content: "当前断点：≤ 992px · 青绿 · 根字号 16px"; }
+}
+
+/* ≤ 768px：琥珀橙 */
+@media (max-width: 768px) {
+    html { font-size: 15px; }
+    .box {
+        background: #f97d3c;
+    }
+    .tip::after { content: "当前断点：≤ 768px · 琥珀橙 · 根字号 15px"; }
+}
+
+/* ≤ 576px：莓粉 */
+@media (max-width: 576px) {
+    html { font-size: 13px; }
+    .box {
+        background: #ec4899;
+    }
+    .box h1 { letter-spacing: 2px; }
+    .tip::after { content: "当前断点：≤ 576px · 莓粉 · 根字号 13px"; }
+}
+
+/* 默认（> 1200px）的提示文本 */
+.tip::after { content: "当前断点：> 1200px · 靛紫 · 根字号 18px"; }
+</style>
+</head>
+<body>
+
+    <div class="box">
+        <h1>视口变化 · 背景变色</h1>
+        <p>拖动浏览器窗口宽度，背景颜色会随 viewport 切换</p>
+        <p class="me">唐笑 · 24001010932 · 《高级网页设计I》</p>
+        <div class="tip"></div>
+    </div>
+
+</body>
+</html>

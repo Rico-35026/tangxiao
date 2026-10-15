@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>随机图片画廊</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 40px 20px;
+        }
+
+        .tang_container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .tang_header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .tang_header h1 {
+            font-size: 2.2rem;
+            color: #e94560;
+            margin-bottom: 10px;
+        }
+
+        .tang_header p {
+            color: #a0a0a0;
+        }
+
+        .tang_btn {
+            display: inline-block;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(135deg, #e94560, #c0392b);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .tang_btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(233, 69, 96, 0.4);
+        }
+
+        .tang_btn:active {
+            transform: translateY(0);
+        }
+
+        .tang_gallery {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+        }
+
+        .tang_gallery-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 4 / 3;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: tang_fade-in 0.6s ease forwards;
+            opacity: 0;
+        }
+
+        .tang_gallery-item:nth-child(1) { animation-delay: 0.1s; }
+        .tang_gallery-item:nth-child(2) { animation-delay: 0.2s; }
+        .tang_gallery-item:nth-child(3) { animation-delay: 0.3s; }
+        .tang_gallery-item:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes tang_fade-in {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .tang_gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .tang_gallery-item:hover img {
+            transform: scale(1.08);
+        }
+
+        .tang_gallery-item .tang_overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 15px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            font-size: 0.9rem;
+            color: #fff;
+        }
+
+        .tang_footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 600px) {
+            .tang_gallery {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="tang_container">
+        <header class="tang_header">
+            <h1>随机图片画廊</h1>
+            <p>从图片库中随机展示 4 张图片</p>
+        </header>
+
+        <div style="text-align: center;">
+            <button class="tang_btn" id="tang_refresh-btn">换一批</button>
+        </div>
+
+        <div class="tang_gallery" id="tang_gallery"></div>
+
+        <footer class="tang_footer">
+            <p>随机图片画廊 | 点击"换一批"重新随机选取</p>
+        </footer>
+    </div>
+
+    <script>
+        (function() {
+            var tang_allImages = [
+                'img/1.png',
+                'img/2.png',
+                'img/3.jpg',
+                'img/4.jpg',
+                'img/5.png',
+                'img/6.png',
+                'img/7.png'
+            ];
+
+            var tang_gallery = document.getElementById('tang_gallery');
+            var tang_refreshBtn = document.getElementById('tang_refresh-btn');
+
+            function tang_getRandomImages(tang_arr, tang_count) {
+                var tang_shuffled = tang_arr.slice();
+                for (var tang_i = tang_shuffled.length - 1; tang_i > 0; tang_i--) {
+                    var tang_j = Math.floor(Math.random() * (tang_i + 1));
+                    var tang_temp = tang_shuffled[tang_i];
+                    tang_shuffled[tang_i] = tang_shuffled[tang_j];
+                    tang_shuffled[tang_j] = tang_temp;
+                }
+                return tang_shuffled.slice(0, tang_count);
+            }
+
+            function tang_renderGallery() {
+                var tang_randomImages = tang_getRandomImages(tang_allImages, 4);
+                tang_gallery.innerHTML = '';
+
+                for (var tang_i = 0; tang_i < tang_randomImages.length; tang_i++) {
+                    (function(tang_index) {
+                        var tang_item = document.createElement('div');
+                        tang_item.className = 'tang_gallery-item';
+
+                        var tang_img = document.createElement('img');
+                        tang_img.src = tang_randomImages[tang_index];
+                        tang_img.alt = '图片 ' + (tang_index + 1);
+
+                        var tang_overlay = document.createElement('div');
+                        tang_overlay.className = 'tang_overlay';
+                        tang_overlay.textContent = tang_randomImages[tang_index].split('/').pop();
+
+                        tang_item.appendChild(tang_img);
+                        tang_item.appendChild(tang_overlay);
+                        tang_gallery.appendChild(tang_item);
+                    })(tang_i);
+                }
+            }
+
+            tang_refreshBtn.addEventListener('click', tang_renderGallery);
+
+            tang_renderGallery();
+        })();
+    </script>
+</body>
+</html>

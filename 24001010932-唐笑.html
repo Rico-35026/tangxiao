@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>网页元素设计实验 · 24001010932 唐笑</title>
+<style>
+/* ============================================================
+   公共 CSS（对每个页面、每个元素都相同的基础样式）
+   群组选择器 *：margin/padding 清零；盒模型 box-sizing
+   ============================================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* 主题色变量（取自三级项目《自适应浮桥》设计稿的测量值） */
+:root {
+    --navy:   #0b2540;   /* 深蓝主色 */
+    --navy-2: #123c63;
+    --teal:   #0e7c86;   /* 蓝绿 */
+    --cyan:   #4cd0c0;   /* 高亮青 */
+    --gold:   #dcb86a;   /* TRIZ 杯金 */
+    --ink:    #1f2d3a;   /* 正文深色 */
+    --paper:  #f3f8fa;   /* 页面浅底 */
+    --white:  #ffffff;
+}
+
+/* 标签选择器设置公共样式 */
+body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.75;
+}
+
+img { display: block; max-width: 100%; }
+ul { list-style: none; }
+a { text-decoration: none; color: inherit; }
+
+/* 通用容器：设计稿测量宽度 1120，左右内边距 24 */
+.wrap {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* ============================================================
+   实验信息头（仅用于说明本成品包含的三个元素，便于截图比对）
+   ============================================================ */
+.doc-head {
+    background: linear-gradient(160deg, var(--navy) 0%, var(--navy-2) 60%, var(--teal) 130%);
+    color: #eaf4f6;
+    padding: 40px 0;
+    text-align: center;
+}
+
+.doc-head h1 {
+    font-size: 26px;
+    letter-spacing: 3px;
+}
+
+.doc-head p {
+    margin-top: 10px;
+    font-size: 14px;
+    color: rgba(234, 244, 246, .8);
+}
+
+.doc-head .meta {
+    margin-top: 16px;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 1px;
+}
+
+/* 每个元素区块 */
+.block { padding: 56px 0 8px; }
+
+/* 元素类型标签条：说明下面还原的是哪个元素 */
+.block-label {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 22px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #dce8ec;
+}
+
+.block-label .b-no {
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    background: var(--teal);
+    border-radius: 6px;
+    padding: 2px 10px;
+}
+
+.block-label h2 {
+    font-size: 19px;
+    color: var(--navy);
+    letter-spacing: 1px;
+}
+
+.block-label span {
+    font-size: 13px;
+    color: #70808d;
+}
+
+/* ============================================================
+   元素一：导航栏 —— 一左一右布局
+   display:flex + justify-content:space-between（不使用 float）
+   高度按设计稿测量值：68px
+   ============================================================ */
+.nav {
+    background: var(--navy);   /* 还原设计稿滚动后的实心显示状态 */
+}
+
+.nav-inner {
+    height: 68px;
+    display: flex;
+    justify-content: space-between;  /* 一左一右：两端对齐 */
+    align-items: center;
+}
+
+/* 左侧品牌：图形标志 + 文字，flex 横向排列 */
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #fff;
+}
+
+/* 标志图形：用 CSS 渐变画抽象浮桥图标（也可到 iconfont.cn 下载 png 代替） */
+.logo-mark {
+    width: 30px;
+    height: 22px;
+    border-radius: 4px;
+    background:
+        linear-gradient(var(--cyan), var(--cyan)) 6px 12px / 18px 3px no-repeat,
+        linear-gradient(var(--gold), var(--gold)) 9px 6px / 4px 10px no-repeat,
+        linear-gradient(var(--gold), var(--gold)) 19px 6px / 4px 10px no-repeat;
+}
+
+/* 右侧菜单：flex 横向排列 */
+.nav-menu {
+    display: flex;
+    gap: 6px;
+}
+
+.nav-menu a {
+    display: block;
+    padding: 8px 14px;
+    font-size: 14.5px;
+    color: rgba(255, 255, 255, .82);
+    border-radius: 8px;
+}
+
+/* 当前页高亮项的静态显示效果 */
+.nav-menu a.current {
+    color: var(--navy);
+    background: var(--cyan);
+    font-weight: 600;
+}
+
+/* ============================================================
+   元素二：项目概述 —— 左图右文布局
+   display:flex（行方向）：图在左、文字在右；间距 44
+   ============================================================ */
+.intro {
+    display: flex;
+    gap: 44px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* 左侧图片：基准宽 380，圆角 16 */
+.intro-fig {
+    flex: 1 1 380px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 28px rgba(11, 37, 64, .12);
+}
+
+/* 右侧文字：基准宽 420 */
+.intro-text { flex: 1 1 420px; }
+
+.intro-text p {
+    margin-bottom: 14px;
+    font-size: 15.5px;
+    color: #3c4d5b;
+    text-indent: 2em;
+}
+
+/* 结尾强调条：左侧蓝绿色竖线 */
+.intro-text .tagline {
+    text-indent: 0;
+    margin-top: 6px;
+    padding: 14px 18px;
+    border-left: 4px solid var(--teal);
+    background: #e9f4f4;
+    border-radius: 0 10px 10px 0;
+    font-size: 14.5px;
+    color: var(--navy-2);
+}
+
+.intro-text .tagline strong { color: var(--teal); }
+
+/* ============================================================
+   元素三：技术方案图廊 —— 上图下文布局
+   外层用 grid 排列卡片；每张卡片内部 display:flex;flex-direction:column
+   实现图片在上、标题说明在下
+   ============================================================ */
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 22px;
+    padding-bottom: 60px;
+}
+
+/* 单张图卡：上图下文（flex 列方向） */
+.g-item {
+    background: var(--white);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 10px 28px rgba(11, 37, 64, .09);
+    display: flex;
+    flex-direction: column;   /* 上图下文：列方向排列 */
+}
+
+/* 图片区：高 230，图片完整包含 */
+.g-img { overflow: hidden; }
+
+.g-img img {
+    width: 100%;
+    height: 230px;
+    object-fit: contain;
+    background: #fbfdfe;
+    padding: 10px;
+}
+
+/* 文字区：在图片下方 */
+.g-cap { padding: 16px 20px 20px; }
+
+.g-cap h3 {
+    font-size: 15.5px;
+    color: var(--navy);
+}
+
+.g-cap p {
+    font-size: 13px;
+    color: #70808d;
+    margin-top: 4px;
+}
+
+/* ============================================================
+   页脚署名
+   ============================================================ */
+.doc-foot {
+    background: var(--navy);
+    color: rgba(234, 244, 246, .7);
+    text-align: center;
+    font-size: 13px;
+    padding: 22px 0;
+    letter-spacing: 1px;
+}
+</style>
+</head>
+<body>
+
+<!-- 实验信息头 -->
+<header class="doc-head">
+    <div class="wrap">
+        <h1>网页元素设计 · 实验成品</h1>
+        <p>三级项目选题：《基于 TRIZ 理论的自适应浮桥结构及其施工方法》</p>
+        <p class="meta">24001010932 · 唐笑 · 高级网页设计I</p>
+    </div>
+</header>
+
+<!-- ==================== 元素一：导航（一左一右） ==================== -->
+<section class="block">
+    <div class="wrap">
+        <div class="block-label">
+            <span class="b-no">元素一</span>
+            <h2>导航栏</h2>
+            <span>布局类型：一左一右（flex + space-between）</span>
+        </div>
+    </div>
+
+    <!-- 还原的导航元素 -->
+    <nav class="nav">
+        <div class="wrap nav-inner">
+            <a class="logo" href="#top">
+                <span class="logo-mark"></span>
+                浮舟智控
+            </a>
+            <ul class="nav-menu">
+                <li><a href="#overview">项目概述</a></li>
+                <li><a href="#problem">问题描述</a></li>
+                <li><a href="#analysis" class="current">系统分析</a></li>
+                <li><a href="#solve">TRIZ求解</a></li>
+                <li><a href="#solution">技术方案</a></li>
+                <li><a href="#construct">施工方法</a></li>
+            </ul>
+        </div>
+    </nav>
+</section>
+
+<!-- ==================== 元素二：项目概述（左图右文） ==================== -->
+<section class="block">
+    <div class="wrap">
+        <div class="block-label">
+            <span class="b-no">元素二</span>
+            <h2>项目概述</h2>
+            <span>布局类型：左图右文（flex 行方向）· 含图片</span>
+        </div>
+
+        <!-- 还原的左图右文元素 -->
+        <div class="intro">
+            <figure class="intro-fig">
+                <img src="images/front-render.png" alt="自适应浮桥正面效果图">
+            </figure>
+            <div class="intro-text">
+                <p>浮桥是人类历史上最古老的桥梁形式之一，它利用水浮力的自然规律支承自身恒载及活载，以浮动基础代替复杂的水下固定基础。目前国内黄河流域、松花江水系已建造近百座季节性临时浮桥，国外永久或半永久性大型浮桥已达 20 座之多，最大桥长达 2000m 以上。</p>
+                <p>浮桥因架设速度快、跨越江河障碍性能好、承载能力大、便于拆卸、使用灵活等优点，在经济落后、交通基础设施不完善的偏远地区得到广泛应用。</p>
+                <p class="tagline">本项目立足西部大开发与乡村振兴，针对西南山区汛期<strong>浮桥易损毁、传统技术被动适应</strong>的矛盾，运用 TRIZ 理论得出最优方案。</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== 元素三：技术方案图廊（上图下文） ==================== -->
+<section class="block">
+    <div class="wrap">
+        <div class="block-label">
+            <span class="b-no">元素三</span>
+            <h2>技术方案图廊</h2>
+            <span>布局类型：上图下文（flex 列方向）· 含图片</span>
+        </div>
+
+        <!-- 还原的上图下文元素（选取三张典型图） -->
+        <div class="gallery">
+            <figure class="g-item">
+                <div class="g-img">
+                    <img src="images/support-structure.png" alt="自动锁定高度支座结构图">
+                </div>
+                <figcaption class="g-cap">
+                    <h3>① 自动锁定高度支座结构</h3>
+                    <p>外壳、齿扣、滑轮、弹簧、拖拽手柄五大部分</p>
+                </figcaption>
+            </figure>
+
+            <figure class="g-item">
+                <div class="g-img">
+                    <img src="images/front-drawing.png" alt="浮桥正面工程图">
+                </div>
+                <figcaption class="g-cap">
+                    <h3>② 浮桥正面工程图</h3>
+                    <p>引桥承台、滑轮、引桥板、合页铰、主梁、齿柱与桥墩</p>
+                </figcaption>
+            </figure>
+
+            <figure class="g-item">
+                <div class="g-img">
+                    <img src="images/front-render.png" alt="自适应浮桥正面效果图">
+                </div>
+                <figcaption class="g-cap">
+                    <h3>③ 浮桥正面效果图</h3>
+                    <p>主梁箱体通过自动调节高度支座架设在桥墩上</p>
+                </figcaption>
+            </figure>
+        </div>
+    </div>
+</section>
+
+<!-- 署名 -->
+<footer class="doc-foot">
+    24001010932 · 唐笑 · 《高级网页设计I》网页元素设计实验
+</footer>
+
+</body>
+</html>

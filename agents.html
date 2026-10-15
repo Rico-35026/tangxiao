@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>项目规则</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 40px 20px;
+        }
+
+        .tang_container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .tang_header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid #e94560;
+            margin-bottom: 40px;
+        }
+
+        .tang_header h1 {
+            font-size: 2.2rem;
+            color: #e94560;
+            margin-bottom: 10px;
+        }
+
+        .tang_header p {
+            color: #a0a0a0;
+        }
+
+        .tang_section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tang_section h2 {
+            color: #e94560;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .tang_section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .tang_section li {
+            padding: 10px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #d0d0d0;
+            line-height: 1.6;
+        }
+
+        .tang_section li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #e94560;
+        }
+
+        .tang_section code {
+            background: rgba(233, 69, 96, 0.15);
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #e94560;
+            font-family: 'Consolas', monospace;
+        }
+
+        .tang_footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="tang_container">
+        <header class="tang_header">
+            <h1>项目规则</h1>
+            <p>开发过程中必须遵守的规范</p>
+        </header>
+
+        <section class="tang_section">
+            <h2>命名规范</h2>
+            <ul>
+                <li>所有 CSS 类名必须以 <code>tang_</code> 开头</li>
+                <li>所有 ID 名必须以 <code>tang_</code> 开头</li>
+                <li>所有 JS 变量必须以 <code>tang_</code> 开头</li>
+            </ul>
+        </section>
+
+        <section class="tang_section">
+            <h2>提示词记录</h2>
+            <ul>
+                <li>所有提示词在执行之前必须写入文件 <code>tang_prompt.md</code></li>
+                <li>以追加方式写入，不覆盖之前的内容</li>
+                <li>写入内容包括：
+                    <ul>
+                        <li>时间（格式：<code>yyyy-mm-dd-hh-mm</code>）</li>
+                        <li>使用的模型</li>
+                        <li>提示词内容</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <section class="tang_section">
+            <h2>代码风格</h2>
+            <ul>
+                <li>使用 4 个空格缩进，不使用 Tab</li>
+                <li>CSS 属性按功能分组：定位 → 盒模型 → 文字 → 视觉 → 其他</li>
+                <li>CSS 属性按字母顺序排列</li>
+                <li>使用单引号包裹字符串</li>
+                <li>语句结尾必须添加分号</li>
+                <li>选择器与左大括号之间保留一个空格</li>
+                <li>冒号后保留一个空格</li>
+            </ul>
+        </section>
+
+        <section class="tang_section">
+            <h2>文件命名</h2>
+            <ul>
+                <li>文件名全部使用小写字母</li>
+                <li>多个单词之间使用连字符 <code>-</code> 分隔</li>
+                <li>HTML 文件使用 <code>.html</code> 扩展名</li>
+                <li>CSS 文件使用 <code>.css</code> 扩展名</li>
+                <li>JS 文件使用 <code>.js</code> 扩展名</li>
+                <li>图片资源放在 <code>images/</code> 目录下</li>
+                <li>样式文件放在 <code>css/</code> 目录下</li>
+                <li>脚本文件放在 <code>js/</code> 目录下</li>
+            </ul>
+        </section>
+
+        <section class="tang_section">
+            <h2>注释规范</h2>
+            <ul>
+                <li>所有 HTML 文件必须包含文件用途的顶部注释</li>
+                <li>复杂 CSS 规则必须添加注释说明用途</li>
+                <li>JS 函数必须添加 JSDoc 风格注释</li>
+                <li>注释使用中文编写</li>
+                <li>临时注释使用 <code>// TODO:</code> 标记</li>
+                <li>废弃代码直接删除，不保留注释掉的代码</li>
+            </ul>
+        </section>
+
+        <section class="tang_section">
+            <h2>Git 提交规范</h2>
+            <ul>
+                <li>提交信息使用中文编写</li>
+                <li>格式：<code>类型: 描述</code></li>
+                <li>类型包括：<code>feat</code>（新功能）、<code>fix</code>（修复）、<code>docs</code>（文档）、<code>style</code>（样式）、<code>refactor</code>（重构）、<code>chore</code>（杂项）</li>
+                <li>每次提交只包含一个逻辑变更</li>
+                <li>提交前必须确保代码可运行</li>
+            </ul>
+        </section>
+
+        <section class="tang_section">
+            <h2>响应式设计</h2>
+            <ul>
+                <li>使用移动优先（Mobile First）策略</li>
+                <li>断点设置：<code>768px</code>（平板）、<code>1024px</code>（桌面）、<code>1440px</code>（大屏）</li>
+                <li>优先使用相对单位 <code>rem</code>、<code>em</code>、<code>%</code>、<code>vw</code>、<code>vh</code></li>
+                <li>图片使用 <code>max-width: 100%</code> 确保自适应</li>
+                <li>避免使用固定宽高</li>
+            </ul>
+        </section>
+
+        <section class="tang_section">
+            <h2>性能优化</h2>
+            <ul>
+                <li>CSS 文件控制在 500 行以内，超过则拆分</li>
+                <li>避免使用过多 CSS 选择器嵌套（最多 3 层）</li>
+                <li>动画优先使用 <code>transform</code> 和 <code>opacity</code></li>
+                <li>避免在动画中使用 <code>width</code>、<code>height</code>、<code>top</code>、<code>left</code></li>
+                <li>图片使用适当的格式（PNG、WebP、SVG）</li>
+                <li>减少 HTTP 请求，合并静态资源</li>
+            </ul>
+        </section>
+
+        <section class="tang_section">
+            <h2>可访问性</h2>
+            <ul>
+                <li>所有图片必须添加 <code>alt</code> 属性</li>
+                <li>表单元素必须关联 <code>label</code></li>
+                <li>使用语义化 HTML 标签</li>
+                <li>确保键盘可导航</li>
+                <li>颜色对比度符合 WCAG 2.0 AA 标准</li>
+                <li>为图标按钮添加 <code>aria-label</code></li>
+            </ul>
+        </section>
+
+        <section class="tang_section">
+            <h2>浏览器兼容性</h2>
+            <ul>
+                <li>支持 Chrome、Firefox、Safari、Edge 最近两个大版本</li>
+                <li>使用 CSS 前缀确保兼容性：<code>-webkit-</code>、<code>-moz-</code>、<code>-ms-</code></li>
+                <li>使用 <code>@supports</code> 检测特性支持</li>
+                <li>避免使用已废弃的 API</li>
+                <li>IE 浏览器不做兼容</li>
+            </ul>
+        </section>
+
+        <footer class="tang_footer">
+            <p>项目规则 | 创建日期：2026-10-12 | 更新日期：2026-10-12</p>
+        </footer>
+    </div>
+</body>
+</html>

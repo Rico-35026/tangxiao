@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body{
+            background: linear-gradient(135deg, #fce4ec 0%, #e8eaf6 50%, #e0f7fa 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        h2{
+            margin-bottom: 40px;
+            font-size: 26px;
+            text-align: center;
+            background: linear-gradient(90deg, #e91e63, #673ab7, #2196f3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 4px;
+            font-weight: 700;
+        }
+        .flex{
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 30px;
+            justify-content: center;
+        }
+        .flex li{
+            width: 200px;
+            height: 250px;
+            border: 1px solid rgba(0,0,0,0.08);
+            list-style:none;
+            display:flex;
+            padding:16px;
+            background: rgba(255,255,255,0.85);
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            backdrop-filter: blur(8px);
+            position: relative;
+            flex-direction: column;
+        }
+        .flex li:hover{
+            transform: translateY(-8px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.15);
+            border-color: rgba(103, 58, 183, 0.3);
+        }
+        /* 内部布局保持 flex 方向 */
+        .flex li > .layout-inner{
+            flex: 1;
+            display: flex;
+        }
+        .flex li > .layout-inner.col{ flex-direction: column; }
+
+        /* 文字标签 */
+        .label{
+            text-align: center;
+            font-size: 13px;
+            color: #555;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px dashed rgba(0,0,0,0.1);
+            letter-spacing: 1px;
+        }
+
+        /* ==========第1个：1个方块居中 ========== */
+        .flex li:nth-child(1) .layout-inner{
+            justify-content:center;
+            align-items:center;
+        }
+        .flex li:nth-child(1) .box{
+            width:80px;
+            height:80px;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(233, 30, 99, 0.25);
+        }
+
+        /* ==========第2个：上下两个方块 ========== */
+        .flex li:nth-child(2) .layout-inner{
+            flex-direction:column;
+            justify-content:center;
+            align-items:center;
+            gap:10px;
+        }
+        .flex li:nth-child(2) .box{
+            width:80px;
+            height:80px;
+            background: linear-gradient(135deg, #a18cd1, #fbc2eb);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(103, 58, 183, 0.25);
+        }
+
+        /* ==========第3个：田字格2*2布局 ========== */
+        .flex li:nth-child(3) .layout-inner{
+            flex-direction:column;
+            justify-content:center;
+            gap:10px;
+        }
+        .row{
+            display:flex;
+            gap:10px;
+        }
+        .row .box{
+            flex:1;
+            height:60px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        /* ==========第4个：上通栏，下左右两格 ========== */
+        .flex li:nth-child(4) .layout-inner{
+            flex-direction:column;
+            justify-content:center;
+            gap:10px;
+        }
+        .top-box{
+            width:100%;
+            height:50px;
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(67, 233, 123, 0.3);
+        }
+        .bottom-wrap{
+            display:flex;
+            gap:10px;
+        }
+        .bottom-wrap .box{
+            flex:1;
+            height:50px;
+            background: linear-gradient(135deg, #43e97b, #38f9d7);
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(67, 233, 123, 0.3);
+        }
+
+        @media (max-width: 900px){
+            .flex{ flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+    <h2>唐笑的 flex 弹性盒子</h2>
+    <ul class="flex">
+        <!--第1个：单个方块居中-->
+        <li>
+            <div class="layout-inner">
+                <div class="box"></div>
+            </div>
+            <div class="label">① 居中布局</div>
+        </li>
+
+        <!--第2个：上下两个方块-->
+        <li>
+            <div class="layout-inner col">
+                <div class="box"></div>
+                <div class="box"></div>
+            </div>
+            <div class="label">② 上下布局</div>
+        </li>
+
+        <!--第3个：田字格2行2列-->
+        <li>
+            <div class="layout-inner col">
+                <div class="row">
+                    <div class="box"></div>
+                    <div class="box"></div>
+                </div>
+                <div class="row">
+                    <div class="box"></div>
+                    <div class="box"></div>
+                </div>
+            </div>
+            <div class="label">③ 田字格布局</div>
+        </li>
+
+        <!--第4个：上面通栏，下面左右两个-->
+        <li>
+            <div class="layout-inner col">
+                <div class="top-box"></div>
+                <div class="bottom-wrap">
+                    <div class="box"></div>
+                    <div class="box"></div>
+                </div>
+            </div>
+            <div class="label">④ 上下分栏布局</div>
+        </li>
+    </ul>
+</body>
+</html>

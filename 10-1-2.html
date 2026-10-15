@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10-1-2 animation 四模式</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    min-height: 100vh;
+    background: #f4f5fb;
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: #18202f;
+    padding: 40px 20px;
+}
+
+.wrap {
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    font-size: 22px;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+
+.sub {
+    text-align: center;
+    font-size: 13px;
+    color: #5b6577;
+    margin-bottom: 50px;
+}
+
+/* ============================================================
+   主盒子：4 种动画同时进行
+   ① 颜色循环（4 色，每 2s 切换，8s 周期）
+   ② 旋转（4s 一圈）
+   ③ 缩放（来回缩放 4s）
+   ④ 方形变圆形（4s 来往）
+   ============================================================ */
+.main-box {
+    width: 180px;
+    height: 180px;
+    margin: 0 auto 60px;
+    box-shadow: 0 14px 32px rgba(0, 0, 0, .18);
+    animation:
+        colorLoop 8s infinite,
+        spinRound 4s linear infinite,
+        pulseScale 4s ease-in-out infinite alternate,
+        shapeShift 4s ease-in-out infinite alternate;
+}
+
+/* ① 颜色循环：4 色每 2s 切换一次 */
+@keyframes colorLoop {
+    0%   { background: #f97d3c; }   /* 橙 */
+    25%  { background: #06b6d4; }   /* 青 */
+    50%  { background: #8b5cf6; }   /* 紫 */
+    75%  { background: #ec4899; }   /* 粉 */
+    100% { background: #f97d3c; }   /* 回到橙 */
+}
+
+/* ② 旋转：360° 一圈 */
+@keyframes spinRound {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ③ 缩放：1 → 0.6 来回 */
+@keyframes pulseScale {
+    0%   { transform: scale(1); }
+    100% { transform: scale(.6); }
+}
+
+/* ④ 方形变圆形：12px → 50% */
+@keyframes shapeShift {
+    0%   { border-radius: 12px; }
+    100% { border-radius: 50%; }
+}
+
+/* ============================================================
+   四种动画模式 · 分项演示（每个盒子只跑一种）
+   ============================================================ */
+.demo-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+}
+
+.demo-item {
+    text-align: center;
+}
+
+.demo-box {
+    width: 130px;
+    height: 130px;
+    margin: 0 auto 14px;
+    background: #f97d3c;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, .14);
+}
+
+/* 模式一：仅颜色循环 */
+.demo-color {
+    animation: colorLoop 8s infinite;
+}
+
+/* 模式二：仅旋转（颜色不变） */
+.demo-spin {
+    animation: spinRound 4s linear infinite;
+}
+
+/* 模式三：仅缩放 */
+.demo-pulse {
+    animation: pulseScale 4s ease-in-out infinite alternate;
+}
+
+/* 模式四：仅方形变圆形 */
+.demo-shape {
+    animation: shapeShift 4s ease-in-out infinite alternate;
+}
+
+.demo-item p {
+    font-size: 13px;
+    color: #5b6577;
+    letter-spacing: 1px;
+}
+
+.demo-item p b {
+    display: block;
+    font-size: 14px;
+    color: #18202f;
+    margin-bottom: 4px;
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+    <h1>CSS animation · 四种动画模式</h1>
+    <p class="sub">颜色循环 + 旋转 + 缩放 + 方形变圆形 · 全部纯 CSS</p>
+
+    <!-- 主盒子：4 种动画同时进行 -->
+    <div class="main-box"></div>
+
+    <!-- 分项演示：每个盒子只演示一种模式 -->
+    <div class="demo-row">
+        <div class="demo-item">
+            <div class="demo-box demo-color"></div>
+            <p><b>① 颜色循环</b>4 色 · 每 2s 切换</p>
+        </div>
+        <div class="demo-item">
+            <div class="demo-box demo-spin"></div>
+            <p><b>② 旋转</b>4s 一圈 · linear</p>
+        </div>
+        <div class="demo-item">
+            <div class="demo-box demo-pulse"></div>
+            <p><b>③ 缩放</b>1 ↔ 0.6 · alternate</p>
+        </div>
+        <div class="demo-item">
+            <div class="demo-box demo-shape"></div>
+            <p><b>④ 方形 ↔ 圆形</b>圆角 12 ↔ 50%</p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

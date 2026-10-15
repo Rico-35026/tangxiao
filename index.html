@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>932 唐笑 · 《高级网页设计》课堂实践</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+            min-height: 100vh;
+            /* 蓝绿色渐变背景 */
+            background: linear-gradient(135deg, #0F4C5C 0%, #1A7F8C 45%, #279E96 100%);
+            background-size: 200% 200%;
+            animation: bgMove 18s ease infinite;
+            color: #fff;
+            padding: 48px 20px;
+            line-height: 1.7;
+        }
+
+        @keyframes bgMove {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .wrap {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        /* 页头 */
+        header {
+            text-align: center;
+            margin-bottom: 46px;
+            animation: fadeUp 0.8s ease both;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 18px;
+            border-radius: 50px;
+            font-size: 13px;
+            letter-spacing: 3px;
+            color: #c8f0ee;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            margin-bottom: 18px;
+        }
+
+        header h1 {
+            font-size: 40px;
+            font-weight: 800;
+            letter-spacing: 4px;
+            text-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+        }
+
+        header h1 span {
+            /* 蓝绿渐变文字 */
+            background: linear-gradient(90deg, #73f0e6, #4cd0c0, #b2f4ec);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        header .sub {
+            margin-top: 14px;
+            font-size: 15px;
+            color: rgba(255, 255, 255, 0.75);
+            letter-spacing: 2px;
+        }
+
+        .line {
+            width: 90px;
+            height: 4px;
+            border-radius: 4px;
+            margin: 22px auto 0;
+            background: linear-gradient(90deg, #73f0e6, #4cd0c0);
+        }
+
+        /* 卡片网格 */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 22px;
+        }
+
+        .card {
+            display: block;
+            text-decoration: none;
+            color: #fff;
+            padding: 26px 24px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+            animation: fadeUp 0.8s ease both;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(115, 240, 230, 0.18), rgba(76, 208, 192, 0.18));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 26px 55px rgba(0, 0, 0, 0.35);
+            border-color: rgba(115, 240, 230, 0.6);
+        }
+
+        .card:hover::after {
+            opacity: 1;
+        }
+
+        .card .no {
+            position: relative;
+            z-index: 1;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #73f0e6;
+        }
+
+        .card h3 {
+            position: relative;
+            z-index: 1;
+            font-size: 20px;
+            margin: 8px 0 10px;
+            letter-spacing: 1px;
+        }
+
+        .card p {
+            position: relative;
+            z-index: 1;
+            font-size: 13.5px;
+            color: rgba(255, 255, 255, 0.78);
+        }
+
+        .card .go {
+            position: relative;
+            z-index: 1;
+            display: inline-block;
+            margin-top: 14px;
+            font-size: 13px;
+            letter-spacing: 1px;
+            color: #86e8dd;
+        }
+
+        /* 提示词区 */
+        .prompt-box {
+            margin-top: 48px;
+            padding: 28px 30px;
+            border-radius: 18px;
+            background: rgba(0, 0, 0, 0.28);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            animation: fadeUp 0.9s ease both;
+        }
+
+        .prompt-box h2 {
+            font-size: 17px;
+            letter-spacing: 2px;
+            margin-bottom: 14px;
+            color: #73f0e6;
+        }
+
+        .prompt-box p {
+            font-size: 14.5px;
+            color: rgba(255, 255, 255, 0.9);
+            padding-left: 16px;
+            border-left: 3px solid #4cd0c0;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 46px;
+            font-size: 12.5px;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.55);
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <div class="badge">932·唐笑</div>
+            <h1>《高级网页设计》<span>课堂实践</span></h1>
+            <p class="sub">HTML · CSS 基础练习作品导航</p>
+            <div class="line"></div>
+        </header>
+
+        <main class="grid">
+            <a class="card" href="./1.html">
+                <div class="no">01</div>
+                <h3>个人主页</h3>
+                <p>渐变背景 + 毛玻璃卡片 + 动画，综合 HTML/CSS 实践</p>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./2-1.html">
+                <div class="no">02-1</div>
+                <h3>HTML 元素</h3>
+                <p>标题、段落、列表、区块与行内元素的应用</p>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./2-2.html">
+                <div class="no">02-2</div>
+                <h3>超链接与图片</h3>
+                <p>超链接、相对路径、图片及表格（大国重器）练习</p>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./3-1%20form.html">
+                <div class="no">03-1</div>
+                <h3>表单</h3>
+                <p>文本框、单选、多选、下拉、文本域与各种按钮</p>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./3-2%20CSS.html">
+                <div class="no">03-2</div>
+                <h3>CSS 选择器</h3>
+                <p>标签选择器、id 选择器、class 选择器的使用</p>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./4-1%20CSS2.html">
+                <div class="no">04-1</div>
+                <h3>群组与后代选择器</h3>
+                <p>CSS 群组选择器、后代选择器及样式扩展实践</p>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./5-1重叠与继承.html">
+                <div class="no">05-1</div>
+                <h3>重叠与继承</h3>
+                <p>CSS 优先级、!important、样式继承与覆盖实践</p>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./5-2盒模型.html">
+                <div class="no">05-2</div>
+                <h3>盒模型</h3>
+                <p>width/height、border、padding、margin 与居中布局</p>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./6-1flex.html">
+                <div class="no">06-1</div>
+                <h3>Flex 布局</h3>
+                <p>display:flex 弹性盒子基础属性与对齐方式实践</p>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./6-2一左一右.html">
+                <div class="no">06-2</div>
+                <h3>一左一右布局</h3>
+                <p>justify-content: space-between 两端对齐排版</p>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./7-1上图下文.html">
+                <div class="no">07-1</div>
+                <h3>上图下文</h3>
+                <p>flex 列方向排列，图片在上文字在下的卡片排版</p>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./7-2左图右文.html">
+                <div class="no">07-2</div>
+                <h3>左图右文</h3>
+                <p>flex 行方向排列，图片在左文字在右的列表排版</p>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./8-1%20CSS3选择器.html">
+                <div class="no">08-1</div>
+                <h3>CSS3 选择器</h3>
+                <p>:nth-child、::after、:last-child 等伪类与伪元素及 hover 交互</p>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./9-1transition.html">
+                <div class="no">09-1</div>
+                <h3>transition 过渡</h3>
+                <p>transition 配合 transform / height 实现图片网格悬停动画</p>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./自适应浮桥.html">
+                <div class="no">拓展</div>
+                <h3>自适应浮桥 · TRIZ</h3>
+                <p>基于 TRIZ 理论的自适应浮桥结构设计与施工方法综合页面</p>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./智能体移动端首页.html">
+                <div class="no">实战</div>
+                <h3>灵犀 Agent 移动端</h3>
+                <p>移动端智能体应用首页：自主规划、工具调用、多轮对话、深色模式</p>
+                <span class="go">进入页面 →</span>
+            </a>
+
+            <a class="card" href="./萌宠小课堂.html">
+                <div class="no">综合</div>
+                <h3>萌宠小课堂</h3>
+                <p>宠物主题综合实践：品种科普、科学喂养、宠物医疗与领养咨询表单</p>
+                <span class="go">进入页面 →</span>
+            </a>
+        </main>
+
+        <section class="prompt-box">
+            <h2>本次提示词</h2>
+            <p>更新首页，包括所有 html 的超链接。</p>
+        </section>
+
+        <footer>© 2026 唐笑 · 学号 932 · 计算机24009 · 高级网页设计</footer>
+    </div>
+</body>
+</html>

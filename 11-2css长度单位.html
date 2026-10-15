@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS长度单位</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+
+        .tang_container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .tang_header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 2px solid #0f3460;
+            margin-bottom: 40px;
+        }
+
+        .tang_header h1 {
+            font-size: 2.5rem;
+            color: #e94560;
+            margin-bottom: 10px;
+        }
+
+        .tang_header p {
+            color: #a0a0a0;
+            font-size: 1.1rem;
+        }
+
+        .tang_section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tang_section h2 {
+            color: #e94560;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .tang_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .tang_card {
+            background: rgba(15, 52, 96, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid rgba(233, 69, 96, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .tang_card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.2);
+        }
+
+        .tang_card h3 {
+            color: #e94560;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .tang_card p {
+            color: #ccc;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .tang_card code {
+            background: rgba(233, 69, 96, 0.2);
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #e94560;
+            font-family: 'Consolas', monospace;
+        }
+
+        .tang_demo-box {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .tang_px-demo {
+            width: 200px;
+            height: 100px;
+            background: #e94560;
+        }
+
+        .tang_em-demo {
+            font-size: 2em;
+            color: #0f3460;
+        }
+
+        .tang_rem-demo {
+            font-size: 2rem;
+            color: #16213e;
+        }
+
+        .tang_percent-demo {
+            width: 50%;
+            height: 60px;
+            background: linear-gradient(90deg, #e94560, #0f3460);
+        }
+
+        .tang_vw-demo {
+            width: 30vw;
+            height: 60px;
+            background: #533483;
+        }
+
+        .tang_vh-demo {
+            width: 100px;
+            height: 20vh;
+            background: #0f3460;
+        }
+
+        .tang_pt-demo {
+            font-size: 24pt;
+            color: #e94560;
+        }
+
+        .tang_cm-demo {
+            width: 5cm;
+            height: 2cm;
+            background: #16213e;
+            border: 1px solid #e94560;
+        }
+
+        .tang_mm-demo {
+            width: 50mm;
+            height: 20mm;
+            background: #533483;
+        }
+
+        .tang_in-demo {
+            width: 2in;
+            height: 1in;
+            background: #0f3460;
+        }
+
+        .tang_comparison {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+            align-items: flex-end;
+        }
+
+        .tang_comparison-item {
+            text-align: center;
+        }
+
+        .tang_comparison-item p {
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #a0a0a0;
+        }
+
+        .tang_table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .tang_table th,
+        .tang_table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tang_table th {
+            background: rgba(233, 69, 96, 0.2);
+            color: #e94560;
+        }
+
+        .tang_table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tang_absolute {
+            color: #4ecca3;
+        }
+
+        .tang_relative {
+            color: #e94560;
+        }
+
+        .tang_visual-demo {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .tang_visual-demo h3 {
+            color: #e94560;
+            margin-bottom: 15px;
+        }
+
+        .tang_ruler {
+            display: flex;
+            height: 40px;
+            border: 2px solid #e94560;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .tang_ruler div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .tang_ruler-px {
+            width: 100px;
+            background: #e94560;
+        }
+
+        .tang_ruler-em {
+            width: 200px;
+            background: #0f3460;
+        }
+
+        .tang_ruler-rem {
+            width: 300px;
+            background: #533483;
+        }
+
+        .tang_ruler-percent {
+            flex: 1;
+            background: #16213e;
+        }
+
+        .tang_footer {
+            text-align: center;
+            padding: 30px;
+            color: #666;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="tang_container">
+        <header class="tang_header">
+            <h1>CSS 长度单位</h1>
+            <p>全面掌握CSS中的绝对单位与相对单位</p>
+        </header>
+
+        <section class="tang_section">
+            <h2>绝对长度单位</h2>
+            <p>绝对长度单位是固定的，不会随其他元素的变化而变化。</p>
+            <div class="tang_grid">
+                <div class="tang_card">
+                    <h3>px (像素)</h3>
+                    <p>最常用的绝对单位，1px等于屏幕上的一个物理像素点。</p>
+                    <code>width: 200px;</code>
+                    <div class="tang_demo-box tang_px-demo"></div>
+                </div>
+                <div class="tang_card">
+                    <h3>pt (点)</h3>
+                    <p>印刷常用单位，1pt = 1/72英寸。</p>
+                    <code>font-size: 24pt;</code>
+                    <div class="tang_demo-box tang_pt-demo">24pt文字</div>
+                </div>
+                <div class="tang_card">
+                    <h3>cm (厘米)</h3>
+                    <p>物理厘米单位，适合打印样式。</p>
+                    <code>width: 5cm;</code>
+                    <div class="tang_demo-box tang_cm-demo"></div>
+                </div>
+                <div class="tang_card">
+                    <h3>mm (毫米)</h3>
+                    <p>物理毫米单位，1cm = 10mm。</p>
+                    <code>width: 50mm;</code>
+                    <div class="tang_demo-box tang_mm-demo"></div>
+                </div>
+                <div class="tang_card">
+                    <h3>in (英寸)</h3>
+                    <p>物理英寸单位，1in = 2.54cm = 96px。</p>
+                    <code>width: 2in;</code>
+                    <div class="tang_demo-box tang_in-demo"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="tang_section">
+            <h2>相对长度单位</h2>
+            <p>相对长度单位会参考其他元素或视口的尺寸进行计算。</p>
+            <div class="tang_grid">
+                <div class="tang_card">
+                    <h3>em</h3>
+                    <p>相对于父元素的字体大小。</p>
+                    <code>font-size: 2em;</code>
+                    <div class="tang_demo-box tang_em-demo">2em文字</div>
+                </div>
+                <div class="tang_card">
+                    <h3>rem</h3>
+                    <p>相对于根元素(html)的字体大小。</p>
+                    <code>font-size: 2rem;</code>
+                    <div class="tang_demo-box tang_rem-demo">2rem文字</div>
+                </div>
+                <div class="tang_card">
+                    <h3>% (百分比)</h3>
+                    <p>相对于父元素对应属性的百分比。</p>
+                    <code>width: 50%;</code>
+                    <div class="tang_demo-box tang_percent-demo"></div>
+                </div>
+                <div class="tang_card">
+                    <h3>vw</h3>
+                    <p>相对于视口宽度的1%。</p>
+                    <code>width: 30vw;</code>
+                    <div class="tang_demo-box tang_vw-demo"></div>
+                </div>
+                <div class="tang_card">
+                    <h3>vh</h3>
+                    <p>相对于视口高度的1%。</p>
+                    <code>height: 20vh;</code>
+                    <div class="tang_demo-box tang_vh-demo"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="tang_section">
+            <h2>单位对比表</h2>
+            <table class="tang_table">
+                <thead>
+                    <tr>
+                        <th>单位</th>
+                        <th>类型</th>
+                        <th>参考基准</th>
+                        <th>常见用途</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>px</code></td>
+                        <td class="tang_absolute">绝对</td>
+                        <td>物理像素</td>
+                        <td>边框、阴影、精确尺寸</td>
+                    </tr>
+                    <tr>
+                        <td><code>em</code></td>
+                        <td class="tang_relative">相对</td>
+                        <td>父元素字体大小</td>
+                        <td>字体大小、内边距</td>
+                    </tr>
+                    <tr>
+                        <td><code>rem</code></td>
+                        <td class="tang_relative">相对</td>
+                        <td>根元素字体大小</td>
+                        <td>字体大小、间距</td>
+                    </tr>
+                    <tr>
+                        <td><code>%</code></td>
+                        <td class="tang_relative">相对</td>
+                        <td>父元素尺寸</td>
+                        <td>宽度、高度、定位</td>
+                    </tr>
+                    <tr>
+                        <td><code>vw</code></td>
+                        <td class="tang_relative">相对</td>
+                        <td>视口宽度</td>
+                        <td>响应式布局</td>
+                    </tr>
+                    <tr>
+                        <td><code>vh</code></td>
+                        <td class="tang_relative">相对</td>
+                        <td>视口高度</td>
+                        <td>全屏布局</td>
+                    </tr>
+                    <tr>
+                        <td><code>pt</code></td>
+                        <td class="tang_absolute">绝对</td>
+                        <td>1/72英寸</td>
+                        <td>打印样式</td>
+                    </tr>
+                    <tr>
+                        <td><code>cm/mm/in</code></td>
+                        <td class="tang_absolute">绝对</td>
+                        <td>物理尺寸</td>
+                        <td>打印样式</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="tang_section">
+            <h2>可视化对比</h2>
+            <div class="tang_visual-demo">
+                <h3>不同单位的实际渲染效果</h3>
+                <div class="tang_ruler">
+                    <div class="tang_ruler-px">100px</div>
+                    <div class="tang_ruler-em">200px (2em)</div>
+                    <div class="tang_ruler-rem">300px (3rem)</div>
+                    <div class="tang_ruler-percent">剩余空间 (100%)</div>
+                </div>
+                <div class="tang_comparison">
+                    <div class="tang_comparison-item">
+                        <div style="width:50px;height:50px;background:#e94560;border-radius:5px;"></div>
+                        <p>50px</p>
+                    </div>
+                    <div class="tang_comparison-item">
+                        <div style="width:5em;height:5em;background:#0f3460;border-radius:5px;"></div>
+                        <p>5em</p>
+                    </div>
+                    <div class="tang_comparison-item">
+                        <div style="width:5rem;height:5rem;background:#533483;border-radius:5px;"></div>
+                        <p>5rem</p>
+                    </div>
+                    <div class="tang_comparison-item">
+                        <div style="width:10vw;height:50px;background:#16213e;border-radius:5px;"></div>
+                        <p>10vw</p>
+                    </div>
+                    <div class="tang_comparison-item">
+                        <div style="width:50px;height:10vh;background:#4ecca3;border-radius:5px;"></div>
+                        <p>10vh</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="tang_section">
+            <h2>使用建议</h2>
+            <div class="tang_grid">
+                <div class="tang_card">
+                    <h3>响应式布局</h3>
+                    <p>推荐使用 <code>rem</code>、<code>vw</code>、<code>vh</code> 和 <code>%</code> 实现响应式设计。</p>
+                </div>
+                <div class="tang_card">
+                    <h3>字体大小</h3>
+                    <p>推荐使用 <code>rem</code> 设置字体大小，便于用户调整浏览器默认字号。</p>
+                </div>
+                <div class="tang_card">
+                    <h3>精确控制</h3>
+                    <p>边框、阴影等需要精确控制的场景使用 <code>px</code>。</p>
+                </div>
+                <div class="tang_card">
+                    <h3>打印样式</h3>
+                    <p>打印样式表中使用 <code>pt</code>、<code>cm</code>、<code>mm</code> 等物理单位。</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="tang_footer">
+            <p>CSS 长度单位教程 | 掌握绝对单位与相对单位的使用场景</p>
+        </footer>
+    </div>
+</body>
+</html>

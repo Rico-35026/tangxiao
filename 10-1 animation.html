@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10-1 animation 动画</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 60px;
+    background: #f4f5fb;
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+/* ============================================================
+   一、颜色循环盒子
+   4 种颜色，每 2s 切换一次，总周期 8s
+   ============================================================ */
+.box-color {
+    width: 200px;
+    height: 200px;
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .15);
+    animation: colorChange 8s infinite;
+}
+
+/* 关键帧：每 2s 换一种颜色（25% 步长） */
+@keyframes colorChange {
+    0%   { background: #f97d3c; }   /* 橙 */
+    25%  { background: #06b6d4; }   /* 青 */
+    50%  { background: #8b5cf6; }   /* 紫 */
+    75%  { background: #ec4899; }   /* 粉 */
+    100% { background: #f97d3c; }   /* 回到橙，形成循环 */
+}
+
+/* ============================================================
+   二、方形变圆形 + 颜色循环
+   使用两个动画：shapeRound 控制圆角，colorChange 控制颜色
+   ============================================================ */
+.box-shape {
+    width: 200px;
+    height: 200px;
+    background: #f97d3c;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, .15);
+    animation:
+        shapeRound 4s infinite alternate ease-in-out,
+        colorChange 8s infinite;
+}
+
+/* 圆角从 12px 过渡到 50%（圆），交替往复 */
+@keyframes shapeRound {
+    0%   { border-radius: 12px; }
+    100% { border-radius: 50%; }
+}
+
+/* 标签说明 */
+.label {
+    font-size: 14px;
+    color: #5b6577;
+    letter-spacing: 1px;
+}
+
+.label b {
+    display: block;
+    font-size: 16px;
+    color: #18202f;
+    margin-bottom: 6px;
+}
+</style>
+</head>
+<body>
+
+    <div>
+        <div class="box-color"></div>
+        <p class="label"><b>颜色循环</b>每 2s 切换，4 色循环 · 8s 一个周期</p>
+    </div>
+
+    <div>
+        <div class="box-shape"></div>
+        <p class="label"><b>方形 → 圆形 + 颜色循环</b>圆角与背景色同时动画</p>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>萌宠小课堂 · 宠物科普与健康养护</title>
+<style>
+/* ============================================================
+   一、全局重置（5-2 盒模型：box-sizing；群组选择器：*）
+   ============================================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ============================================================
+   二、全局变量与基础样式（3-2 标签/class 选择器）
+   ============================================================ */
+:root {
+    --orange: #f97d3c;       /* 主题暖橙 */
+    --orange-deep: #e85d26;
+    --cream: #fff7ef;        /* 奶油底色 */
+    --card: #ffffff;
+    --brown: #50402f;        /* 主文字棕 */
+    --brown-2: #8a7a66;      /* 次要文字 */
+    --line: #f1e3d2;         /* 分割线 */
+    --mint: #5fbf9a;         /* 薄荷绿点缀 */
+    --berry: #ef6f8c;        /* 莓粉点缀 */
+    --sun: #f7b733;
+    --shadow: 0 10px 30px rgba(214, 128, 64, .14);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: "PingFang SC", "Microsoft YaHei", "Hiragino Sans GB", sans-serif;
+    background: var(--cream);
+    color: var(--brown);
+    line-height: 1.75;
+}
+
+img { display: block; max-width: 100%; }
+ul, ol { list-style: none; }
+a { text-decoration: none; color: inherit; }
+
+.container {
+    width: 92%;
+    max-width: 1080px;
+    margin: 0 auto;
+}
+
+/* ============================================================
+   三、通用标题（8-1 伪元素 ::before / ::after）
+   ============================================================ */
+.sec {
+    padding: 72px 0;
+}
+
+.sec-head {
+    text-align: center;
+    margin-bottom: 44px;
+}
+
+.sec-head .tag {
+    display: inline-block;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--orange-deep);
+    background: #ffe9d8;
+    padding: 5px 16px;
+    border-radius: 50px;
+    margin-bottom: 14px;
+}
+
+.sec-head h2 {
+    font-size: 30px;
+    letter-spacing: 2px;
+}
+
+.sec-head p {
+    margin-top: 10px;
+    font-size: 14px;
+    color: var(--brown-2);
+}
+
+.sec-head h2::after {
+    content: "";
+    display: block;
+    width: 56px;
+    height: 4px;
+    border-radius: 4px;
+    margin: 14px auto 0;
+    background: linear-gradient(90deg, var(--orange), var(--sun));
+}
+
+/* ============================================================
+   四、顶部导航（6-1 Flex + 6-2 一左一右 space-between）
+   ============================================================ */
+.nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(255, 247, 239, .9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+}
+
+.nav-inner {
+    display: flex;                  /* 6-1 flex 弹性布局 */
+    justify-content: space-between; /* 6-2 一左一右两端对齐 */
+    align-items: center;
+    height: 64px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.logo svg { width: 26px; height: 26px; color: var(--orange); }
+
+.nav-links {
+    display: flex;
+    gap: 6px;
+}
+
+/* 4-1 后代选择器：只选中导航内的 a */
+.nav-links a {
+    font-size: 14px;
+    color: var(--brown-2);
+    padding: 7px 14px;
+    border-radius: 50px;
+    transition: all .3s ease;   /* 9-1 transition 过渡 */
+}
+
+.nav-links a:hover {
+    color: #fff;
+    background: var(--orange);
+}
+
+.nav-cta {
+    font-size: 13px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--orange), var(--orange-deep));
+    padding: 8px 18px;
+    border-radius: 50px;
+    transition: transform .3s ease, box-shadow .3s ease;
+    box-shadow: 0 6px 16px rgba(249, 125, 60, .35);
+}
+
+.nav-cta:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(249, 125, 60, .45); }
+
+/* ============================================================
+   五、首屏 Hero（Flex 左右分栏 + 1.html 渐变与动画）
+   ============================================================ */
+.hero {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #fff1e3 0%, #ffe3ee 55%, #e4f6ef 100%);
+    padding: 70px 0 76px;
+}
+
+.hero::before,
+.hero::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    opacity: .35;
+}
+
+.hero::before {
+    width: 240px; height: 240px;
+    background: #ffd9b8;
+    top: -80px; left: -60px;
+}
+
+.hero::after {
+    width: 300px; height: 300px;
+    background: #c9ecdd;
+    bottom: -120px; right: -80px;
+}
+
+.hero-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+}
+
+.hero-text { flex: 1; }
+
+.hero-badge {
+    display: inline-block;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--orange-deep);
+    background: rgba(255, 255, 255, .7);
+    border: 1px solid #ffd9bd;
+    padding: 5px 14px;
+    border-radius: 50px;
+    margin-bottom: 18px;
+    animation: fadeUp .8s ease both;
+}
+
+.hero-text h1 {
+    font-size: 42px;
+    line-height: 1.3;
+    letter-spacing: 2px;
+    animation: fadeUp .8s .1s ease both;
+}
+
+.hero-text h1 em {
+    font-style: normal;
+    background: linear-gradient(90deg, var(--orange-deep), var(--berry));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+.hero-text .lead {
+    margin-top: 16px;
+    font-size: 15px;
+    color: var(--brown-2);
+    animation: fadeUp .8s .2s ease both;
+}
+
+.hero-btns {
+    margin-top: 28px;
+    display: flex;
+    gap: 14px;
+    animation: fadeUp .8s .3s ease both;
+}
+
+.btn {
+    display: inline-block;
+    font-size: 14px;
+    padding: 12px 26px;
+    border-radius: 50px;
+    cursor: pointer;
+    border: none;
+    transition: transform .3s ease, box-shadow .3s ease, background .3s ease;
+}
+
+.btn-primary {
+    color: #fff;
+    background: linear-gradient(135deg, var(--orange), var(--orange-deep));
+    box-shadow: 0 8px 20px rgba(249, 125, 60, .35);
+}
+
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 14px 26px rgba(249, 125, 60, .45); }
+
+.btn-ghost {
+    color: var(--brown);
+    background: #fff;
+    border: 1px solid var(--line);
+}
+
+.btn-ghost:hover { transform: translateY(-3px); border-color: var(--orange); color: var(--orange-deep); }
+
+.hero-img {
+    flex: 1;
+    animation: floaty 5s ease-in-out infinite;
+}
+
+.hero-img img {
+    width: 100%;
+    border-radius: 26px;
+    box-shadow: 0 24px 50px rgba(180, 110, 60, .25);
+}
+
+/* 首屏数据条：5-2 盒模型 + Flex */
+.hero-stats {
+    position: relative;
+    z-index: 1;
+    margin-top: 48px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.stat {
+    flex: 1;
+    min-width: 150px;
+    background: rgba(255, 255, 255, .75);
+    border: 1px solid rgba(255, 255, 255, .9);
+    border-radius: 16px;
+    padding: 16px 20px;
+    text-align: center;
+}
+
+.stat b {
+    display: block;
+    font-size: 24px;
+    color: var(--orange-deep);
+}
+
+.stat span {
+    font-size: 12.5px;
+    color: var(--brown-2);
+}
+
+@keyframes floaty {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-14px); }
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   六、宠物科普 —— 品种卡片（7-1 上图下文：flex 列方向）
+   ============================================================ */
+.breed-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+}
+
+.breed-card {
+    /* 上图下文：flex + column */
+    flex: 1 1 230px;
+    display: flex;
+    flex-direction: column;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform .35s ease, box-shadow .35s ease;   /* 9-1 */
+}
+
+.breed-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 22px 42px rgba(214, 128, 64, .22);
+}
+
+.breed-card .pic { overflow: hidden; }
+
+.breed-card .pic img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    transition: transform .5s ease;
+}
+
+.breed-card:hover .pic img { transform: scale(1.08); }
+
+.breed-info {
+    padding: 18px 20px 22px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.breed-info h3 {
+    font-size: 19px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.breed-info h3 small {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--brown-2);
+}
+
+.breed-info .life {
+    font-size: 12.5px;
+    color: var(--orange-deep);
+    margin: 6px 0 10px;
+}
+
+.breed-info p {
+    font-size: 13px;
+    color: var(--brown-2);
+    flex: 1;
+}
+
+.chips {
+    margin-top: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chips span {
+    font-size: 11.5px;
+    color: #7a5b3e;
+    background: #fdf0e2;
+    padding: 3px 11px;
+    border-radius: 50px;
+}
+
+/* 趣味科普：8-1 nth-child 让第 2 张卡换配色 */
+.fact-grid {
+    margin-top: 46px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+}
+
+.fact-card {
+    flex: 1 1 280px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-left: 5px solid var(--orange);
+    border-radius: 16px;
+    padding: 22px 24px;
+    transition: transform .3s ease;
+}
+
+.fact-card:nth-child(2) { border-left-color: var(--mint); }
+.fact-card:nth-child(3) { border-left-color: var(--berry); }
+
+.fact-card:hover { transform: translateY(-6px); }
+
+.fact-card h3 {
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.fact-card p {
+    font-size: 13px;
+    color: var(--brown-2);
+}
+
+/* ============================================================
+   七、表格（2-2 表格 + 5-2 盒模型）
+   ============================================================ */
+.table-wrap {
+    overflow-x: auto;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 8px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    text-align: center;
+}
+
+caption {
+    font-size: 15px;
+    font-weight: 700;
+    padding: 14px 0 6px;
+}
+
+th, td {
+    padding: 13px 12px;
+    border: 1px solid var(--line);
+}
+
+thead th {
+    background: linear-gradient(135deg, var(--orange), var(--orange-deep));
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+/* 8-1 nth-child(even) 隔行变色 */
+tbody tr:nth-child(even) { background: #fff6ee; }
+tbody tr:hover { background: #ffe9d8; }
+
+.table-note {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--brown-2);
+    text-align: center;
+}
+
+/* ============================================================
+   八、科学喂养 —— 左图右文（7-2 flex 行方向）
+   ============================================================ */
+#feeding { background: #fff; }
+
+.info-row {
+    display: flex;              /* 7-2 左图右文 */
+    align-items: center;
+    gap: 30px;
+    background: var(--cream);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 22px;
+    transition: box-shadow .3s ease, transform .3s ease;
+}
+
+.info-row:hover {
+    box-shadow: var(--shadow);
+    transform: translateY(-4px);
+}
+
+.info-row img {
+    width: 220px;
+    height: 170px;
+    object-fit: cover;
+    border-radius: 16px;
+    flex-shrink: 0;
+}
+
+.info-body h3 {
+    font-size: 19px;
+    margin-bottom: 8px;
+}
+
+.info-body h3 span {
+    font-size: 13px;
+    color: var(--orange-deep);
+    margin-right: 8px;
+}
+
+.info-body p {
+    font-size: 13.5px;
+    color: var(--brown-2);
+}
+
+/* 喂养红黑榜：Flex 等分两栏 + ::before 标记 */
+.feed-cols {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+    margin-top: 30px;
+}
+
+.feed-col {
+    flex: 1 1 320px;
+    border-radius: 18px;
+    padding: 24px 26px;
+}
+
+.feed-col.good {
+    background: #eaf7f1;
+    border: 1px solid #c8e9da;
+}
+
+.feed-col.bad {
+    background: #fdecef;
+    border: 1px solid #f7cfd8;
+}
+
+.feed-col h3 {
+    font-size: 17px;
+    margin-bottom: 12px;
+}
+
+/* 8-1 伪元素 ::before 当小图标圆点 */
+.feed-col li {
+    position: relative;
+    padding-left: 20px;
+    font-size: 13.5px;
+    margin-bottom: 8px;
+    color: #5c5145;
+}
+
+.feed-col.good li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 9px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--mint);
+}
+
+.feed-col.bad li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 9px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--berry);
+}
+
+/* ============================================================
+   九、宠物医疗
+   ============================================================ */
+/* 急症警示盒（5-1 样式覆盖：更醒目的颜色优先级最高） */
+.alert-box {
+    margin-top: 30px;
+    background: linear-gradient(135deg, #ffe3e8, #fff1e3);
+    border: 1.5px dashed #ef6f8c;
+    border-radius: 18px;
+    padding: 24px 28px;
+}
+
+.alert-box h3 {
+    font-size: 17px;
+    color: #d94866;
+    margin-bottom: 10px;
+}
+
+.alert-box ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.alert-box li {
+    font-size: 13px;
+    background: #fff;
+    border-radius: 50px;
+    padding: 6px 16px;
+    color: #b23a55;
+}
+
+/* 常见疾病网格：8-1 nth-child 让卡片依次变色 */
+.disease-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 42px;
+}
+
+.disease-card {
+    flex: 1 1 300px;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 22px 24px;
+    transition: transform .3s ease, border-color .3s ease;
+}
+
+.disease-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--orange);
+}
+
+/* 8-1 :nth-child(3n+1 / 3n+2 / 3n) 三色序号角标 */
+.disease-card .num {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.disease-card:nth-child(3n+1) .num { background: linear-gradient(135deg, var(--orange), var(--sun)); }
+.disease-card:nth-child(3n+2) .num { background: linear-gradient(135deg, var(--mint), #3c9e80); }
+.disease-card:nth-child(3n)   .num { background: linear-gradient(135deg, var(--berry), #d94866); }
+
+.disease-card h3 { font-size: 16px; margin-bottom: 6px; }
+.disease-card p { font-size: 13px; color: var(--brown-2); }
+
+/* ============================================================
+   十、领养咨询表单（3-1 form 各控件 + CSS 美化）
+   ============================================================ */
+#adopt { background: linear-gradient(135deg, #fff1e3, #ffe9f0); }
+
+.adopt-card {
+    max-width: 760px;
+    margin: 0 auto;
+    background: var(--card);
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+    padding: 36px 40px;
+}
+
+.adopt-card > p {
+    text-align: center;
+    font-size: 13.5px;
+    color: var(--brown-2);
+    margin-bottom: 26px;
+}
+
+.form-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px 24px;
+}
+
+.field {
+    flex: 1 1 280px;
+}
+
+.field.full { flex: 1 1 100%; }
+
+.field label {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 600;
+    margin-bottom: 7px;
+}
+
+.field label .req { color: var(--berry); }
+
+.field input[type="text"],
+.field input[type="tel"],
+.field select,
+.field textarea {
+    width: 100%;
+    font-size: 13.5px;
+    font-family: inherit;
+    color: var(--brown);
+    background: #fffaf4;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 11px 14px;
+    outline: none;
+    transition: border-color .3s ease, box-shadow .3s ease;
+}
+
+.field textarea { resize: vertical; min-height: 96px; }
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(249, 125, 60, .15);
+}
+
+.radio-box, .check-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    font-size: 13px;
+    color: var(--brown);
+}
+
+.radio-box label, .check-box label {
+    font-weight: 400;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.promise {
+    margin-top: 6px;
+    font-size: 12.5px;
+}
+
+.form-btns {
+    margin-top: 28px;
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+}
+
+.btn-reset {
+    background: #f4ece3;
+    color: var(--brown-2);
+}
+
+.btn-reset:hover { background: #eadfd2; }
+
+/* ============================================================
+   十一、页脚（2-2 超链接练习）
+   ============================================================ */
+footer {
+    background: #3d3127;
+    color: #d8c8b6;
+    padding: 46px 0 26px;
+}
+
+.foot-inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: space-between;
+}
+
+.foot-brand { flex: 1 1 260px; }
+
+.foot-brand .logo { color: #fff; margin-bottom: 10px; }
+.foot-brand p { font-size: 12.5px; color: #b09d87; }
+
+.foot-links { flex: 1 1 180px; }
+
+.foot-links h4 {
+    font-size: 14px;
+    color: #fff;
+    margin-bottom: 12px;
+}
+
+.foot-links a {
+    display: block;
+    font-size: 12.5px;
+    color: #b09d87;
+    padding: 3px 0;
+    transition: color .3s ease, padding-left .3s ease;
+}
+
+.foot-links a:hover { color: var(--orange); padding-left: 6px; }
+
+.foot-note {
+    margin-top: 30px;
+    padding-top: 18px;
+    border-top: 1px solid #57483a;
+    font-size: 12px;
+    color: #9b8a74;
+    text-align: center;
+}
+
+/* ============================================================
+   十二、Toast 提示
+   ============================================================ */
+#toast {
+    position: fixed;
+    left: 50%;
+    bottom: 40px;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(61, 49, 39, .95);
+    color: #fff;
+    font-size: 13.5px;
+    padding: 12px 24px;
+    border-radius: 50px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s ease, transform .3s ease;
+    z-index: 999;
+}
+
+#toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* ============================================================
+   十三、响应式适配
+   ============================================================ */
+@media (max-width: 860px) {
+    .nav-links { display: none; }
+    .hero-inner { flex-direction: column-reverse; }
+    .hero-text h1 { font-size: 32px; }
+    .info-row { flex-direction: column; text-align: center; }
+    .info-row img { width: 100%; height: 220px; }
+    .adopt-card { padding: 28px 22px; }
+    .sec { padding: 56px 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== 导航栏（6-1/6-2 Flex 一左一右） ==================== -->
+<nav class="nav">
+    <div class="container nav-inner">
+        <a class="logo" href="#home">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <ellipse cx="12" cy="15.6" rx="5" ry="4"/>
+                <ellipse cx="5" cy="10.6" rx="1.9" ry="2.5"/>
+                <ellipse cx="9.2" cy="7.6" rx="1.9" ry="2.5"/>
+                <ellipse cx="14.8" cy="7.6" rx="1.9" ry="2.5"/>
+                <ellipse cx="19" cy="10.6" rx="1.9" ry="2.5"/>
+            </svg>
+            萌宠小课堂
+        </a>
+        <div class="nav-links">
+            <a href="#home">首页</a>
+            <a href="#science">宠物科普</a>
+            <a href="#feeding">科学喂养</a>
+            <a href="#medical">宠物医疗</a>
+        </div>
+        <a class="nav-cta" href="#adopt">领养咨询</a>
+    </div>
+</nav>
+
+<!-- ==================== 首屏（2-1 HTML 元素 + 渐变动画） ==================== -->
+<header class="hero" id="home">
+    <div class="container">
+        <div class="hero-inner">
+            <div class="hero-text">
+                <span class="hero-badge">《高级网页设计》课程实践</span>
+                <h1>科学养宠<br>从<em>懂它</em>开始</h1>
+                <p class="lead">这里有宠物品种科普、科学喂养指南与宠物医疗常识，<br>让每一只毛孩子都能被温柔以待。</p>
+                <div class="hero-btns">
+                    <a class="btn btn-primary" href="#science">开始探索</a>
+                    <a class="btn btn-ghost" href="#medical">急症自查</a>
+                </div>
+            </div>
+            <div class="hero-img">
+                <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=warm%20cozy%20digital%20illustration%2C%20happy%20golden%20retriever%20dog%20and%20grey%20british%20shorthair%20cat%20cuddling%20together%20on%20soft%20cushion%2C%20pastel%20cream%20background%2C%20cute%20pet%20themed%20banner&image_size=landscape_16_9" alt="依偎在一起的金毛犬和英短猫">
+            </div>
+        </div>
+
+        <!-- 首屏数据条：盒模型 + Flex -->
+        <div class="hero-stats">
+            <div class="stat"><b>5 类</b><span>常见伴侣宠物</span></div>
+            <div class="stat"><b>20+</b><span>科普知识点</span></div>
+            <div class="stat"><b>全年</b><span>疫苗驱虫日历</span></div>
+            <div class="stat"><b>10 项</b><span>急症就医信号</span></div>
+        </div>
+    </div>
+</header>
+
+<!-- ==================== 宠物科普（7-1 上图下文卡片） ==================== -->
+<section class="sec" id="science">
+    <div class="container">
+        <div class="sec-head">
+            <span class="tag">PET SCIENCE</span>
+            <h2>宠物科普</h2>
+            <p>认识这些可爱的伴侣动物，了解它们的习性与需求</p>
+        </div>
+
+        <div class="breed-grid">
+            <!-- 品种卡 1：狗狗 -->
+            <article class="breed-card">
+                <div class="pic">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=adorable%20golden%20retriever%20puppy%20sitting%20and%20smiling%2C%20soft%20warm%20beige%20background%2C%20cute%20pet%20portrait%20illustration&image_size=square" alt="金毛幼犬">
+                </div>
+                <div class="breed-info">
+                    <h3>狗狗 <small>犬类</small></h3>
+                    <div class="life">平均寿命：10 – 15 年</div>
+                    <p>忠诚黏人的群居动物，每天需要遛弯、嗅闻和社交。大型犬运动量需求大，小型犬更适合公寓饲养。</p>
+                    <div class="chips"><span>需要遛弯</span><span>服从训练</span></div>
+                </div>
+            </article>
+
+            <!-- 品种卡 2：猫咪 -->
+            <article class="breed-card">
+                <div class="pic">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=adorable%20round%20faced%20grey%20british%20shorthair%20cat%20portrait%2C%20big%20yellow%20eyes%2C%20soft%20cream%20background%2C%20cute%20illustration&image_size=square" alt="英国短毛猫">
+                </div>
+                <div class="breed-info">
+                    <h3>猫咪 <small>英国短毛猫</small></h3>
+                    <div class="life">平均寿命：12 – 18 年</div>
+                    <p>相对独立、爱干净，擅长独处，适合上班族。需要提供猫抓板、爬架和安静的砂盆环境。</p>
+                    <div class="chips"><span>适合上班族</span><span>爱干净</span></div>
+                </div>
+            </article>
+
+            <!-- 品种卡 3：兔子 -->
+            <article class="breed-card">
+                <div class="pic">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=adorable%20fluffy%20lop%20eared%20rabbit%20with%20pink%20nose%20sitting%20on%20hay%2C%20soft%20pastel%20background%2C%20cute%20pet%20portrait%20illustration&image_size=square" alt="垂耳兔">
+                </div>
+                <div class="breed-info">
+                    <h3>兔兔 <small>垂耳兔</small></h3>
+                    <div class="life">平均寿命：6 – 10 年</div>
+                    <p>温顺安静，牙齿终生生长，主食是无限量干草。肠胃十分敏感，饮食不当容易引发急症。</p>
+                    <div class="chips"><span>安静</span><span>肠胃敏感</span></div>
+                </div>
+            </article>
+
+            <!-- 品种卡 4：仓鼠 -->
+            <article class="breed-card">
+                <div class="pic">
+                    <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=adorable%20tiny%20dwarf%20hamster%20standing%20on%20hind%20legs%20with%20full%20cheek%20pouches%2C%20soft%20beige%20background%2C%20cute%20illustration&image_size=square" alt="仓鼠">
+                </div>
+                <div class="breed-info">
+                    <h3>仓鼠 <small>侏儒仓鼠</small></h3>
+                    <div class="life">平均寿命：2 – 3 年</div>
+                    <p>体型小巧、占地小，属于夜行性动物。必须独居饲养，合笼会因领地争斗造成严重伤害。</p>
+                    <div class="chips"><span>占地小</span><span>夜行独居</span></div>
+                </div>
+            </article>
+        </div>
+
+        <!-- 趣味科普：nth-child 配色 -->
+        <div class="fact-grid">
+            <div class="fact-card">
+                <h3>猫为什么会"呼噜呼噜"？</h3>
+                <p>猫咪在放松、被抚摸时会发出约 25–150 赫兹的呼噜声。但受伤、紧张或临产时也可能呼噜，这是一种自我安抚，需要结合场景判断。</p>
+            </div>
+            <div class="fact-card">
+                <h3>狗摇尾巴就是开心吗？</h3>
+                <p>不一定。尾巴朝身体右侧轻摆通常情绪积极，偏向左侧可能紧张不安，夹紧尾巴则表示害怕。要同时看耳朵和身体姿态。</p>
+            </div>
+            <div class="fact-card">
+                <h3>兔子能只吃胡萝卜吗？</h3>
+                <p>不能。兔子的主食应是无限量提摩西等干草，胡萝卜等淀粉高的食物只能当少量零食，长期多喂会引发严重肠胃疾病。</p>
+            </div>
+        </div>
+
+        <!-- 年龄对照表格（2-2 表格） -->
+        <div class="table-wrap" style="margin-top:46px;">
+            <table>
+                <caption>猫狗年龄 ↔ 人类年龄 对照表（约）</caption>
+                <thead>
+                    <tr>
+                        <th>宠物年龄</th>
+                        <th>猫咪（约合人类）</th>
+                        <th>小型犬（约合人类）</th>
+                        <th>中大型犬（约合人类）</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>1 岁</td><td>18 岁</td><td>15 岁</td><td>14 岁</td></tr>
+                    <tr><td>3 岁</td><td>30 岁</td><td>28 岁</td><td>26 岁</td></tr>
+                    <tr><td>7 岁</td><td>44 岁</td><td>47 岁</td><td>50 岁</td></tr>
+                    <tr><td>10 岁</td><td>56 岁</td><td>60 岁</td><td>66 岁</td></tr>
+                    <tr><td>15 岁</td><td>76 岁</td><td>78 岁</td><td>83 岁</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="table-note">注：数据为大致估算，衰老速度受品种、体型、体重与绝育情况影响，个体差异较大。</p>
+    </div>
+</section>
+
+<!-- ==================== 科学喂养（7-2 左图右文） ==================== -->
+<section class="sec" id="feeding">
+    <div class="container">
+        <div class="sec-head">
+            <span class="tag">FEEDING</span>
+            <h2>科学喂养</h2>
+            <p>吃对、喝足、勤陪伴，好习惯比昂贵的补品更重要</p>
+        </div>
+
+        <!-- 左图右文 1 -->
+        <div class="info-row">
+            <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=healthy%20dry%20pet%20kibble%20in%20ceramic%20bowl%20with%20fresh%20water%20beside%2C%20warm%20soft%20light%2C%20pet%20nutrition&image_size=square" alt="宠物粮和饮水">
+            <div class="info-body">
+                <h3><span>01</span>均衡饮食，定时定量</h3>
+                <p>以正规品牌的宠粮为主，避免长期喂剩饭剩菜。幼犬猫少量多餐，成犬一般每日 1–2 餐，成猫可少食多餐；更换粮食时用 7 天左右逐步过渡，同时保证 24 小时有清洁饮水。</p>
+            </div>
+        </div>
+
+        <!-- 左图右文 2 -->
+        <div class="info-row">
+            <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=soft%20brush%20gently%20grooming%20fluffy%20orange%20cat%20fur%2C%20pet%20grooming%20care%2C%20warm%20cozy%20light&image_size=square" alt="给猫咪梳毛护理">
+            <div class="info-body">
+                <h3><span>02</span>日常护理与陪伴</h3>
+                <p>定期梳毛可减少毛球与打结，并顺手检查皮肤有无异常；定期清理耳道、修剪指甲、刷牙。每天保证运动和互动时间，长期被冷落的宠物容易出现分离焦虑和破坏行为。</p>
+            </div>
+        </div>
+
+        <!-- 喂养红黑榜 -->
+        <div class="feed-cols">
+            <div class="feed-col good">
+                <h3>可以适量喂食</h3>
+                <ul>
+                    <li>白水煮熟的鸡胸肉，撕小块当奖励</li>
+                    <li>煮熟的南瓜、胡萝卜，帮助消化</li>
+                    <li>少量蓝莓、苹果（去核去籽）</li>
+                    <li>无糖酸奶（确认宠物不乳糖不耐）</li>
+                </ul>
+            </div>
+            <div class="feed-col bad">
+                <h3>这些食物绝对禁食</h3>
+                <ul>
+                    <li>巧克力、咖啡、茶（可可碱/咖啡因中毒）</li>
+                    <li>葡萄、葡萄干（可引发急性肾衰）</li>
+                    <li>洋葱、大蒜、韭菜（破坏红细胞）</li>
+                    <li>木糖醇、酒精及尖锐禽类骨头</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== 宠物医疗 ==================== -->
+<section class="sec" id="medical">
+    <div class="container">
+        <div class="sec-head">
+            <span class="tag">HEALTH CARE</span>
+            <h2>宠物医疗</h2>
+            <p>疫苗驱虫按时做，急症信号早识别</p>
+        </div>
+
+        <!-- 左图右文 3 -->
+        <div class="info-row">
+            <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=friendly%20veterinarian%20giving%20vaccine%20injection%20to%20a%20small%20puppy%20at%20modern%20clinic%2C%20gentle%20care%2C%20soft%20light&image_size=square" alt="兽医给幼犬打疫苗">
+            <div class="info-body">
+                <h3><span>03</span>疫苗接种与定期驱虫</h3>
+                <p>幼犬猫在 6–8 周龄开始接种基础疫苗，完成全套免疫前尽量避免外出和接触来源不明的动物。体内驱虫一般每 3 个月一次，体外驱虫按月进行，具体频率请遵医嘱。</p>
+            </div>
+        </div>
+
+        <!-- 左图右文 4 -->
+        <div class="info-row">
+            <img src="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=veterinarian%20doctor%20examining%20a%20small%20dog%20with%20stethoscope%20at%20pet%20clinic%2C%20professional%20medical%20care&image_size=square" alt="兽医给狗狗做检查">
+            <div class="info-body">
+                <h3><span>04</span>定期体检，适龄绝育</h3>
+                <p>幼年期建议每年体检一次，7 岁以上的中老年宠物建议每半年体检，重点关注肝肾、心脏与牙齿。适龄绝育可减少子宫蓄脓、乳腺肿瘤、睾丸疾病等风险。</p>
+            </div>
+        </div>
+
+        <!-- 疫苗时间表 -->
+        <div class="table-wrap">
+            <table>
+                <caption>猫咪 / 狗狗 基础疫苗与驱虫参考时间表</caption>
+                <thead>
+                    <tr>
+                        <th>年龄阶段</th>
+                        <th>猫咪建议</th>
+                        <th>狗狗建议</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>6 – 8 周龄</td><td>第一针猫三联</td><td>第一针联苗</td></tr>
+                    <tr><td>10 – 12 周龄</td><td>第二针猫三联</td><td>第二针联苗</td></tr>
+                    <tr><td>14 – 16 周龄</td><td>第三针 + 狂犬疫苗</td><td>第三针 + 狂犬疫苗</td></tr>
+                    <tr><td>成年后</td><td>每年加强（遵医嘱）</td><td>每年加强（遵医嘱）</td></tr>
+                    <tr><td>日常驱虫</td><td>体内约 3 个月 / 体外每月</td><td>体内约 3 个月 / 体外每月</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="table-note">注：不同地区、不同生活方式（是否遛弯、是否吃生肉）免疫方案不同，请以正规宠物医院医生建议为准。</p>
+
+        <!-- 急症信号警示盒 -->
+        <div class="alert-box">
+            <h3>出现以下情况，请立即就医，不要在家"再观察一天"</h3>
+            <ul>
+                <li>呼吸困难或张口喘气</li>
+                <li>抽搐、意识不清</li>
+                <li>持续呕吐或腹泻超 12 小时</li>
+                <li>误食巧克力/药物/异物</li>
+                <li>尿血、公猫无法排尿</li>
+                <li>精神极度沉郁、拒食</li>
+                <li>大量出血或外伤骨折</li>
+            </ul>
+        </div>
+
+        <!-- 常见疾病卡片（nth-child 三色角标） -->
+        <div class="disease-grid">
+            <div class="disease-card">
+                <span class="num">01</span>
+                <h3>体外寄生虫</h3>
+                <p>跳蚤、蜱虫会引起瘙痒、皮炎和贫血；蜱虫还可能传播血液寄生虫病，外出回来要检查毛发和耳后。</p>
+            </div>
+            <div class="disease-card">
+                <span class="num">02</span>
+                <h3>消化道疾病</h3>
+                <p>呕吐、腹泻常见于换粮过快或误食。若持续超过一天、粪便带血或伴随发热，需尽快就医。</p>
+            </div>
+            <div class="disease-card">
+                <span class="num">03</span>
+                <h3>皮肤疾病</h3>
+                <p>局部掉毛、红疹、频繁抓挠可能是真菌感染、螨虫或过敏，发现后不要自行用人用药膏涂抹。</p>
+            </div>
+            <div class="disease-card">
+                <span class="num">04</span>
+                <h3>口腔问题</h3>
+                <p>明显口臭、流口水、拒食可能是牙结石或口炎。建议从幼年开始用宠物牙膏刷牙，定期洁牙。</p>
+            </div>
+            <div class="disease-card">
+                <span class="num">05</span>
+                <h3>泌尿系统疾病</h3>
+                <p>猫咪尿频、尿血、反复蹲砂盆是危险信号，尤其公猫尿闭可在短时间内危及生命，属急症。</p>
+            </div>
+            <div class="disease-card">
+                <span class="num">06</span>
+                <h3>肥胖症</h3>
+                <p>体重超标会显著增加糖尿病、关节炎和心脏病风险。需要控制热量、减少零食并逐步增加运动。</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== 领养咨询表单（3-1 form） ==================== -->
+<section class="sec" id="adopt">
+    <div class="container">
+        <div class="sec-head">
+            <span class="tag">ADOPTION</span>
+            <h2>领养 / 养宠咨询</h2>
+            <p>养宠是十几年的承诺，先评估自己是否准备好了</p>
+        </div>
+
+        <div class="adopt-card">
+            <p>以下为课程实践示例表单，提交后仅在本页面弹出提示，不会真正发送数据。</p>
+
+            <form id="adoptForm" novalidate>
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="fName">姓名 <span class="req">*</span></label>
+                        <input type="text" id="fName" placeholder="请输入您的姓名">
+                    </div>
+                    <div class="field">
+                        <label for="fTel">联系电话 <span class="req">*</span></label>
+                        <input type="tel" id="fTel" placeholder="11 位手机号码" maxlength="11">
+                    </div>
+
+                    <div class="field">
+                        <label for="fPet">想饲养的宠物 <span class="req">*</span></label>
+                        <select id="fPet">
+                            <option value="">请选择</option>
+                            <option>狗狗</option>
+                            <option>猫咪</option>
+                            <option>兔子</option>
+                            <option>仓鼠等小型宠物</option>
+                            <option>还在了解中</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label>养宠经验</label>
+                        <div class="radio-box">
+                            <label><input type="radio" name="exp" value="first" checked> 第一次养</label>
+                            <label><input type="radio" name="exp" value="some"> 有过经验</label>
+                            <label><input type="radio" name="exp" value="now"> 目前正在养</label>
+                        </div>
+                    </div>
+
+                    <div class="field full">
+                        <label>居住条件（多选）</label>
+                        <div class="check-box">
+                            <label><input type="checkbox" name="cond" value="own"> 自有住房</label>
+                            <label><input type="checkbox" name="cond" value="rent"> 合租且已征得同意</label>
+                            <label><input type="checkbox" name="cond" value="yard"> 有阳台或院子</label>
+                            <label><input type="checkbox" name="cond" value="family"> 共同居住的家人均同意</label>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="fTime">每天可陪伴时长</label>
+                        <select id="fTime">
+                            <option>1 小时以内</option>
+                            <option selected>1 – 2 小时</option>
+                            <option>2 – 4 小时</option>
+                            <option>4 小时以上</option>
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="fBudget">每月可承担预算</label>
+                        <select id="fBudget">
+                            <option>200 元以内</option>
+                            <option selected>200 – 500 元</option>
+                            <option>500 – 1000 元</option>
+                            <option>1000 元以上</option>
+                        </select>
+                    </div>
+
+                    <div class="field full">
+                        <label for="fMsg">想对我们说的话</label>
+                        <textarea id="fMsg" placeholder="例如：家里情况、想养宠物的原因、有哪些疑问……"></textarea>
+                    </div>
+
+                    <div class="field full promise">
+                        <label><input type="checkbox" id="fPromise"> 我承诺科学喂养、定期疫苗驱虫，不因搬家、结婚、生病等原因随意弃养。</label>
+                    </div>
+                </div>
+
+                <div class="form-btns">
+                    <button type="submit" class="btn btn-primary">提交咨询</button>
+                    <button type="reset" class="btn btn-reset">重新填写</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== 页脚（2-2 超链接） ==================== -->
+<footer>
+    <div class="container">
+        <div class="foot-inner">
+            <div class="foot-brand">
+                <div class="logo">
+                    <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24" style="color:#f97d3c" aria-hidden="true">
+                        <ellipse cx="12" cy="15.6" rx="5" ry="4"/>
+                        <ellipse cx="5" cy="10.6" rx="1.9" ry="2.5"/>
+                        <ellipse cx="9.2" cy="7.6" rx="1.9" ry="2.5"/>
+                        <ellipse cx="14.8" cy="7.6" rx="1.9" ry="2.5"/>
+                        <ellipse cx="19" cy="10.6" rx="1.9" ry="2.5"/>
+                    </svg>
+                    萌宠小课堂
+                </div>
+                <p>一个用于课程实践的宠物科普小站，内容涵盖品种科普、科学喂养与宠物医疗常识。</p>
+            </div>
+            <div class="foot-links">
+                <h4>快速导航</h4>
+                <a href="#science">宠物科普</a>
+                <a href="#feeding">科学喂养</a>
+                <a href="#medical">宠物医疗</a>
+                <a href="#adopt">领养咨询</a>
+            </div>
+            <div class="foot-links">
+                <h4>其他</h4>
+                <a href="./index.html">返回课程作品首页</a>
+                <a href="#home">回到本页顶部</a>
+            </div>
+        </div>
+        <div class="foot-note">
+            免责声明：本页内容为课程实践中的科普整理，不能替代专业兽医诊断，宠物不适请及时前往正规宠物医院就医。<br>
+            © 2026 唐笑 · 学号 24001010932 · 《高级网页设计》课堂实践
+        </div>
+    </div>
+</footer>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+/* 简单表单校验与提交提示（原生 JS） */
+var form = document.getElementById('adoptForm');
+var toast = document.getElementById('toast');
+var toastTimer = null;
+
+function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+        toast.classList.remove('show');
+    }, 2200);
+}
+
+form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    var name = document.getElementById('fName').value.trim();
+    var tel  = document.getElementById('fTel').value.trim();
+    var pet  = document.getElementById('fPet').value;
+    var ok   = document.getElementById('fPromise').checked;
+
+    if (!name)               { showToast('请填写姓名'); return; }
+    if (!/^1\d{10}$/.test(tel)) { showToast('请填写正确的 11 位手机号'); return; }
+    if (!pet)                { showToast('请选择想饲养的宠物'); return; }
+    if (!ok)                 { showToast('请先勾选科学养宠承诺'); return; }
+
+    showToast('提交成功！我们会尽快与你联系（示例表单）');
+    form.reset();
+});
+</script>
+
+</body>
+</html>

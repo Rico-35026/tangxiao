@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10-4 媒体查询布局 · 唐笑</title>
+<style>
+/* ============================================================
+   八个盒子 · 响应式布局
+   视口变化时一行显示的盒子数量不同：1 → 2 → 4 → 8
+   页面最小宽度 320px（低于此出现横向滚动条）
+   支持 3 个 media 断点
+   ============================================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    min-width: 320px;             /* 页面最小宽度 */
+    font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: #f4f5fb;
+    color: #18202f;
+}
+
+.page {
+    min-width: 320px;
+    padding: 30px 20px 40px;
+}
+
+.head {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.head h1 {
+    font-size: 22px;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+}
+
+.head p {
+    font-size: 13px;
+    color: #5b6577;
+    letter-spacing: 1px;
+}
+
+.head p b { color: #f97d3c; }
+
+/* ============================================================
+   盒子网格：默认（≤ 479px，最小到 320px）1 列
+   ============================================================ */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);   /* 默认 1 列 */
+    gap: 14px;
+    max-width: 1080px;
+    margin: 0 auto;
+    transition: gap .3s ease;
+}
+
+/* 单个盒子 */
+.box {
+    height: 90px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(24, 32, 47, .12);
+    transition: transform .3s ease, font-size .3s ease;
+}
+
+.box:hover { transform: translateY(-4px); }
+
+/* 八个盒子各自配色 */
+.box:nth-child(1) { background: #f97d3c; }
+.box:nth-child(2) { background: #06b6d4; }
+.box:nth-child(3) { background: #8b5cf6; }
+.box:nth-child(4) { background: #ec4899; }
+.box:nth-child(5) { background: #22c55e; }
+.box:nth-child(6) { background: #eab308; }
+.box:nth-child(7) { background: #ef4444; }
+.box:nth-child(8) { background: #3b82f6; }
+
+/* 8 号盒子内放唐笑文字 */
+.box:last-child::after { content: " · 唐笑"; font-size: 13px; opacity: .85; }
+
+/* ============================================================
+   媒体查询一：≥ 480px → 一行 2 个
+   ============================================================ */
+@media (min-width: 480px) {
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+    .box { font-size: 17px; }
+    .head h1 { font-size: 24px; }
+}
+
+/* ============================================================
+   媒体查询二：≥ 768px → 一行 4 个
+   ============================================================ */
+@media (min-width: 768px) {
+    .grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+    }
+    .box { font-size: 18px; height: 100px; }
+    .head h1 { font-size: 26px; }
+}
+
+/* ============================================================
+   媒体查询三：≥ 1024px → 一行 8 个
+   ============================================================ */
+@media (min-width: 1024px) {
+    .grid {
+        grid-template-columns: repeat(8, 1fr);
+        gap: 20px;
+    }
+    .box { font-size: 19px; height: 110px; }
+    .head h1 { font-size: 28px; }
+}
+
+/* 签名 */
+.sign {
+    margin-top: 36px;
+    text-align: center;
+    font-size: 12px;
+    color: #9aa3b5;
+    letter-spacing: 1px;
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+    <div class="head">
+        <h1>媒体查询布局 · 八个盒子</h1>
+        <p>视口变化时每行盒子数量：<b>1 → 2 → 4 → 8</b> · 支持 3 个 media 断点 · 页面 min-width: 320px</p>
+    </div>
+
+    <div class="grid">
+        <div class="box">01</div>
+        <div class="box">02</div>
+        <div class="box">03</div>
+        <div class="box">04</div>
+        <div class="box">05</div>
+        <div class="box">06</div>
+        <div class="box">07</div>
+        <div class="box">08</div>
+    </div>
+
+    <p class="sign">24001010932 · 唐笑 · 《高级网页设计I》课堂实践</p>
+
+</div>
+
+</body>
+</html>
