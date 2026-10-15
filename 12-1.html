@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS 变量</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #e94560;
+            --secondary-color: #0f3460;
+            --accent-color: #533483;
+            --bg-dark: #1a1a2e;
+            --bg-section: rgba(255, 255, 255, 0.05);
+            --bg-card: rgba(15, 52, 96, 0.5);
+            --text-light: #fff;
+            --text-muted: #a0a0a0;
+            --text-body: #ccc;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --border-accent: rgba(233, 69, 96, 0.3);
+            --radius-sm: 5px;
+            --radius-md: 10px;
+            --radius-lg: 15px;
+            --spacing-sm: 10px;
+            --spacing-md: 20px;
+            --spacing-lg: 30px;
+            --transition: 0.3s ease;
+            --font-stack: 'Microsoft YaHei', sans-serif;
+            --font-mono: 'Consolas', monospace;
+        }
+
+        body {
+            font-family: var(--font-stack);
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--secondary-color) 100%);
+            min-height: 100vh;
+            color: var(--text-light);
+            padding: var(--spacing-md);
+        }
+
+        .tang_container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .tang_header {
+            text-align: center;
+            padding: 40px 0;
+            border-bottom: 2px solid var(--secondary-color);
+            margin-bottom: 40px;
+        }
+
+        .tang_header h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .tang_header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .tang_section {
+            background: var(--bg-section);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .tang_section h2 {
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-md);
+            font-size: 1.5rem;
+        }
+
+        .tang_section > p {
+            color: var(--text-body);
+            line-height: 1.6;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .tang_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .tang_card {
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            border: 1px solid var(--border-accent);
+            transition: transform var(--transition), box-shadow var(--transition);
+        }
+
+        .tang_card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.2);
+        }
+
+        .tang_card h3 {
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-sm);
+            font-size: 1.2rem;
+        }
+
+        .tang_card p {
+            color: var(--text-body);
+            line-height: 1.6;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .tang_card code {
+            background: rgba(233, 69, 96, 0.2);
+            padding: 2px 8px;
+            border-radius: var(--radius-sm);
+            color: var(--primary-color);
+            font-family: var(--font-mono);
+        }
+
+        .tang_demo-box {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .tang_table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: var(--spacing-md);
+        }
+
+        .tang_table th,
+        .tang_table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .tang_table th {
+            background: rgba(233, 69, 96, 0.2);
+            color: var(--primary-color);
+        }
+
+        .tang_table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tang_demo-theme {
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            border: 2px solid;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .tang_theme-light {
+            --demo-bg: #f5f5f5;
+            --demo-text: #333;
+            --demo-primary: #e94560;
+            --demo-border: #ddd;
+            background: var(--demo-bg);
+            color: var(--demo-text);
+            border-color: var(--demo-border);
+        }
+
+        .tang_theme-dark {
+            --demo-bg: #1a1a2e;
+            --demo-text: #fff;
+            --demo-primary: #e94560;
+            --demo-border: #0f3460;
+            background: var(--demo-bg);
+            color: var(--demo-text);
+            border-color: var(--demo-border);
+        }
+
+        .tang_theme-nature {
+            --demo-bg: #e8f5e9;
+            --demo-text: #1b5e20;
+            --demo-primary: #4caf50;
+            --demo-border: #a5d6a7;
+            background: var(--demo-bg);
+            color: var(--demo-text);
+            border-color: var(--demo-border);
+        }
+
+        .tang_theme-ocean {
+            --demo-bg: #e3f2fd;
+            --demo-text: #0d47a1;
+            --demo-primary: #2196f3;
+            --demo-border: #90caf9;
+            background: var(--demo-bg);
+            color: var(--demo-text);
+            border-color: var(--demo-border);
+        }
+
+        .tang_demo-theme h3 {
+            color: var(--demo-primary);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .tang_demo-theme p {
+            color: var(--demo-text);
+            line-height: 1.6;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .tang_demo-theme .tang_demo-btn {
+            display: inline-block;
+            padding: 8px 20px;
+            background: var(--demo-primary);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .tang_scope-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+
+        .tang_scope-item {
+            padding: var(--spacing-md);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .tang_scope-item h4 {
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-sm);
+            font-size: 1rem;
+        }
+
+        .tang_scope-item p {
+            color: var(--text-body);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .tang_scope-global {
+            --local-color: #e94560;
+            border-color: var(--local-color);
+        }
+
+        .tang_scope-local {
+            --local-color: #4ecca3;
+            border-color: var(--local-color);
+        }
+
+        .tang_scope-override {
+            --local-color: #f39c12;
+            border-color: var(--local-color);
+        }
+
+        .tang_scope-demo-box {
+            margin-top: var(--spacing-sm);
+            padding: var(--spacing-sm) var(--spacing-md);
+            background: var(--local-color);
+            color: #fff;
+            border-radius: var(--radius-sm);
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .tang_code-block {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: var(--radius-md);
+            padding: var(--spacing-md);
+            margin-top: var(--spacing-md);
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+        }
+
+        .tang_code-block pre {
+            font-family: var(--font-mono);
+            color: var(--text-body);
+            line-height: 1.8;
+            font-size: 0.9rem;
+            white-space: pre;
+        }
+
+        .tang_code-block .tang_code-comment {
+            color: #6a9955;
+        }
+
+        .tang_code-block .tang_code-keyword {
+            color: #569cd6;
+        }
+
+        .tang_code-block .tang_code-string {
+            color: #ce9178;
+        }
+
+        .tang_code-block .tang_code-func {
+            color: #dcdcaa;
+        }
+
+        .tang_js-demo {
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-md);
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: var(--radius-md);
+            text-align: center;
+        }
+
+        .tang_js-demo h3 {
+            color: var(--primary-color);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .tang_color-picker {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            margin: var(--spacing-sm) var(--spacing-md);
+        }
+
+        .tang_color-picker input[type="color"] {
+            width: 50px;
+            height: 35px;
+            border: none;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            background: none;
+        }
+
+        .tang_color-picker label {
+            color: var(--text-body);
+        }
+
+        .tang_dynamic-box {
+            width: 150px;
+            height: 150px;
+            margin: var(--spacing-md) auto;
+            border-radius: var(--radius-md);
+            transition: background var(--transition);
+            border: 2px solid var(--border-color);
+        }
+
+        .tang_footer {
+            text-align: center;
+            padding: var(--spacing-lg);
+            color: #666;
+            border-top: 1px solid var(--border-color);
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .tang_grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tang_header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="tang_container">
+        <header class="tang_header">
+            <h1>CSS 变量</h1>
+            <p>掌握 CSS 自定义属性：定义、使用、作用域与动态主题切换</p>
+        </header>
+
+        <section class="tang_section">
+            <h2>什么是 CSS 变量</h2>
+            <p>CSS 变量（自定义属性）允许你在样式表中定义可重复使用的值。使用 <code>--变量名</code> 定义，通过 <code>var(--变量名)</code> 引用。</p>
+            <div class="tang_code-block">
+                <pre><span class="tang_code-comment">/* 定义变量 */</span>
+<span class="tang_code-keyword">:root</span> {
+    <span class="tang_code-comment">/* 以 -- 开头定义自定义属性 */</span>
+    <span class="tang_code-string">--primary-color</span>: <span class="tang_code-string">#e94560</span>;
+    <span class="tang_code-string">--spacing</span>: <span class="tang_code-string">20px</span>;
+    <span class="tang_code-string">--font-size</span>: <span class="tang-code-string">16px</span>;
+}
+
+<span class="tang_code-comment">/* 使用变量 */</span>
+<span class="tang_code-keyword">.button</span> {
+    <span class="tang_code-string">background</span>: <span class="tang_code-func">var</span>(<span class="tang_code-string">--primary-color</span>);
+    <span class="tang_code-string">padding</span>: <span class="tang_code-func">var</span>(<span class="tang-code-string">--spacing</span>);
+    <span class="tang_code-string">font-size</span>: <span class="tang_code-func">var</span>(<span class="tang-code-string">--font-size</span>);
+}</pre>
+            </div>
+        </section>
+
+        <section class="tang_section">
+            <h2>基本用法示例</h2>
+            <p>以下是使用 CSS 变量构建的卡片组件，所有颜色、间距、圆角均通过变量控制。</p>
+            <div class="tang_grid">
+                <div class="tang_card">
+                    <h3>颜色变量</h3>
+                    <p>统一管理品牌色、背景色、文字色等。</p>
+                    <code>--primary-color: #e94560;</code>
+                    <div class="tang_demo-box" style="background: var(--primary-color); color: #fff;">主色 #e94560</div>
+                </div>
+                <div class="tang_card">
+                    <h3>间距变量</h3>
+                    <p>统一管理页面间距，保持视觉一致性。</p>
+                    <code>--spacing-md: 20px;</code>
+                    <div class="tang_demo-box" style="background: var(--accent-color); color: #fff; padding: var(--spacing-md);">间距 20px</div>
+                </div>
+                <div class="tang_card">
+                    <h3>圆角变量</h3>
+                    <p>统一圆角大小，轻松实现风格切换。</p>
+                    <code>--radius-md: 10px;</code>
+                    <div class="tang_demo-box" style="background: var(--secondary-color); color: #fff; border-radius: var(--radius-md);">圆角 10px</div>
+                </div>
+                <div class="tang_card">
+                    <h3>字体变量</h3>
+                    <p>统一管理字体栈和等宽字体。</p>
+                    <code>--font-stack: 'Microsoft YaHei';</code>
+                    <div class="tang_demo-box" style="background: #16213e; color: #fff; font-family: var(--font-mono);">字体</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="tang_section">
+            <h2>变量作用域</h2>
+            <p>CSS 变量遵循层叠规则：全局变量定义在 <code>:root</code>，局部变量可在任意选择器中覆盖。</p>
+            <div class="tang_scope-demo">
+                <div class="tang_scope-item tang_scope-global">
+                    <h4>全局变量 (:root)</h4>
+                    <p>定义在整个文档根元素，所有元素都可访问。</p>
+                    <code>:root { --local-color: #e94560; }</code>
+                    <div class="tang_scope-demo-box">全局变量</div>
+                </div>
+                <div class="tang_scope-item tang_scope-local">
+                    <h4>局部变量</h4>
+                    <p>定义在特定选择器内，仅该选择器及其子元素可访问。</p>
+                    <code>.local { --local-color: #4ecca3; }</code>
+                    <div class="tang_scope-demo-box">局部变量</div>
+                </div>
+                <div class="tang_scope-item tang_scope-override">
+                    <h4>变量覆盖</h4>
+                    <p>子元素中同名变量会覆盖父级定义。</p>
+                    <code>.override { --local-color: #f39c12; }</code>
+                    <div class="tang_scope-demo-box">覆盖变量</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="tang_section">
+            <h2>动态主题切换</h2>
+            <p>利用 CSS 变量 + JavaScript 实现一键换肤，无需修改大量样式。</p>
+            <div class="tang_js-demo">
+                <h3>点击切换主题色</h3>
+                <div class="tang_color-picker">
+                    <label for="colorPrimary">主色：</label>
+                    <input type="color" id="colorPrimary" value="#e94560">
+                    <label for="colorBg">背景：</label>
+                    <input type="color" id="colorBg" value="#1a1a2e">
+                </div>
+                <div class="tang_dynamic-box" id="dynamicBox"></div>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">修改上方颜色，观察方块和页面变化</p>
+            </div>
+        </section>
+
+        <section class="tang_section">
+            <h2>多主题对比</h2>
+            <p>通过变量实现的不同主题效果，仅改变量值即可切换整套配色。</p>
+            <div class="tang_grid">
+                <div class="tang_demo-theme tang_theme-light">
+                    <h3>浅色主题</h3>
+                    <p>明亮清爽的浅色背景，适合阅读。</p>
+                    <button class="tang_demo-btn">按钮</button>
+                </div>
+                <div class="tang_demo-theme tang_theme-dark">
+                    <h3>深色主题</h3>
+                    <p>护眼深色背景，适合夜间使用。</p>
+                    <button class="tang_demo-btn">按钮</button>
+                </div>
+                <div class="tang_demo-theme tang_theme-nature">
+                    <h3>自然主题</h3>
+                    <p>清新绿色调，给人自然舒适感。</p>
+                    <button class="tang_demo-btn">按钮</button>
+                </div>
+                <div class="tang_demo-theme tang_theme-ocean">
+                    <h3>海洋主题</h3>
+                    <p>沉稳蓝色调，营造专业氛围。</p>
+                    <button class="tang_demo-btn">按钮</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="tang_section">
+            <h2>JavaScript 操作变量</h2>
+            <p>通过 JS 动态修改变量值，实现运行时主题切换。</p>
+            <div class="tang_code-block">
+                <pre><span class="tang_code-comment">// 获取 :root 元素</span>
+<span class="tang_code-keyword">const</span> root = document.<span class="tang_code-func">querySelector</span>(<span class="tang-code-string">':root'</span>);
+
+<span class="tang_code-comment">// 修改变量值</span>
+root.style.<span class="tang_code-func">setProperty</span>(<span class="tang-code-string">'--primary-color'</span>, <span class="tang-code-string">'#4ecca3'</span>);
+
+<span class="tang_code-comment">// 获取变量值</span>
+<span class="tang_code-keyword">const</span> color = root.style.<span class="tang_code-func">getPropertyValue</span>(<span class="tang-code-string">'--primary-color'</span>);</pre>
+            </div>
+        </section>
+
+        <section class="tang_section">
+            <h2>使用建议</h2>
+            <div class="tang_grid">
+                <div class="tang_card">
+                    <h3>命名规范</h3>
+                    <p>使用 <code>--</code> 前缀，采用小写短横线命名，如 <code>--primary-color</code>。</p>
+                </div>
+                <div class="tang_card">
+                    <h3>回退值</h3>
+                    <p>使用 <code>var(--color, #333)</code> 提供默认值，兼容旧浏览器。</p>
+                </div>
+                <div class="tang_card">
+                    <h3>统一管理</h3>
+                    <p>在 <code>:root</code> 集中定义设计系统的颜色、间距、字体等。</p>
+                </div>
+                <div class="tang_card">
+                    <h3>动态交互</h3>
+                    <p>结合 JS 实现主题切换、用户偏好设置等动态功能。</p>
+                </div>
+            </div>
+        </section>
+
+        <footer class="tang_footer">
+            <p>CSS 变量教程 | 掌握自定义属性实现灵活可维护的样式系统</p>
+        </footer>
+    </div>
+
+    <script>
+        var colorPrimary = document.getElementById('colorPrimary');
+        var colorBg = document.getElementById('colorBg');
+        var dynamicBox = document.getElementById('dynamicBox');
+
+        function updateColors() {
+            var r = document.querySelector(':root');
+            r.style.setProperty('--primary-color', colorPrimary.value);
+            r.style.setProperty('--bg-dark', colorBg.value);
+            dynamicBox.style.background = colorPrimary.value;
+        }
+
+        colorPrimary.addEventListener('input', updateColors);
+        colorBg.addEventListener('input', updateColors);
+    </script>
+</body>
+</html>
