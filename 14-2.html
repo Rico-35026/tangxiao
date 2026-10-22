@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!--
+姓名：唐笑
+日期：2026-10-22
+功能名称：JavaScript 六种基础数据类型演示
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>14-2 JavaScript 基础数据类型</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f5f7fa;
+            padding: 24px;
+            color: #333;
+        }
+        .tx_container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 12px;
+            padding: 32px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        }
+        h1 {
+            font-size: 22px;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+        .tx_subtitle {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        .tx_type-card {
+            border: 1px solid #e8ecf1;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 12px;
+            background: #fafbfc;
+        }
+        .tx_type-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a73e8;
+            margin-bottom: 6px;
+        }
+        .tx_type-name code {
+            background: #e8f0fe;
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #1a73e8;
+            margin-right: 6px;
+        }
+        .tx_type-desc {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 8px;
+        }
+        .tx_type-value {
+            font-family: Consolas, Monaco, monospace;
+            font-size: 13px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 10px 14px;
+            color: #d6336c;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .tx_section-title {
+            font-size: 18px;
+            margin: 28px 0 12px;
+            padding-left: 10px;
+            border-left: 3px solid #1a73e8;
+        }
+        .tx_note {
+            background: #fff8e1;
+            border-radius: 6px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #7c5a00;
+            margin-top: 16px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="tx_container">
+        <h1>JavaScript 六种基础数据类型</h1>
+        <p class="tx_subtitle">页面加载后自动执行 script，通过 console 和页面展示变量类型与值</p>
+
+        <div id="tx_result"></div>
+
+        <h2 class="tx_section-title">typeof 检测结果汇总</h2>
+        <div id="tx_typeof" class="tx_type-value"></div>
+
+        <div class="tx_note">
+            注：ES6 新增 Symbol、ES2020 新增 BigInt，它们也是原始类型；对象、数组、函数属于引用类型，不在"六种基础数据类型"之列。
+        </div>
+    </div>
+
+    <script>
+        // ====== 六种基础数据类型 ======
+
+        // 1. String 字符串
+        let tx_name = "唐笑";
+        let tx_greeting = 'Hello, JavaScript';
+        let tx_template = `我叫${tx_name}`;
+
+        // 2. Number 数值
+        let tx_age = 25;
+        let tx_pi = 3.14159;
+        let tx_infinity = Infinity;
+        let tx_notANumber = NaN;
+
+        // 3. Boolean 布尔
+        let tx_isStudent = true;
+        let tx_isWorking = false;
+
+        // 4. Null 空值
+        let tx_emptyBox = null;
+
+        // 5. Undefined 未定义
+        let tx_undeclared;
+
+        // 6. Object 对象（引用类型基础，数组/函数是特殊对象）
+        let tx_person = { name: "唐笑", age: 25 };
+        let tx_skills = ["HTML", "CSS", "JS"];
+
+        // ====== 辅助函数：渲染卡片 ======
+        function tx_renderCard(typeKey, typeName, desc, rawValue, typeofResult) {
+            let tx_resultEl = document.getElementById("tx_result");
+            let tx_card = document.createElement("div");
+            tx_card.className = "tx_type-card";
+            tx_card.innerHTML = `
+                <div class="tx_type-name"><code>${typeKey}</code>${typeName}</div>
+                <div class="tx_type-desc">${desc}</div>
+                <div class="tx_type-value">值: ${rawValue}&#10;typeof: "${typeofResult}"</div>
+            `;
+            tx_resultEl.appendChild(tx_card);
+        }
+
+        // ====== 逐个渲染 ======
+        tx_renderCard("String", "字符串", "用单引号、双引号或反引号包裹的文本",
+            `"${tx_name}"、"${tx_greeting}"、\`${tx_template}\``, typeof tx_name);
+
+        tx_renderCard("Number", "数值", "整数、浮点数、Infinity、NaN",
+            `${tx_age}、${tx_pi}、${tx_infinity}、${tx_notANumber}`, typeof tx_age);
+
+        tx_renderCard("Boolean", "布尔", "只有 true 和 false 两个值",
+            `${tx_isStudent}、${tx_isWorking}`, typeof tx_isStudent);
+
+        tx_renderCard("Null", "空值", "表示一个"空"的对象引用（历史遗留 typeof 返回 object）",
+            `${tx_emptyBox}`, typeof tx_emptyBox);
+
+        tx_renderCard("Undefined", "未定义", "变量已声明但未赋值，或访问不存在的属性",
+            `${tx_undeclared}`, typeof tx_undeclared);
+
+        tx_renderCard("Object", "对象", "键值对集合；数组和函数是特殊对象",
+            `{name: "${tx_person.name}", age: ${tx_person.age}}、["${tx_skills.join('", "')}"]`, typeof tx_person);
+
+        // ====== typeof 汇总 ======
+        let tx_summary = [
+            `typeof "${tx_name}"       → "${typeof tx_name}"`,
+            `typeof ${tx_age}           → "${typeof tx_age}"`,
+            `typeof ${tx_isStudent}      → "${typeof tx_isStudent}"`,
+            `typeof ${tx_emptyBox}      → "${typeof tx_emptyBox}"  (历史遗留 bug)`,
+            `typeof ${tx_undeclared}    → "${typeof tx_undeclared}"`,
+            `typeof {name:"唐笑"}       → "${typeof tx_person}"`,
+            `typeof ["HTML","CSS","JS"] → "${typeof tx_skills}"`,
+            `typeof function(){}       → "${typeof (function(){})}"`,
+        ].join("\n");
+        document.getElementById("tx_typeof").textContent = tx_summary;
+
+        // ====== 控制台同步输出 ======
+        console.log("===== JavaScript 六种基础数据类型 =====");
+        console.log("String:", tx_name, tx_greeting, tx_template);
+        console.log("Number:", tx_age, tx_pi, tx_infinity, tx_notANumber);
+        console.log("Boolean:", tx_isStudent, tx_isWorking);
+        console.log("Null:", tx_emptyBox, "typeof →", typeof tx_emptyBox);
+        console.log("Undefined:", tx_undeclared, "typeof →", typeof tx_undeclared);
+        console.log("Object:", tx_person, tx_skills);
+    </script>
+</body>
+</html>

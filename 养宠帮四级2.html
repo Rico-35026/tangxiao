@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>养宠帮 - 底部导航</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding-bottom: 70px;
+        }
+
+        /* ===== 底部导航栏 ===== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 60px;
+            padding-bottom: env(safe-area-inset-bottom);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 60px;
+            text-decoration: none;
+            color: #999999;
+            transition: color 0.2s ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .nav-item svg {
+            width: 26px;
+            height: 26px;
+            margin-bottom: 4px;
+            fill: currentColor;
+            transition: transform 0.2s ease;
+        }
+
+        .nav-item span {
+            font-size: 11px;
+            line-height: 1;
+        }
+
+        .nav-item.active {
+            color: #f59e0b;
+        }
+
+        .nav-item:active svg {
+            transform: scale(0.9);
+        }
+
+        /* 发布按钮特殊样式 */
+        .nav-item.publish {
+            position: relative;
+        }
+
+        .nav-item.publish .publish-btn {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 52px;
+            height: 52px;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .nav-item.publish .publish-btn svg {
+            width: 28px;
+            height: 28px;
+            fill: #ffffff;
+            margin-bottom: 0;
+        }
+
+        .nav-item.publish:active .publish-btn {
+            transform: translateX(-50%) scale(0.95);
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+        }
+
+        .nav-item.publish span {
+            margin-top: 36px;
+        }
+
+        /* 适配小屏幕 */
+        @media (max-width: 360px) {
+            .nav-item svg {
+                width: 24px;
+                height: 24px;
+            }
+
+            .nav-item span {
+                font-size: 10px;
+            }
+
+            .nav-item.publish .publish-btn {
+                width: 48px;
+                height: 48px;
+                top: -16px;
+            }
+
+            .nav-item.publish .publish-btn svg {
+                width: 26px;
+                height: 26px;
+            }
+        }
+
+        /* 适配大屏幕 */
+        @media (min-width: 480px) {
+            .bottom-nav {
+                max-width: 480px;
+                left: 50%;
+                transform: translateX(-50%);
+                border-radius: 16px 16px 0 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===== 底部导航栏 ===== -->
+    <nav class="bottom-nav">
+        <!-- 首页 -->
+        <a class="nav-item active" data-tab="home">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3zm0 2.84L18 10.5V19h-3v-6H9v6H6v-8.5l6-4.66z"/>
+                <circle cx="12" cy="14" r="1.5"/>
+            </svg>
+            <span>首页</span>
+        </a>
+
+        <!-- 宠物生活 -->
+        <a class="nav-item" data-tab="life">
+            <svg viewBox="0 0 24 24">
+                <path d="M6 6c1.5 0 2.5 1 2.5 2.5S7.5 11 6 11 3.5 10 3.5 8.5 4.5 6 6 6zm12 0c1.5 0 2.5 1 2.5 2.5S19.5 11 18 11s-2.5-1-2.5-2.5S16.5 6 18 6zm-6 4c2 0 3.5 1.5 3.5 3.5S14 17 12 17s-3.5-1.5-3.5-3.5S10 10 12 10zM4.5 14c1.5 0 2.5 1 2.5 2.5S6 19 4.5 19 2 18 2 16.5 3 14 4.5 14zm15 0c1.5 0 2.5 1 2.5 2.5S21 19 19.5 19 17 18 17 16.5s1-2.5 2.5-2.5z"/>
+            </svg>
+            <span>宠物生活</span>
+        </a>
+
+        <!-- 发布 -->
+        <a class="nav-item publish" data-tab="publish">
+            <div class="publish-btn">
+                <svg viewBox="0 0 24 24">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+            </div>
+            <span>发布</span>
+        </a>
+
+        <!-- 探索 -->
+        <a class="nav-item" data-tab="explore">
+            <svg viewBox="0 0 24 24">
+                <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12zM7 9h2v2H7V9zm4 0h2v2h-2V9zm4 0h2v2h-2V9z"/>
+            </svg>
+            <span>探索</span>
+        </a>
+
+        <!-- 我的 -->
+        <a class="nav-item" data-tab="mine">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+            </svg>
+            <span>我的</span>
+        </a>
+    </nav>
+
+    <script>
+        // 底部导航切换功能
+        const navItems = document.querySelectorAll('.nav-item');
+        
+        navItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                // 移除所有active状态
+                navItems.forEach(nav => nav.classList.remove('active'));
+                // 添加当前active状态
+                this.classList.add('active');
+                
+                // 这里可以添加页面跳转逻辑
+                const tab = this.getAttribute('data-tab');
+                console.log('切换到:', tab);
+            });
+        });
+    </script>
+</body>
+</html>
