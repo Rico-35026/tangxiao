@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!--
+姓名：唐笑
+日期：2026-10-26
+功能名称：数7游戏 - 100个盒子按数7规则显示
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>15-1 数7游戏</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+        }
+        .tx_container {
+            max-width: 720px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 16px;
+            padding: 28px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        .tx_header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .tx_header h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 6px;
+        }
+        .tx_header .tx_author {
+            font-size: 14px;
+            color: #888;
+        }
+        .tx_rules {
+            background: #fff8e1;
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-size: 13px;
+            color: #7c5a00;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        .tx_rules b { color: #d84315; }
+        .tx_grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+        }
+        .tx_box {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 8px;
+            background: #f0f4ff;
+            color: #3a4a8a;
+            transition: transform 0.15s ease;
+            user-select: none;
+        }
+        .tx_box:hover { transform: scale(1.05); }
+        .tx_box.tx_empty {
+            background: repeating-linear-gradient(
+                45deg,
+                #ff6b6b,
+                #ff6b6b 6px,
+                #ff8e8e 6px,
+                #ff8e8e 12px
+            );
+            color: transparent;
+            border: 2px dashed #c0392b;
+        }
+        .tx_footer {
+            text-align: center;
+            margin-top: 22px;
+            font-size: 13px;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="tx_container">
+        <div class="tx_header">
+            <h1>🎯 数 7 游戏</h1>
+            <div class="tx_author">作者：唐笑</div>
+        </div>
+
+        <div class="tx_rules">
+            <b>规则：</b>共 100 个盒子（1-100）。满足"数7"规则的盒子显示为空（红色斜条纹），
+            其他盒子显示内部数字。<br>
+            <b>数7规则：</b>① 能被 7 整除的数（7、14、21…） &nbsp; ② 末尾数字是 7 的数（7、17、27…）
+        </div>
+
+        <div class="tx_grid" id="tx_grid"></div>
+
+        <div class="tx_footer">数7游戏 · 唐笑 · 2026</div>
+    </div>
+
+    <script>
+        // 构造 1~100 的盒子
+        for (let i = 1; i <= 100; i++) {
+            let tx_box = document.createElement("div");
+            tx_box.className = "tx_box";
+
+            // 数7规则：7的倍数 || 末尾是7
+            let tx_isMultipleOf7 = (i % 7 === 0);
+            let tx_endsWith7 = (i % 10 === 7);
+
+            if (tx_isMultipleOf7 || tx_endsWith7) {
+                tx_box.classList.add("tx_empty");
+                tx_box.textContent = "";
+            } else {
+                tx_box.textContent = i;
+            }
+
+            document.getElementById("tx_grid").appendChild(tx_box);
+        }
+
+        // 控制台输出满足数7的数字
+        let tx_result = [];
+        for (let i = 1; i <= 100; i++) {
+            if (i % 7 === 0 || i % 10 === 7) tx_result.push(i);
+        }
+        console.log("满足数7规则的数（" + tx_result.length + " 个）：", tx_result);
+    </script>
+</body>
+</html>
