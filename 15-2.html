@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!--
+姓名：唐笑
+日期：2026-10-26
+功能名称：JavaScript 条件与循环程序结构演示
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>15-2 JS 条件与循环</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #434343 0%, #000 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+            color: #e0e0e0;
+        }
+        .tx_container {
+            max-width: 820px;
+            margin: 0 auto;
+            background: #1e1e2e;
+            border-radius: 14px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        .tx_header {
+            text-align: center;
+            margin-bottom: 26px;
+            border-bottom: 1px solid #3a3a4e;
+            padding-bottom: 18px;
+        }
+        .tx_header h1 { font-size: 24px; color: #cdd6f4; margin-bottom: 6px; }
+        .tx_header p { font-size: 13px; color: #89b4fa; }
+
+        .tx_section { margin-bottom: 28px; }
+        .tx_section-title {
+            font-size: 17px;
+            color: #f9e2af;
+            margin-bottom: 12px;
+            padding-left: 10px;
+            border-left: 3px solid #f38ba8;
+        }
+        .tx_section-title small { color: #a6adc8; font-weight: normal; font-size: 13px; margin-left: 8px; }
+
+        .tx_code {
+            background: #181825;
+            border-radius: 8px;
+            padding: 14px 16px;
+            font-family: Consolas, Monaco, monospace;
+            font-size: 13px;
+            color: #a6e3a1;
+            line-height: 1.7;
+            margin-bottom: 12px;
+            border: 1px solid #313244;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        .tx_output {
+            background: #11111b;
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-family: Consolas, Monaco, monospace;
+            font-size: 13px;
+            color: #89dceb;
+            border: 1px solid #45475a;
+        }
+        .tx_output .tx_label { color: #f38ba8; margin-bottom: 6px; display: block; }
+        .tx_divider { height: 1px; background: #313244; margin: 10px 0; }
+        .tx_footer { text-align: center; font-size: 12px; color: #585b70; margin-top: 24px; }
+    </style>
+</head>
+<body>
+    <div class="tx_container">
+        <div class="tx_header">
+            <h1>JavaScript 条件与循环</h1>
+            <p>作者：唐笑 · 条件判断（if / switch）+ 循环（for / while / for-in / for-of）</p>
+        </div>
+
+        <!-- ============ 1. if ... else if ... else ============ -->
+        <div class="tx_section">
+            <div class="tx_section-title">① if / else if / else 条件判断 <small>成绩等级判定</small></div>
+            <div class="tx_code">let tx_score = 85;
+if (tx_score >= 90) {   tx_grade = "A 优秀"; }
+else if (tx_score >= 80) { tx_grade = "B 良好"; }
+else if (tx_score >= 60) { tx_grade = "C 及格"; }
+else {                  tx_grade = "D 不及格"; }</div>
+            <div class="tx_output">
+                <span class="tx_label">执行结果：</span>
+                <div id="tx_if_result"></div>
+            </div>
+        </div>
+
+        <!-- ============ 2. switch ============ -->
+        <div class="tx_section">
+            <div class="tx_section-title">② switch 多分支选择 <small>星期几</small></div>
+            <div class="tx_code">let tx_day = 3;
+switch (tx_day) {
+    case 1: tx_week = "周一"; break;
+    case 2: tx_week = "周二"; break;
+    case 3: tx_week = "周三"; break;
+    case 4: tx_week = "周四"; break;
+    case 5: tx_week = "周五"; break;
+    default: tx_week = "周末"; break;
+}</div>
+            <div class="tx_output">
+                <span class="tx_label">执行结果：</span>
+                <div id="tx_switch_result"></div>
+            </div>
+        </div>
+
+        <!-- ============ 3. for 循环 ============ -->
+        <div class="tx_section">
+            <div class="tx_section-title">③ for 循环 <small>1~10 累加求和</small></div>
+            <div class="tx_code">let tx_sum = 0;
+for (let i = 1; i <= 10; i++) {
+    tx_sum += i;
+}</div>
+            <div class="tx_output">
+                <span class="tx_label">执行结果：</span>
+                <div id="tx_for_result"></div>
+            </div>
+        </div>
+
+        <!-- ============ 4. while 循环 ============ -->
+        <div class="tx_section">
+            <div class="tx_section-title">④ while 循环 <small>计算 2 的幂次直到超过 100</small></div>
+            <div class="tx_code">let tx_pow = 1;
+let tx_count = 0;
+while (tx_pow <= 100) {
+    tx_pow *= 2;
+    tx_count++;
+}</div>
+            <div class="tx_output">
+                <span class="tx_label">执行结果：</span>
+                <div id="tx_while_result"></div>
+            </div>
+        </div>
+
+        <!-- ============ 5. do ... while ============ -->
+        <div class="tx_section">
+            <div class="tx_section-title">⑤ do ... while 循环 <small>至少执行一次</small></div>
+            <div class="tx_code">let tx_dice = 0;
+let tx_rolls = 0;
+do {
+    tx_dice = Math.floor(Math.random() * 6) + 1;
+    tx_rolls++;
+} while (tx_dice !== 6);</div>
+            <div class="tx_output">
+                <span class="tx_label">执行结果（掷骰子直到掷出 6）：</span>
+                <div id="tx_dowhile_result"></div>
+            </div>
+        </div>
+
+        <!-- ============ 6. for-in / for-of ============ -->
+        <div class="tx_section">
+            <div class="tx_section-title">⑥ for-in / for-of <small>遍历对象与数组</small></div>
+            <div class="tx_code">let tx_person = { name: "唐笑", age: 20, major: "计算机" };
+let tx_array  = ["HTML", "CSS", "JS", "Vue"];
+
+// for-in 遍历对象 key
+for (let key in tx_person) { ... }
+// for-of 遍历数组 value
+for (let val of tx_array) { ... }</div>
+            <div class="tx_output">
+                <span class="tx_label">执行结果：</span>
+                <div id="tx_forin_result"></div>
+            </div>
+        </div>
+
+        <!-- ============ 7. break & continue ============ -->
+        <div class="tx_section">
+            <div class="tx_section-title">⑦ break / continue <small>break 跳出 · continue 跳过本次</small></div>
+            <div class="tx_code">// 找第一个能被 7 整除的数
+for (let i = 1; i <= 20; i++) {
+    if (i % 7 === 0) { tx_first7 = i; break; }
+}
+// 输出 1~10 中跳过偶数的数
+let tx_odds = [];
+for (let i = 1; i <= 10; i++) {
+    if (i % 2 === 0) continue;
+    tx_odds.push(i);
+}</div>
+            <div class="tx_output">
+                <span class="tx_label">执行结果：</span>
+                <div id="tx_break_result"></div>
+            </div>
+        </div>
+
+        <div class="tx_footer">15-2 · JavaScript 条件与循环 · 唐笑 · 2026</div>
+    </div>
+
+    <script>
+        // ① if / else if / else
+        let tx_score = 85;
+        let tx_grade;
+        if (tx_score >= 90)       tx_grade = "A 优秀";
+        else if (tx_score >= 80) tx_grade = "B 良好";
+        else if (tx_score >= 60) tx_grade = "C 及格";
+        else                     tx_grade = "D 不及格";
+        document.getElementById("tx_if_result").textContent =
+            `分数 ${tx_score} → 等级：${tx_grade}`;
+
+        // ② switch
+        let tx_day = 3;
+        let tx_week;
+        switch (tx_day) {
+            case 1: tx_week = "周一"; break;
+            case 2: tx_week = "周二"; break;
+            case 3: tx_week = "周三"; break;
+            case 4: tx_week = "周四"; break;
+            case 5: tx_week = "周五"; break;
+            default: tx_week = "周末"; break;
+        }
+        document.getElementById("tx_switch_result").textContent =
+            `今天是周 ${tx_day} → ${tx_week}`;
+
+        // ③ for 循环
+        let tx_sum = 0;
+        for (let i = 1; i <= 10; i++) tx_sum += i;
+        document.getElementById("tx_for_result").textContent =
+            `1 + 2 + ... + 10 = ${tx_sum}`;
+
+        // ④ while 循环
+        let tx_pow = 1, tx_count = 0;
+        while (tx_pow <= 100) { tx_pow *= 2; tx_count++; }
+        document.getElementById("tx_while_result").textContent =
+            `2 连乘 ${tx_count} 次 = ${tx_pow}（首次超过 100）`;
+
+        // ⑤ do ... while
+        let tx_dice = 0, tx_rolls = 0;
+        do {
+            tx_dice = Math.floor(Math.random() * 6) + 1;
+            tx_rolls++;
+        } while (tx_dice !== 6);
+        document.getElementById("tx_dowhile_result").textContent =
+            `掷了 ${tx_rolls} 次才掷出 6（最后一次：${tx_dice}）`;
+
+        // ⑥ for-in / for-of
+        let tx_person = { name: "唐笑", age: 20, major: "计算机" };
+        let tx_array = ["HTML", "CSS", "JS", "Vue"];
+        let tx_str = "";
+        for (let key in tx_person)  tx_str += `${key}=${tx_person[key]}  `;
+        tx_str += "\n数组: ";
+        for (let val of tx_array)   tx_str += `${val} `;
+        document.getElementById("tx_forin_result").textContent = tx_str;
+
+        // ⑦ break / continue
+        let tx_first7;
+        for (let i = 1; i <= 20; i++) {
+            if (i % 7 === 0) { tx_first7 = i; break; }
+        }
+        let tx_odds = [];
+        for (let i = 1; i <= 10; i++) {
+            if (i % 2 === 0) continue;
+            tx_odds.push(i);
+        }
+        document.getElementById("tx_break_result").textContent =
+            `第一个 7 的倍数：${tx_first7}\n1~10 中的奇数：${tx_odds.join(", ")}`;
+
+        console.log("===== 15-2 条件与循环 =====");
+        console.log("if 成绩等级:", tx_grade);
+        console.log("switch 星期:", tx_week);
+        console.log("for 累加:", tx_sum);
+        console.log("while 幂次:", tx_pow, "次数:", tx_count);
+        console.log("do-while 骰子:", tx_rolls, "次掷出 6");
+        console.log("break 第一个 7 的倍数:", tx_first7);
+        console.log("continue 奇数:", tx_odds);
+    </script>
+</body>
+</html>
