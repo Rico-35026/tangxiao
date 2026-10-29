@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!--
+姓名：唐笑
+日期：2026-10-29
+功能名称：宠物服务网站底部导航（仿原图两栏链接布局）
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>16-3 宠物服务底部导航</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #232f3e;
+            min-height: 100vh;
+        }
+        .tx_footer-nav {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 60px 80px 80px;
+            display: flex;
+            gap: 140px;
+        }
+        .tx_col { min-width: 180px; }
+        .tx_col h3 {
+            font-size: 22px;
+            color: #ffffff;
+            font-weight: 700;
+            margin-bottom: 34px;
+        }
+        .tx_col ul { list-style: none; }
+        .tx_col li { margin-bottom: 24px; }
+        .tx_col a {
+            font-size: 15px;
+            color: #8a97a6;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .tx_col a:hover { color: #ffffff; }
+    </style>
+</head>
+<body>
+    <div class="tx_footer-nav">
+        <div class="tx_col">
+            <h3>找服务</h3>
+            <ul>
+                <li><a href="#">宠物托运</a></li>
+                <li><a href="#">上门喂猫</a></li>
+                <li><a href="#">上门遛狗</a></li>
+                <li><a href="#">宠物家政</a></li>
+                <li><a href="#">寄养门店</a></li>
+                <li><a href="#">宠粮商城</a></li>
+            </ul>
+        </div>
+        <div class="tx_col">
+            <h3>宠友与宠物</h3>
+            <ul>
+                <li><a href="#">小偿领养</a></li>
+                <li><a href="#">寻宠救助</a></li>
+                <li><a href="#">同城买宠·宠仓</a></li>
+                <li><a href="#">社区动态</a></li>
+                <li><a href="#">萌宠榜</a></li>
+                <li><a href="#">达人用户</a></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

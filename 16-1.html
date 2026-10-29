@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!--
+姓名：唐笑
+日期：2026-10-29
+功能名称：JavaScript 主要数组方法形象展示
+说明：把数组画成一排"方块"，点击方法按钮即可看到数组如何变化，
+     直观演示 push/pop/shift/unshift/map/filter/reduce/find/sort 等常用方法。
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>16-1 JavaScript 主要数组方法</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            padding: 30px 16px 60px;
+            color: #e7eef5;
+        }
+        .tx_wrap { max-width: 980px; margin: 0 auto; }
+
+        .tx_header { text-align: center; margin-bottom: 24px; }
+        .tx_header h1 { font-size: 26px; color: #fff; margin-bottom: 6px; letter-spacing: 1px; }
+        .tx_header p { font-size: 13px; color: #7fd1e0; }
+
+        /* ---------- 操作台 ---------- */
+        .tx_workbench {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 26px;
+        }
+        .tx_workbench h2 { font-size: 15px; color: #ffd479; margin-bottom: 12px; }
+        .tx_arr { display: flex; flex-wrap: wrap; gap: 10px; min-height: 52px; align-items: center; }
+        .tx_item {
+            width: 52px; height: 52px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 10px;
+            font-size: 18px; font-weight: 700;
+            background: linear-gradient(145deg, #4e9af1, #3b6fd4);
+            color: #fff;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+            animation: tx-pop 0.25s ease;
+            position: relative;
+        }
+        .tx_item::after {
+            content: attr(data-idx);
+            position: absolute; bottom: -18px; left: 0; right: 0;
+            font-size: 11px; color: #9fb4c9; font-weight: 400;
+        }
+        .tx_item.tx_add { background: linear-gradient(145deg, #2ecc71, #27ae60); }
+        .tx_item.tx_del { animation: tx-del 0.4s forwards; }
+        @keyframes tx-pop { from { transform: scale(0.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes tx-del { to { transform: scale(0.2) rotate(20deg); opacity: 0; } }
+        .tx_empty-hint { color: #8aa0b3; font-size: 14px; }
+
+        .tx_controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+        .tx_btn {
+            border: none; cursor: pointer;
+            padding: 8px 14px; border-radius: 8px;
+            font-size: 13px; font-weight: 600;
+            background: #2b4a63; color: #d6ecff;
+            transition: all 0.15s ease;
+        }
+        .tx_btn:hover { background: #3a6c8f; transform: translateY(-1px); }
+        .tx_btn.tx_reset { background: #6c3a3a; }
+        .tx_btn.tx_reset:hover { background: #8f4a4a; }
+
+        /* ---------- 方法卡片 ---------- */
+        .tx_group-title {
+            font-size: 16px; color: #ffd479; margin: 24px 0 12px;
+            padding-left: 10px; border-left: 4px solid #ff8c42;
+        }
+        .tx_grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+        }
+        .tx_card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex; flex-direction: column;
+        }
+        .tx_card h3 { font-size: 15px; color: #6fe3c4; margin-bottom: 4px; }
+        .tx_card .tx_desc { font-size: 12px; color: #9fb4c9; margin-bottom: 10px; line-height: 1.5; }
+        .tx_code {
+            background: #0c1a22;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-family: Consolas, Monaco, monospace;
+            font-size: 12.5px; color: #9ad8c4;
+            white-space: pre-wrap; line-height: 1.6;
+            border: 1px solid rgba(255,255,255,0.08);
+            margin-bottom: 10px;
+        }
+        .tx_run {
+            align-self: flex-start;
+            border: none; cursor: pointer;
+            background: linear-gradient(145deg, #ff8c42, #ff6b35);
+            color: #fff; font-weight: 700; font-size: 13px;
+            padding: 7px 16px; border-radius: 8px;
+            transition: transform 0.15s ease;
+        }
+        .tx_run:hover { transform: translateY(-1px) scale(1.02); }
+        .tx_ret {
+            margin-top: 10px;
+            font-size: 12.5px; color: #cfe3ff;
+            background: rgba(0,0,0,0.25);
+            border-radius: 8px; padding: 9px 12px;
+            min-height: 20px; line-height: 1.6;
+            word-break: break-all;
+        }
+        .tx_ret b { color: #ffd479; }
+        .tx_footer { text-align: center; font-size: 12px; color: #6f8aa0; margin-top: 30px; }
+    </style>
+</head>
+<body>
+<div class="tx_wrap">
+    <div class="tx_header">
+        <h1>🧩 JavaScript 主要数组方法</h1>
+        <p>作者：唐笑 · 把数组画成方块，点一点看方法如何改变它</p>
+    </div>
+
+    <!-- 操作台：展示当前数组 -->
+    <div class="tx_workbench">
+        <h2>📦 当前数组（名为 <code>arr</code>）</h2>
+        <div class="tx_arr" id="tx_arr"></div>
+        <div class="tx_controls">
+            <button class="tx_btn" onclick="txPush()">+ push(随机数)</button>
+            <button class="tx_btn" onclick="txPop()">pop() 删末尾</button>
+            <button class="tx_btn" onclick="txShift()">shift() 删开头</button>
+            <button class="tx_btn" onclick="txUnshift()">unshift(随机数) 插开头</button>
+            <button class="tx_btn tx_reset" onclick="txReset()">↺ 重置为 [3,7,1,9,4]</button>
+        </div>
+    </div>
+
+    <!-- ① 增删改 -->
+    <div class="tx_group-title">① 增 / 删 / 改（改变原数组）</div>
+    <div class="tx_grid">
+        <div class="tx_card">
+            <h3>push()</h3>
+            <div class="tx_desc">在末尾追加元素，返回新长度。</div>
+            <div class="tx_code">arr.push(8)  // 追加数字 8</div>
+            <button class="tx_run" onclick="txDemo('push')">运行</button>
+            <div class="tx_ret" id="r_push"></div>
+        </div>
+        <div class="tx_card">
+            <h3>pop()</h3>
+            <div class="tx_desc">删除并返回最后一个元素。</div>
+            <div class="tx_code">arr.pop()  // 删除末尾</div>
+            <button class="tx_run" onclick="txDemo('pop')">运行</button>
+            <div class="tx_ret" id="r_pop"></div>
+        </div>
+        <div class="tx_card">
+            <h3>unshift()</h3>
+            <div class="tx_desc">在开头插入元素，返回新长度。</div>
+            <div class="tx_code">arr.unshift(0)  // 开头插入 0</div>
+            <button class="tx_run" onclick="txDemo('unshift')">运行</button>
+            <div class="tx_ret" id="r_unshift"></div>
+        </div>
+        <div class="tx_card">
+            <h3>shift()</h3>
+            <div class="tx_desc">删除并返回第一个元素。</div>
+            <div class="tx_code">arr.shift()  // 删除开头</div>
+            <button class="tx_run" onclick="txDemo('shift')">运行</button>
+            <div class="tx_ret" id="r_shift"></div>
+        </div>
+        <div class="tx_card">
+            <h3>splice()</h3>
+            <div class="tx_desc">从指定位置删除/插入，可同时改数组。</div>
+            <div class="tx_code">arr.splice(1, 2, 99)  // 第1位起删2个，插入99</div>
+            <button class="tx_run" onclick="txDemo('splice')">运行</button>
+            <div class="tx_ret" id="r_splice"></div>
+        </div>
+        <div class="tx_card">
+            <h3>reverse()</h3>
+            <div class="tx_desc">原地倒序排列数组。</div>
+            <div class="tx_code">arr.reverse()</div>
+            <button class="tx_run" onclick="txDemo('reverse')">运行</button>
+            <div class="tx_ret" id="r_reverse"></div>
+        </div>
+        <div class="tx_card">
+            <h3>sort()</h3>
+            <div class="tx_desc">原地排序（默认按字符串，建议传比较函数）。</div>
+            <div class="tx_code">arr.sort((a,b)=>a-b)  // 数值升序</div>
+            <button class="tx_run" onclick="txDemo('sort')">运行</button>
+            <div class="tx_ret" id="r_sort"></div>
+        </div>
+    </div>
+
+    <!-- ② 遍历生成 -->
+    <div class="tx_group-title">② 遍历 / 生成新数组（不改动原数组）</div>
+    <div class="tx_grid">
+        <div class="tx_card">
+            <h3>forEach()</h3>
+            <div class="tx_desc">遍历每个元素，无返回值（仅执行操作）。</div>
+            <div class="tx_code">arr.forEach(v => ...)  // 依次处理每个值</div>
+            <button class="tx_run" onclick="txDemo('forEach')">运行</button>
+            <div class="tx_ret" id="r_forEach"></div>
+        </div>
+        <div class="tx_card">
+            <h3>map()</h3>
+            <div class="tx_desc">对每个元素加工，返回一个新数组。</div>
+            <div class="tx_code">arr.map(v => v * 2)  // 每个数翻倍</div>
+            <button class="tx_run" onclick="txDemo('map')">运行</button>
+            <div class="tx_ret" id="r_map"></div>
+        </div>
+        <div class="tx_card">
+            <h3>filter()</h3>
+            <div class="tx_desc">按条件筛选，返回满足条件的新数组。</div>
+            <div class="tx_code">arr.filter(v => v > 4)  // 只留大于4</div>
+            <button class="tx_run" onclick="txDemo('filter')">运行</button>
+            <div class="tx_ret" id="r_filter"></div>
+        </div>
+        <div class="tx_card">
+            <h3>reduce()</h3>
+            <div class="tx_desc">累加/汇总，最终返回单个结果。</div>
+            <div class="tx_code">arr.reduce((s,v)=>s+v, 0)  // 求和</div>
+            <button class="tx_run" onclick="txDemo('reduce')">运行</button>
+            <div class="tx_ret" id="r_reduce"></div>
+        </div>
+    </div>
+
+    <!-- ③ 查找判断 -->
+    <div class="tx_group-title">③ 查找 / 判断</div>
+    <div class="tx_grid">
+        <div class="tx_card">
+            <h3>find()</h3>
+            <div class="tx_desc">返回第一个满足条件的元素。</div>
+            <div class="tx_code">arr.find(v => v > 5)  // 第一个>5的</div>
+            <button class="tx_run" onclick="txDemo('find')">运行</button>
+            <div class="tx_ret" id="r_find"></div>
+        </div>
+        <div class="tx_card">
+            <h3>findIndex()</h3>
+            <div class="tx_desc">返回第一个满足条件的元素下标，没有则 -1。</div>
+            <div class="tx_code">arr.findIndex(v => v > 5)</div>
+            <button class="tx_run" onclick="txDemo('findIndex')">运行</button>
+            <div class="tx_ret" id="r_findIndex"></div>
+        </div>
+        <div class="tx_card">
+            <h3>includes()</h3>
+            <div class="tx_desc">判断数组是否包含某值，返回 true/false。</div>
+            <div class="tx_code">arr.includes(7)  // 是否含 7</div>
+            <button class="tx_run" onclick="txDemo('includes')">运行</button>
+            <div class="tx_ret" id="r_includes"></div>
+        </div>
+        <div class="tx_card">
+            <h3>indexOf()</h3>
+            <div class="tx_desc">返回某值首次出现的下标，没有则 -1。</div>
+            <div class="tx_code">arr.indexOf(9)</div>
+            <button class="tx_run" onclick="txDemo('indexOf')">运行</button>
+            <div class="tx_ret" id="r_indexOf"></div>
+        </div>
+        <div class="tx_card">
+            <h3>some() / every()</h3>
+            <div class="tx_desc">some：有一个满足即 true；every：全部满足才 true。</div>
+            <div class="tx_code">arr.some(v=>v>8)    arr.every(v=>v>0)</div>
+            <button class="tx_run" onclick="txDemo('someEvery')">运行</button>
+            <div class="tx_ret" id="r_someEvery"></div>
+        </div>
+    </div>
+
+    <!-- ④ 返回新数组 -->
+    <div class="tx_group-title">④ 返回新数组 / 字符串</div>
+    <div class="tx_grid">
+        <div class="tx_card">
+            <h3>slice()</h3>
+            <div class="tx_desc">截取一段（[起, 止)），不改变原数组。</div>
+            <div class="tx_code">arr.slice(1, 3)  // 取第1~2位</div>
+            <button class="tx_run" onclick="txDemo('slice')">运行</button>
+            <div class="tx_ret" id="r_slice"></div>
+        </div>
+        <div class="tx_card">
+            <h3>concat()</h3>
+            <div class="tx_desc">拼接数组，返回新数组（原数组不变）。</div>
+            <div class="tx_code">arr.concat([10, 20])</div>
+            <button class="tx_run" onclick="txDemo('concat')">运行</button>
+            <div class="tx_ret" id="r_concat"></div>
+        </div>
+        <div class="tx_card">
+            <h3>join()</h3>
+            <div class="tx_desc">用指定连接符把数组拼成字符串。</div>
+            <div class="tx_code">arr.join('-')  // 用 - 连接</div>
+            <button class="tx_run" onclick="txDemo('join')">运行</button>
+            <div class="tx_ret" id="r_join"></div>
+        </div>
+    </div>
+
+    <div class="tx_footer">16-1 · JavaScript 主要数组方法 · 唐笑 · 2026</div>
+</div>
+
+<script>
+    // ===== 当前工作数组 =====
+    let arr = [3, 7, 1, 9, 4];
+
+    function txReset() {
+        arr = [3, 7, 1, 9, 4];
+        txRender();
+        document.querySelectorAll('.tx_ret').forEach(e => e.textContent = '');
+    }
+    function rand() { return Math.floor(Math.random() * 10); }
+
+    // 操作台按钮
+    function txPush()    { arr.push(rand()); txRender(); }
+    function txPop()     { if (arr.length) { arr.pop(); txRender(); } }
+    function txShift()   { if (arr.length) { arr.shift(); txRender(); } }
+    function txUnshift() { arr.unshift(rand()); txRender(); }
+
+    // 渲染数组为方块
+    function txRender() {
+        const box = document.getElementById('tx_arr');
+        box.innerHTML = '';
+        if (arr.length === 0) {
+            box.innerHTML = '<span class="tx_empty-hint">（空数组，点"重置"恢复）</span>';
+            return;
+        }
+        arr.forEach((v, i) => {
+            const d = document.createElement('div');
+            d.className = 'tx_item';
+            d.style.animation = 'none';
+            d.setAttribute('data-idx', i);
+            d.textContent = v;
+            box.appendChild(d);
+        });
+    }
+
+    // 把数组（或任意值）画成方块串的 HTML 片段
+    function txBoxes(a) {
+        if (!Array.isArray(a) || a.length === 0) return '<span class="tx_empty-hint">[] 空</span>';
+        return a.map((v, i) =>
+            `<span class="tx_item" style="width:42px;height:42px;font-size:15px;display:inline-flex;margin-right:10px;" data-idx="${i}">${v}</span>`
+        ).join('');
+    }
+
+    // 各方法演示（改动型方法会改变 arr 并重绘）
+    function txDemo(method) {
+        let ret, html;
+        switch (method) {
+            case 'push':
+                ret = arr.push(8);
+                txRender();
+                html = `返回值(新长度)：<b>${ret}</b><br>当前数组：${txBoxes(arr)}`;
+                break;
+            case 'pop':
+                ret = arr.length ? arr.pop() : undefined;
+                txRender();
+                html = `返回值(被删元素)：<b>${ret}</b><br>当前数组：${txBoxes(arr)}`;
+                break;
+            case 'unshift':
+                ret = arr.unshift(0);
+                txRender();
+                html = `返回值(新长度)：<b>${ret}</b><br>当前数组：${txBoxes(arr)}`;
+                break;
+            case 'shift':
+                ret = arr.length ? arr.shift() : undefined;
+                txRender();
+                html = `返回值(被删元素)：<b>${ret}</b><br>当前数组：${txBoxes(arr)}`;
+                break;
+            case 'splice':
+                ret = arr.splice(1, 2, 99);
+                txRender();
+                html = `返回值(被删元素)：<b>[${ret}]</b><br>当前数组：${txBoxes(arr)}`;
+                break;
+            case 'reverse':
+                arr.reverse();
+                txRender();
+                html = `返回值=原数组本身<br>当前数组：${txBoxes(arr)}`;
+                break;
+            case 'sort':
+                arr.sort((a, b) => a - b);
+                txRender();
+                html = `返回值=原数组本身<br>当前数组：${txBoxes(arr)}`;
+                break;
+            case 'forEach':
+                let log = [];
+                arr.forEach(v => log.push(v * 10));
+                html = `依次处理 v→v*10：<b>[${log}]</b>（forEach 本身返回 undefined，只做操作）<br>原数组不变：${txBoxes(arr)}`;
+                break;
+            case 'map':
+                ret = arr.map(v => v * 2);
+                html = `返回新数组（每个翻倍）：<b>[${ret}]</b><br>原数组不变：${txBoxes(arr)}`;
+                break;
+            case 'filter':
+                ret = arr.filter(v => v > 4);
+                html = `返回新数组（只留>4）：<b>[${ret}]</b><br>原数组不变：${txBoxes(arr)}`;
+                break;
+            case 'reduce':
+                ret = arr.reduce((s, v) => s + v, 0);
+                html = `累加求和结果：<b>${ret}</b><br>原数组不变：${txBoxes(arr)}`;
+                break;
+            case 'find':
+                ret = arr.find(v => v > 5);
+                html = `第一个 > 5 的元素：<b>${ret}</b>`;
+                break;
+            case 'findIndex':
+                ret = arr.findIndex(v => v > 5);
+                html = `第一个 > 5 的下标：<b>${ret}</b>`;
+                break;
+            case 'includes':
+                ret = arr.includes(7);
+                html = `是否包含 7：<b>${ret}</b>`;
+                break;
+            case 'indexOf':
+                ret = arr.indexOf(9);
+                html = `数字 9 首次下标：<b>${ret}</b>`;
+                break;
+            case 'someEvery':
+                let s = arr.some(v => v > 8);
+                let e = arr.every(v => v > 0);
+                html = `some(有>8)：<b>${s}</b> &nbsp; every(全>0)：<b>${e}</b>`;
+                break;
+            case 'slice':
+                ret = arr.slice(1, 3);
+                html = `返回新数组(第1~2位)：<b>[${ret}]</b><br>原数组不变：${txBoxes(arr)}`;
+                break;
+            case 'concat':
+                ret = arr.concat([10, 20]);
+                html = `返回拼接新数组：<b>[${ret}]</b><br>原数组不变：${txBoxes(arr)}`;
+                break;
+            case 'join':
+                ret = arr.join('-');
+                html = `返回字符串：<b>"${ret}"</b>`;
+                break;
+        }
+        document.getElementById('r_' + method).innerHTML = html;
+    }
+
+    // 初始化
+    txReset();
+    console.log("16-1 数组方法演示，初始 arr =", arr);
+</script>
+</body>
+</html>
