@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!--
+姓名：唐笑
+日期：2026-11-02
+功能名称：fetch 获取单个商品详情 —— 电商详情页
+接口：https://dummyjson.com/products/{id}
+从 17-3.html 通过 URL 参数 ?id=xxx 跳转进来
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-3 商品详情</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f5f7fa; min-height: 100vh;
+        }
+        .tx_navbar {
+            background: #fff; padding: 14px 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+            display: flex; align-items: center; gap: 14px;
+        }
+        .tx_navbar .tx_back {
+            background: none; border: none; font-size: 18px; cursor: pointer;
+            color: #667eea; padding: 4px 10px; border-radius: 6px;
+        }
+        .tx_navbar .tx_back:hover { background: #f0f2ff; }
+        .tx_navbar h1 { font-size: 16px; color: #333; }
+
+        .tx_container { max-width: 900px; margin: 20px auto; padding: 0 16px; }
+
+        .tx_status {
+            padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;
+            font-size: 13px; display: none;
+        }
+        .tx_status.loading { background: #eaf4ff; color: #2980b9; display: block; text-align: center; }
+        .tx_status.error { background: #fdecea; color: #c0392b; display: block; }
+
+        .tx_detail {
+            background: #fff; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 2px 14px rgba(0,0,0,0.08);
+        }
+        .tx_gallery {
+            position: relative; background: #f9f9f9; padding: 20px;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 260px;
+        }
+        .tx_gallery .tx_main-img {
+            max-width: 100%; max-height: 360px;
+            object-fit: contain; border-radius: 8px;
+        }
+        .tx_thumbs {
+            display: flex; gap: 8px; margin-top: 10px; justify-content: center;
+        }
+        .tx_thumbs img {
+            width: 60px; height: 60px; object-fit: cover; border-radius: 6px;
+            cursor: pointer; border: 2px solid transparent; opacity: 0.7;
+            transition: opacity 0.2s, border-color 0.2s;
+        }
+        .tx_thumbs img:hover, .tx_thumbs img.active {
+            opacity: 1; border-color: #667eea;
+        }
+
+        .tx_info { padding: 20px 24px; }
+        .tx_info .tx_category {
+            display: inline-block; background: #eef0ff; color: #667eea;
+            font-size: 12px; padding: 3px 10px; border-radius: 10px; margin-bottom: 10px;
+        }
+        .tx_info h2 { font-size: 20px; color: #222; margin-bottom: 8px; }
+        .tx_info .tx_rating-row {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 14px; font-size: 13px; color: #888;
+        }
+        .tx_info .tx_rating { color: #f39c12; }
+        .tx_info .tx_desc {
+            font-size: 14px; color: #666; line-height: 1.7; margin-bottom: 16px;
+        }
+
+        .tx_price-box {
+            background: #fef5f5; border-radius: 10px; padding: 14px 18px;
+            display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px;
+        }
+        .tx_price-box .tx_now { font-size: 24px; color: #e74c3c; font-weight: bold; }
+        .tx_price-box .tx_old { font-size: 14px; color: #aaa; text-decoration: line-through; }
+        .tx_price-box .tx_discount {
+            background: #e74c3c; color: #fff; font-size: 11px;
+            padding: 2px 8px; border-radius: 10px;
+        }
+
+        .tx_meta-list { list-style: none; margin-bottom: 18px; }
+        .tx_meta-list li {
+            display: flex; padding: 8px 0; border-bottom: 1px dashed #eee;
+            font-size: 13px;
+        }
+        .tx_meta-list li:last-child { border-bottom: none; }
+        .tx_meta-list .tx_label { color: #999; width: 80px; flex-shrink: 0; }
+        .tx_meta-list .tx_value { color: #333; flex: 1; }
+
+        .tx_tags { margin-bottom: 20px; }
+        .tx_tags span {
+            display: inline-block; background: #f0f2ff; color: #667eea;
+            font-size: 12px; padding: 3px 10px; border-radius: 10px; margin: 3px 4px 3px 0;
+        }
+
+        .tx_btn-row { display: flex; gap: 10px; }
+        .tx_btn {
+            flex: 1; padding: 12px; border: none; border-radius: 8px;
+            font-size: 14px; cursor: pointer; transition: background 0.2s;
+        }
+        .tx_cart { background: #ffecd1; color: #e67e22; }
+        .tx_cart:hover { background: #ffdcb0; }
+        .tx_buy { background: linear-gradient(135deg, #667eea, #764ba2); color: #fff; }
+        .tx_buy:hover { opacity: 0.9; }
+
+        .tx_reviews { margin-top: 20px; padding: 16px; background: #fafbff; border-radius: 10px; }
+        .tx_reviews h3 { font-size: 14px; color: #667eea; margin-bottom: 10px; }
+        .tx_review-item {
+            padding: 10px 0; border-bottom: 1px dashed #e8eaf5;
+            font-size: 13px; line-height: 1.6;
+        }
+        .tx_review-item:last-child { border-bottom: none; }
+        .tx_review-item .tx_user { font-weight: 600; color: #333; }
+        .tx_review-item .tx_star { color: #f39c12; font-size: 12px; margin-left: 6px; }
+        .tx_review-item .tx_text { color: #666; margin-top: 4px; }
+
+        .tx_footer { text-align: center; font-size: 12px; color: #aaa; margin-top: 24px; }
+    </style>
+</head>
+<body>
+    <div class="tx_navbar">
+        <button class="tx_back" onclick="location.href='17-3.html'">← 返回列表</button>
+        <h1>商品详情</h1>
+    </div>
+
+    <div class="tx_container">
+        <div class="tx_status" id="tx_status">⏳ 加载中...</div>
+        <div id="tx_detailBox"></div>
+    </div>
+
+    <div class="tx_footer">17-3-detail · 商品详情 · 唐笑 · 2026</div>
+
+    <script>
+        // 从 URL 取 id 参数
+        let tx_params = new URLSearchParams(location.search);
+        let tx_id = tx_params.get("id") || "1";
+        let tx_status = document.getElementById("tx_status");
+        let tx_detailBox = document.getElementById("tx_detailBox");
+
+        function tx_loadDetail() {
+            let tx_url = "https://dummyjson.com/products/" + tx_id;
+            tx_status.className = "tx_status loading";
+            tx_status.textContent = "⏳ 加载商品 #" + tx_id + "...";
+
+            fetch(tx_url)
+                .then(function(res) {
+                    if (!res.ok) throw new Error("HTTP " + res.status);
+                    return res.json();
+                })
+                .then(function(p) {
+                    console.log("详情数据:", p);
+                    tx_renderDetail(p);
+                    tx_status.className = "tx_status";
+                    tx_status.textContent = "";
+                })
+                .catch(function(err) {
+                    tx_status.className = "tx_status error";
+                    tx_status.textContent = "❌ 加载失败：" + err.message;
+                });
+        }
+
+        function tx_renderDetail(p) {
+            let tx_discountPrice = (p.price * (1 - p.discountPercentage / 100)).toFixed(2);
+            let tx_firstImg = (p.images && p.images[0]) ? p.images[0] : p.thumbnail;
+
+            let tx_html = '<div class="tx_detail">';
+            tx_html += '  <div class="tx_gallery">';
+            tx_html += '    <img class="tx_main-img" id="tx_mainImg" src="' + tx_firstImg + '" alt="">';
+            tx_html += '  </div>';
+
+            if (p.images && p.images.length > 1) {
+                tx_html += '  <div class="tx_thumbs">';
+                p.images.forEach(function(img, idx) {
+                    tx_html += '    <img src="' + img + '" class="' + (idx === 0 ? "active" : "") + '" onclick="tx_switchImg(this, \'' + img + '\')">';
+                });
+                tx_html += '  </div>';
+            }
+
+            tx_html += '  <div class="tx_info">';
+            tx_html += '    <span class="tx_category">' + (p.category || "") + '</span>';
+            tx_html += '    <h2>' + p.title + '</h2>';
+            tx_html += '    <div class="tx_rating-row">';
+            tx_html += '      <span class="tx_rating">★ ' + p.rating + '</span>';
+            tx_html += '      <span>· SKU: ' + p.sku + '</span>';
+            tx_html += '    </div>';
+            tx_html += '    <p class="tx_desc">' + p.description + '</p>';
+
+            // 价格区
+            tx_html += '    <div class="tx_price-box">';
+            tx_html += '      <span class="tx_now">¥' + tx_discountPrice + '</span>';
+            tx_html += '      <span class="tx_old">¥' + p.price + '</span>';
+            tx_html += '      <span class="tx_discount">-' + p.discountPercentage.toFixed(1) + '%</span>';
+            tx_html += '    </div>';
+
+            // 基本信息
+            tx_html += '    <ul class="tx_meta-list">';
+            tx_html += '      <li><span class="tx_label">库存</span><span class="tx_value">' + p.stock + ' 件</span></li>';
+            tx_html += '      <li><span class="tx_label">品牌</span><span class="tx_value">' + (p.brand || "未知") + '</span></li>';
+            tx_html += '      <li><span class="tx_label">重量</span><span class="tx_value">' + p.weight + ' kg</span></li>';
+            if (p.dimensions) {
+                tx_html += '      <li><span class="tx_label">尺寸</span><span class="tx_value">' + p.dimensions.width + ' × ' + p.dimensions.height + ' × ' + p.dimensions.depth + ' cm</span></li>';
+            }
+            tx_html += '      <li><span class="tx_label">退换</span><span class="tx_value">' + (p.returnPolicy || "7 天无理由") + '</span></li>';
+            tx_html += '    </ul>';
+
+            // 标签
+            if (p.tags && p.tags.length) {
+                tx_html += '    <div class="tx_tags">';
+                p.tags.forEach(function(t) { tx_html += '<span>#' + t + '</span>'; });
+                tx_html += '    </div>';
+            }
+
+            // 按钮
+            tx_html += '    <div class="tx_btn-row">';
+            tx_html += '      <button class="tx_btn tx_cart">🛒 加入购物车</button>';
+            tx_html += '      <button class="tx_btn tx_buy">💰 立即购买</button>';
+            tx_html += '    </div>';
+            tx_html += '  </div>';
+
+            // 评论
+            if (p.reviews && p.reviews.length) {
+                tx_html += '  <div class="tx_info" style="border-top:1px solid #f0f0f0;">';
+                tx_html += '    <div class="tx_reviews"><h3>💬 用户评价（' + p.reviews.length + '）</h3>';
+                p.reviews.forEach(function(r) {
+                    tx_html += '      <div class="tx_review-item">';
+                    tx_html += '        <span class="tx_user">' + r.reviewerName + '</span>';
+                    tx_html += '        <span class="tx_star">★ ' + r.rating + '</span>';
+                    tx_html += '        <div class="tx_text">' + r.comment + '</div>';
+                    tx_html += '      </div>';
+                });
+                tx_html += '    </div>';
+                tx_html += '  </div>';
+            }
+
+            tx_html += '</div>';
+            tx_detailBox.innerHTML = tx_html;
+            document.title = p.title + " - 商品详情";
+        }
+
+        function tx_switchImg(el, src) {
+            document.getElementById("tx_mainImg").src = src;
+            document.querySelectorAll(".tx_thumbs img").forEach(function(x) { x.classList.remove("active"); });
+            el.classList.add("active");
+        }
+
+        tx_loadDetail();
+    </script>
+</body>
+</html>

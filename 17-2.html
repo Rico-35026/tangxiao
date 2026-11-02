@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!--
+姓名：唐笑
+日期：2026-11-02
+功能名称：fetch 获取公网接口数据并展示 —— 随机狗狗图片
+接口：https://dog.ceo/api/breed/hound/images/random/3
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-2 fetch 接口数据展示</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            min-height: 100vh; padding: 30px 20px; color: #333;
+        }
+        .tx_container {
+            max-width: 900px; margin: 0 auto; background: #fff;
+            border-radius: 14px; padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+        .tx_header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; padding-bottom: 18px; }
+        .tx_header h1 { font-size: 24px; color: #e67e22; margin-bottom: 6px; }
+        .tx_header p { font-size: 13px; color: #888; }
+
+        .tx_api-bar {
+            background: #fff8f0; border: 1px dashed #fcb69f;
+            border-radius: 8px; padding: 12px 14px; margin-bottom: 18px;
+            font-family: Consolas, Monaco, monospace; font-size: 12px; color: #d35400;
+            word-break: break-all;
+        }
+
+        .tx_btn {
+            background: #e67e22; color: #fff; border: none;
+            padding: 10px 22px; border-radius: 6px; cursor: pointer;
+            font-size: 14px; margin: 4px 4px 4px 0; transition: background 0.2s;
+        }
+        .tx_btn:hover { background: #d35400; }
+        .tx_btn:disabled { background: #bdc3c7; cursor: not-allowed; }
+
+        .tx_status {
+            padding: 10px 14px; border-radius: 6px; margin: 14px 0;
+            font-size: 13px; display: none;
+        }
+        .tx_status.loading { background: #eaf4ff; color: #2980b9; display: block; }
+        .tx_status.success { background: #e8f8f0; color: #27ae60; display: block; }
+        .tx_status.error { background: #fdecea; color: #c0392b; display: block; }
+
+        .tx_result-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px; margin-top: 14px;
+        }
+        .tx_dog-card {
+            background: #fff; border: 1px solid #eee; border-radius: 10px;
+            overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: transform 0.2s;
+        }
+        .tx_dog-card:hover { transform: translateY(-3px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
+        .tx_dog-card img { width: 100%; height: 200px; object-fit: cover; display: block; background: #f5f5f5; }
+        .tx_dog-card .tx_dog-info { padding: 10px 14px; font-size: 12px; color: #888; }
+        .tx_dog-card .tx_dog-info a { color: #e67e22; text-decoration: none; word-break: break-all; }
+
+        .tx_json-box {
+            background: #2d2d2d; color: #f8f8f2; border-radius: 8px;
+            padding: 14px 16px; font-family: Consolas, Monaco, monospace; font-size: 12px;
+            line-height: 1.7; margin-top: 14px; border: 1px solid #444;
+            white-space: pre-wrap; overflow-x: auto; max-height: 280px; overflow-y: auto;
+        }
+        .tx_label { font-size: 13px; color: #e67e22; font-weight: bold; margin-top: 18px; margin-bottom: 8px; display: block; }
+
+        .tx_code {
+            background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px;
+            padding: 12px 16px; font-family: Consolas, Monaco, monospace; font-size: 13px;
+            color: #2c3e50; line-height: 1.7; margin-bottom: 18px;
+            white-space: pre-wrap; overflow-x: auto;
+        }
+
+        .tx_footer { text-align: center; font-size: 12px; color: #aaa; margin-top: 24px; }
+    </style>
+</head>
+<body>
+    <div class="tx_container">
+        <div class="tx_header">
+            <h1>fetch 接口数据展示</h1>
+            <p>作者：唐笑 · 使用原生 fetch API 获取公网跨域接口</p>
+        </div>
+
+        <div class="tx_api-bar">
+            🔗 接口地址：https://dog.ceo/api/breed/hound/images/random/3<br>
+            📌 说明：Dog CEO 开放 API，返回 3 张 hound 品种狗狗随机图片，支持 CORS 跨域
+        </div>
+
+        <div class="tx_code">// fetch 基本写法
+fetch(url)
+    .then(res => res.json())    // 解析响应为 JSON
+    .then(data => { ... })      // 使用数据
+    .catch(err => { ... });     // 错误处理</div>
+
+        <button class="tx_btn" id="tx_fetchBtn" onclick="tx_fetchDogData()">🐕 获取 3 张狗狗图片</button>
+        <div class="tx_status" id="tx_status"></div>
+
+        <span class="tx_label">📷 图片展示区</span>
+        <div class="tx_result-grid" id="tx_dogGrid">
+            <div style="grid-column:1/-1;text-align:center;color:#aaa;padding:30px;">
+                点击上面的按钮获取数据
+            </div>
+        </div>
+
+        <span class="tx_label">📄 原始 JSON 响应</span>
+        <div class="tx_json-box" id="tx_jsonBox">（等待请求）</div>
+
+        <div class="tx_footer">17-2 · fetch 接口数据展示 · 唐笑 · 2026</div>
+    </div>
+
+    <script>
+        let tx_apiUrl = "https://dog.ceo/api/breed/hound/images/random/3";
+        let tx_btn = document.getElementById("tx_fetchBtn");
+        let tx_status = document.getElementById("tx_status");
+        let tx_dogGrid = document.getElementById("tx_dogGrid");
+        let tx_jsonBox = document.getElementById("tx_jsonBox");
+
+        function tx_fetchDogData() {
+            // 重置状态
+            tx_status.className = "tx_status loading";
+            tx_status.textContent = "⏳ 请求中...";
+            tx_btn.disabled = true;
+            tx_jsonBox.textContent = "请求中...";
+            tx_dogGrid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#aaa;padding:30px;">⏳ 加载中...</div>';
+
+            // ====== fetch 核心代码 ======
+            fetch(tx_apiUrl)
+                .then(function(res) {
+                    console.log("响应状态:", res.status, res.statusText);
+                    if (!res.ok) {
+                        throw new Error("HTTP " + res.status);
+                    }
+                    return res.json();   // 把响应体解析成 JS 对象
+                })
+                .then(function(data) {
+                    console.log("接口数据:", data);
+                    tx_renderResult(data);
+                })
+                .catch(function(err) {
+                    console.error("请求失败:", err);
+                    tx_status.className = "tx_status error";
+                    tx_status.textContent = "❌ 请求失败：" + err.message;
+                    tx_jsonBox.textContent = "错误：" + err.message + "\n\n提示：如果用 file:// 打开可能被浏览器拦截，请用 http.server 预览。";
+                    tx_dogGrid.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#c0392b;padding:20px;">' +
+                        '❌ 加载失败，请检查网络或改用 http:// 协议预览</div>';
+                })
+                .finally(function() {
+                    tx_btn.disabled = false;
+                });
+            // ====== fetch 结束 ======
+        }
+
+        function tx_renderResult(data) {
+            // 显示状态
+            tx_status.className = "tx_status success";
+            tx_status.textContent = "✅ 请求成功！status=" + data.status + "，共 " + data.message.length + " 张图片";
+
+            // 显示原始 JSON
+            tx_jsonBox.textContent = JSON.stringify(data, null, 2);
+
+            // 渲染图片卡片
+            let tx_html = "";
+            data.message.forEach(function(url, idx) {
+                tx_html += '<div class="tx_dog-card">';
+                tx_html += '  <img src="' + url + '" alt="狗狗 ' + (idx + 1) + '" loading="lazy" onerror="this.src=\'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22><rect fill=%22%23eee%22 width=%22200%22 height=%22200%22/><text x=%2250%25%22 y=%2250%25%22 fill=%22%23999%22 font-size=%2214%22 text-anchor=%22middle%22 dy=%22.3em%22>加载失败</text></svg>\'">';
+                tx_html += '  <div class="tx_dog-info">图片 #' + (idx + 1) + '<br><a href="' + url + '" target="_blank" rel="noopener">' + url + '</a></div>';
+                tx_html += '</div>';
+            });
+            tx_dogGrid.innerHTML = tx_html;
+        }
+
+        // 页面加载完自动请求一次（等 500ms 让用户看到页面）
+        window.addEventListener("load", function() {
+            setTimeout(tx_fetchDogData, 500);
+        });
+    </script>
+</body>
+</html>

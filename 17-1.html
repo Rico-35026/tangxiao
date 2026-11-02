@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!--
+姓名：唐笑
+日期：2026-11-02
+功能名称：JSON 数据格式展示与 JSON.parse / JSON.stringify 演示
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-1 JSON 展示</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 30px 20px;
+            color: #333;
+        }
+        .tx_container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 14px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .tx_header { text-align: center; margin-bottom: 26px; border-bottom: 1px solid #eee; padding-bottom: 18px; }
+        .tx_header h1 { font-size: 24px; color: #1e3c72; margin-bottom: 6px; }
+        .tx_header p { font-size: 13px; color: #888; }
+
+        .tx_section { margin-bottom: 28px; }
+        .tx_section-title {
+            font-size: 17px; color: #e74c3c; margin-bottom: 12px;
+            padding-left: 10px; border-left: 3px solid #3498db;
+        }
+        .tx_section-title small { color: #888; font-weight: normal; font-size: 13px; margin-left: 8px; }
+
+        .tx_code {
+            background: #2d2d2d; color: #f8f8f2;
+            border-radius: 8px; padding: 14px 16px;
+            font-family: Consolas, Monaco, monospace; font-size: 13px;
+            line-height: 1.7; border: 1px solid #444;
+            white-space: pre-wrap; overflow-x: auto;
+        }
+        .tx_output {
+            background: #f8f9fa; border: 1px solid #dee2e6;
+            border-radius: 8px; padding: 12px 16px;
+            font-family: Consolas, Monaco, monospace; font-size: 13px;
+            color: #2c3e50; white-space: pre-wrap; overflow-x: auto;
+        }
+        .tx_output .tx_label { color: #e74c3c; margin-bottom: 6px; display: block; font-weight: bold; }
+
+        /* JSON tree 样式 */
+        .tx_json-tree { font-family: Consolas, Monaco, monospace; font-size: 13px; line-height: 1.8; }
+        .tx_json-tree .key { color: #c7254e; }
+        .tx_json-tree .string { color: #3ca02c; }
+        .tx_json-tree .number { color: #098658; }
+        .tx_json-tree .boolean { color: #0000ff; }
+        .tx_json-tree .null { color: #a1a1a1; font-style: italic; }
+        .tx_json-tree .collapsible { cursor: pointer; user-select: none; }
+        .tx_json-tree .collapsible::before {
+            content: "▶"; display: inline-block; margin-right: 4px; font-size: 10px;
+            transition: transform 0.2s;
+        }
+        .tx_json-tree .collapsible.open::before { transform: rotate(90deg); }
+        .tx_json-tree .children { display: none; padding-left: 20px; }
+        .tx_json-tree .collapsible.open + .children { display: block; }
+
+        .tx_btn {
+            background: #3498db; color: #fff; border: none;
+            padding: 8px 16px; border-radius: 6px;
+            cursor: pointer; font-size: 13px; margin: 4px 4px 4px 0;
+            transition: background 0.2s;
+        }
+        .tx_btn:hover { background: #2980b9; }
+        .tx_btn.success { background: #27ae60; }
+        .tx_btn.success:hover { background: #229954; }
+
+        .tx_footer { text-align: center; font-size: 12px; color: #aaa; margin-top: 24px; }
+    </style>
+</head>
+<body>
+    <div class="tx_container">
+        <div class="tx_header">
+            <h1>JSON 数据格式展示</h1>
+            <p>作者：唐笑 · JSON.parse 解析 · JSON.stringify 序列化 · 树形可折叠展示</p>
+        </div>
+
+        <!-- ① JSON 是什么 -->
+        <div class="tx_section">
+            <div class="tx_section-title">① JSON 是什么 <small>JavaScript Object Notation</small></div>
+            <div class="tx_code">JSON 是一种轻量级数据交换格式，本质是 JavaScript 对象的字符串表示。
+只能包含：对象 {}、数组 []、字符串 ""、数字、布尔 true/false、null。
+不能包含：函数、undefined、变量、注释。</div>
+        </div>
+
+        <!-- ② 原始 JSON 字符串 -->
+        <div class="tx_section">
+            <div class="tx_section-title">② 原始 JSON 字符串 <small>后端返回的就是这种</small></div>
+            <div class="tx_code" id="tx_raw_json"></div>
+        </div>
+
+        <!-- ③ JSON.parse -->
+        <div class="tx_section">
+            <div class="tx_section-title">③ JSON.parse(jsonStr) <small>字符串 → JS 对象</small></div>
+            <div class="tx_code">// 把 JSON 字符串解析成可操作的 JS 对象
+let tx_obj = JSON.parse(tx_jsonStr);
+console.log(tx_obj.user.name);   // "唐笑"
+console.log(tx_obj.hobbies[0]);  // "HTML"</div>
+            <div class="tx_output">
+                <span class="tx_label">解析结果：</span>
+                <div id="tx_parse_result"></div>
+            </div>
+        </div>
+
+        <!-- ④ JSON.stringify -->
+        <div class="tx_section">
+            <div class="tx_section-title">④ JSON.stringify(obj) <small>JS 对象 → JSON 字符串</small></div>
+            <div class="tx_code">// 第三个参数是缩进空格数，美化输出
+let tx_str = JSON.stringify(tx_obj, null, 2);</div>
+            <div class="tx_output">
+                <span class="tx_label">序列化结果：</span>
+                <div id="tx_stringify_result"></div>
+            </div>
+        </div>
+
+        <!-- ⑤ 树形可折叠展示 -->
+        <div class="tx_section">
+            <div class="tx_section-title">⑤ JSON 树形展示 <small>点击 ▶ 展开/折叠</small></div>
+            <button class="tx_btn success" onclick="tx_expandAll()">全部展开</button>
+            <button class="tx_btn" onclick="tx_collapseAll()">全部折叠</button>
+            <div class="tx_output" style="margin-top: 10px;">
+                <div id="tx_json_tree"></div>
+            </div>
+        </div>
+
+        <!-- ⑥ 对象修改后再序列化 -->
+        <div class="tx_section">
+            <div class="tx_section-title">⑥ 修改对象再序列化 <small>加字段 + 删字段</small></div>
+            <div class="tx_code">tx_obj.user.age = 21;        // 新增字段
+delete tx_obj.user.email;      // 删除字段
+tx_obj.hobbies.push("AI");     // 数组追加
+let tx_newStr = JSON.stringify(tx_obj, null, 2);</div>
+            <button class="tx_btn" onclick="tx_modifyAndShow()">执行修改并查看</button>
+            <div class="tx_output">
+                <span class="tx_label">修改后序列化：</span>
+                <div id="tx_modify_result">（点击按钮执行）</div>
+            </div>
+        </div>
+
+        <div class="tx_footer">17-1 · JSON 展示 · 唐笑 · 2026</div>
+    </div>
+
+    <script>
+        // 一段模拟后端返回的 JSON 字符串
+        let tx_jsonStr = `{
+    "user": {
+        "name": "唐笑",
+        "studentId": "24001010932",
+        "email": "tangxiao@example.com",
+        "isActive": true,
+        "score": null
+    },
+    "hobbies": ["HTML", "CSS", "JavaScript", "HarmonyOS"],
+    "project": {
+        "name": "养宠帮",
+        "level": 4,
+        "completed": true
+    },
+    "skills": [
+        { "name": "HTML", "level": 5 },
+        { "name": "CSS", "level": 4 },
+        { "name": "JS",   "level": 3 }
+    ]
+}`;
+
+        // ② 显示原始字符串
+        document.getElementById("tx_raw_json").textContent = tx_jsonStr;
+
+        // ③ JSON.parse
+        let tx_obj = JSON.parse(tx_jsonStr);
+        document.getElementById("tx_parse_result").innerHTML =
+            `tx_obj.user.name = "${tx_obj.user.name}"<br>` +
+            `tx_obj.hobbies[0] = "${tx_obj.hobbies[0]}"<br>` +
+            `tx_obj.project.level = ${tx_obj.project.level}<br>` +
+            `typeof tx_obj = "${typeof tx_obj}"<br>` +
+            `Array.isArray(tx_obj.hobbies) = ${Array.isArray(tx_obj.hobbies)}`;
+
+        // ④ JSON.stringify
+        document.getElementById("tx_stringify_result").textContent =
+            JSON.stringify(tx_obj, null, 2);
+
+        // ⑤ 树形展示
+        function tx_buildTree(value, isLast, key) {
+            let tx_html = '<div class="tx_json-tree">';
+            tx_html += tx_renderNode(value, key);
+            tx_html += '</div>';
+            return tx_html;
+        }
+
+        function tx_renderNode(value, key) {
+            let tx_html = '';
+            if (key !== undefined) {
+                tx_html += `<span class="key">"${key}"</span>: `;
+            }
+            if (value === null) {
+                tx_html += '<span class="null">null</span>';
+            } else if (typeof value === 'string') {
+                tx_html += `<span class="string">"${value}"</span>`;
+            } else if (typeof value === 'number') {
+                tx_html += `<span class="number">${value}</span>`;
+            } else if (typeof value === 'boolean') {
+                tx_html += `<span class="boolean">${value}</span>`;
+            } else if (Array.isArray(value)) {
+                tx_html += '<span class="collapsible open" onclick="this.classList.toggle(\'open\')">[</span>';
+                tx_html += '<div class="children">';
+                value.forEach((v, i) => {
+                    tx_html += '<div>' + tx_renderNode(v) + (i < value.length - 1 ? ',' : '') + '</div>';
+                });
+                tx_html += '</div>]';
+            } else if (typeof value === 'object') {
+                let keys = Object.keys(value);
+                tx_html += '<span class="collapsible open" onclick="this.classList.toggle(\'open\')">{</span>';
+                tx_html += '<div class="children">';
+                keys.forEach((k, i) => {
+                    tx_html += '<div>' + tx_renderNode(value[k], k) + (i < keys.length - 1 ? ',' : '') + '</div>';
+                });
+                tx_html += '</div>}';
+            }
+            return tx_html;
+        }
+
+        document.getElementById("tx_json_tree").innerHTML = tx_buildTree(tx_obj);
+
+        function tx_expandAll() {
+            document.querySelectorAll(".tx_json-tree .collapsible").forEach(el => el.classList.add("open"));
+        }
+        function tx_collapseAll() {
+            document.querySelectorAll(".tx_json-tree .collapsible").forEach(el => el.classList.remove("open"));
+        }
+
+        // ⑥ 修改再序列化
+        function tx_modifyAndShow() {
+            let tx_copy = JSON.parse(JSON.stringify(tx_obj)); // 深拷贝
+            tx_copy.user.age = 21;
+            delete tx_copy.user.email;
+            tx_copy.hobbies.push("AI");
+            document.getElementById("tx_modify_result").textContent = JSON.stringify(tx_copy, null, 2);
+        }
+
+        console.log("===== 17-1 JSON =====");
+        console.log("原始字符串:", tx_jsonStr);
+        console.log("解析后对象:", tx_obj);
+        console.log("序列化:", JSON.stringify(tx_obj));
+    </script>
+</body>
+</html>

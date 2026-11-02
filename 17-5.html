@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!--
+姓名：唐笑
+日期：2026-11-02
+功能名称：JavaScript 两种定时器 —— setInterval 循环执行 / setTimeout 延迟执行
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>17-5 定时器</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            min-height: 100vh; padding: 30px 16px; color: #e0e0e0;
+        }
+        .tx_container { max-width: 900px; margin: 0 auto; }
+        .tx_header { text-align: center; margin-bottom: 22px; }
+        .tx_header h1 { font-size: 24px; color: #00d4ff; margin-bottom: 6px; }
+        .tx_header p { font-size: 12px; color: #888; }
+
+        .tx_section {
+            background: #1a1a2e; border-radius: 12px; padding: 22px;
+            margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .tx_section-title {
+            font-size: 15px; color: #ff9800; margin-bottom: 14px;
+            padding-bottom: 8px; border-bottom: 1px solid #2d2d44;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .tx_section-title .tx_tag {
+            font-size: 11px; padding: 2px 10px; border-radius: 10px;
+            font-weight: normal; font-family: Consolas, Monaco, monospace;
+        }
+        .tx_tag.interval { background: #4caf5022; color: #4caf50; }
+        .tx_tag.timeout  { background: #2196f322; color: #2196f3; }
+
+        .tx_code {
+            background: #0d1117; border-radius: 8px; padding: 12px 14px;
+            font-family: Consolas, Monaco, monospace; font-size: 12px;
+            color: #a6e3a1; line-height: 1.7; margin-bottom: 14px;
+            border: 1px solid #2d2d44; white-space: pre-wrap;
+        }
+
+        .tx_btn {
+            border: none; padding: 8px 18px; border-radius: 6px;
+            font-size: 13px; cursor: pointer; margin: 4px 4px 4px 0;
+            transition: all 0.2s;
+        }
+        .tx_btn.primary  { background: #00d4ff; color: #000; font-weight: bold; }
+        .tx_btn.primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,212,255,0.4); }
+        .tx_btn.warn     { background: #ff9800; color: #000; font-weight: bold; }
+        .tx_btn.warn:hover { background: #ffb74d; }
+        .tx_btn.danger   { background: #f44336; color: #fff; font-weight: bold; }
+        .tx_btn.danger:hover { background: #ef5350; }
+        .tx_btn.ghost    { background: transparent; color: #888; border: 1px solid #3d3d5c; }
+        .tx_btn.ghost:hover { color: #fff; border-color: #00d4ff; }
+        .tx_btn:disabled { background: #444; color: #777; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        /* Demo 区 */
+        .tx_demo {
+            background: #0d1117; border-radius: 10px; padding: 20px;
+            border: 1px solid #2d2d44; text-align: center;
+            min-height: 100px; display: flex; align-items: center; justify-content: center;
+            font-family: Consolas, Monaco, monospace;
+        }
+
+        /* ① 时钟 */
+        .tx_clock { font-size: 48px; color: #00d4ff; font-weight: bold; letter-spacing: 4px; text-shadow: 0 0 20px rgba(0,212,255,0.5); }
+        .tx_clock .tx_sec { color: #ff9800; font-size: 32px; }
+
+        /* ② 数字累加 */
+        .tx_counter { font-size: 72px; color: #4caf50; font-weight: bold; transition: transform 0.1s; }
+        .tx_counter.bump { transform: scale(1.2); }
+
+        /* ③ 倒计时 */
+        .tx_countdown { font-size: 56px; font-weight: bold; }
+        .tx_countdown.warning { color: #ff9800; }
+        .tx_countdown.danger  { color: #f44336; animation: tx_pulse 0.5s infinite alternate; }
+        @keyframes tx_pulse { from { transform: scale(1); } to { transform: scale(1.1); } }
+
+        /* ④ 随机变色 */
+        .tx_color-box {
+            width: 100%; height: 120px; border-radius: 10px;
+            background: #00d4ff; transition: background 0.3s;
+            display: flex; align-items: center; justify-content: center;
+            font-family: Consolas, Monaco, monospace; font-size: 14px; color: #fff;
+            font-weight: bold;
+        }
+
+        /* ⑤ setTimeout 延迟执行 */
+        .tx_delay-box { font-size: 14px; line-height: 1.9; }
+        .tx_delay-box .tx_log-line { color: #aaa; }
+        .tx_delay-box .tx_log-ok { color: #4caf50; font-weight: bold; }
+        .tx_delay-box .tx_count-num { color: #ff9800; font-weight: bold; font-size: 18px; }
+
+        /* ⑥ 进度条 */
+        .tx_progress-wrap { width: 100%; background: #2d2d44; border-radius: 10px; height: 30px; overflow: hidden; }
+        .tx-progress { height: 100%; background: linear-gradient(90deg, #00d4ff, #4caf50); width: 0%; transition: width 0.1s; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #000; font-weight: bold; }
+
+        .tx_status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+        .tx_status-dot.running { background: #4caf50; box-shadow: 0 0 8px #4caf50; animation: tx_blink 1s infinite; }
+        .tx_status-dot.stopped { background: #666; }
+        @keyframes tx_blink { 50% { opacity: 0.3; } }
+
+        .tx_footer { text-align: center; font-size: 12px; color: #555; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="tx_container">
+        <div class="tx_header">
+            <h1>⏱️ JavaScript 定时器</h1>
+            <p>作者：唐笑 · setInterval 循环执行 / setTimeout 延迟执行</p>
+        </div>
+
+        <!-- ===== setInterval 部分 ===== -->
+        <div class="tx_section">
+            <div class="tx_section-title">
+                <span>① setInterval — 循环执行（每隔固定时间反复调用）</span>
+                <span class="tx_tag interval">setInterval / clearInterval</span>
+            </div>
+            <div class="tx_code">// 返回一个计时器 ID，保存起来才能清除
+let tx_timerId = setInterval(function() {
+    console.log("每秒执行一次");
+}, 1000);
+
+// 停止循环
+clearInterval(tx_timerId);</div>
+
+            <span class="tx_status-dot" id="tx_clockDot"></span>
+            <span id="tx_clockLabel" style="font-size:12px;color:#888;">当前：运行中（每秒刷新）</span>
+            <div class="tx_demo" style="margin-top:10px;">
+                <div class="tx_clock" id="tx_clock">--:--:--</div>
+            </div>
+        </div>
+
+        <div class="tx_section">
+            <div class="tx_section-title">
+                <span>② 数字累加（setInterval + 清除）</span>
+                <span class="tx_tag interval">setInterval</span>
+            </div>
+            <div class="tx_code">// 点击开始 → 每 300ms 加 1
+let tx_counterId = setInterval(tx_plus, 300);
+// 点击停止
+clearInterval(tx_counterId);</div>
+            <div class="tx_demo">
+                <div>
+                    <div class="tx_counter" id="tx_counter">0</div>
+                    <div style="margin-top:10px;">
+                        <button class="tx_btn primary" onclick="tx_startCounter()">▶ 开始</button>
+                        <button class="tx_btn danger" onclick="tx_stopCounter()">⏸ 停止</button>
+                        <button class="tx_btn ghost" onclick="tx_resetCounter()">↻ 重置</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tx_section">
+            <div class="tx_section-title">
+                <span>③ 倒计时（setInterval + 最后清除）</span>
+                <span class="tx_tag interval">setInterval / clearInterval</span>
+            </div>
+            <div class="tx_code">let tx_remain = 10;
+let tx_cdId = setInterval(function() {
+    tx_remain--;
+    if (tx_remain <= 0) {
+        clearInterval(tx_cdId);  // 时间到 → 自动清除
+    }
+}, 1000);</div>
+            <div class="tx_demo">
+                <div>
+                    <div class="tx_countdown" id="tx_countdown">10</div>
+                    <div style="margin-top:10px;">
+                        <button class="tx_btn primary" onclick="tx_startCountdown()">▶ 开始倒计时 (10s)</button>
+                        <button class="tx_btn danger" onclick="tx_stopCountdown()">⏸ 停止</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tx_section">
+            <div class="tx_section-title">
+                <span>④ 随机变色（setInterval）</span>
+                <span class="tx_tag interval">setInterval</span>
+            </div>
+            <div class="tx_code">function tx_randomColor() {
+    let r = Math.floor(Math.random() * 256);
+    let g = Math.floor(Math.random() * 256);
+    let b = Math.floor(Math.random() * 256);
+    return "rgb(" + r + "," + g + "," + b + ")";
+}</div>
+            <div class="tx_demo" style="display:block; padding:14px;">
+                <div class="tx_color-box" id="tx_colorBox">#00d4ff</div>
+                <div style="margin-top:12px; text-align:center;">
+                    <button class="tx_btn primary" onclick="tx_startColor()">▶ 开始变色 (500ms)</button>
+                    <button class="tx_btn danger" onclick="tx_stopColor()">⏸ 停止</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== setTimeout 部分 ===== -->
+        <div class="tx_section">
+            <div class="tx_section-title">
+                <span>⑤ setTimeout — 延迟执行（只执行一次）</span>
+                <span class="tx_tag timeout">setTimeout / clearTimeout</span>
+            </div>
+            <div class="tx_code">// 3 秒后只执行一次
+let tx_toutId = setTimeout(function() {
+    console.log("3 秒到了！");
+}, 3000);
+
+// 还没到时间可以取消
+clearTimeout(tx_toutId);</div>
+            <div class="tx_demo" style="display:block; text-align:left;">
+                <div class="tx_delay-box" id="tx_delayBox">
+                    <div class="tx_log-line">[等待点击按钮...]</div>
+                </div>
+                <div style="margin-top:12px; text-align:center;">
+                    <button class="tx_btn primary" onclick="tx_runTimeout()">⏰ 3 秒后执行一次</button>
+                    <button class="tx_btn warn" onclick="tx_runLoopTimeout()">🔁 5 次递归 setTimeout</button>
+                    <button class="tx_btn ghost" onclick="tx_clearTimeoutBox()">清空日志</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 两者结合 ===== -->
+        <div class="tx_section">
+            <div class="tx_section-title">
+                <span>⑥ 两者结合：进度条</span>
+                <span class="tx_tag interval">setInterval</span> + <span class="tx_tag timeout">setTimeout</span>
+            </div>
+            <div class="tx_code">// setInterval 每 50ms 前进一点
+// setTimeout 5 秒后自动停止
+let tx_barId = setInterval(tx_plusBar, 50);
+setTimeout(function() {
+    clearInterval(tx_barId);     // 5 秒后自动清除 interval
+}, 5000);</div>
+            <div class="tx_demo" style="display:block; padding:18px;">
+                <div class="tx_progress-wrap"><div class="tx-progress" id="tx_progress" style="width:0%;">0%</div></div>
+                <div style="margin-top:12px; text-align:center;">
+                    <button class="tx_btn primary" onclick="tx_startProgress()">▶ 开始</button>
+                    <button class="tx_btn danger" onclick="tx_stopProgress()">⏸ 停止</button>
+                    <button class="tx_btn ghost" onclick="tx_resetProgress()">↻ 重置</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tx_footer">17-5 · 定时器 · 唐笑 · 2026</div>
+    </div>
+
+    <script>
+        // =============== ① 时钟 ===============
+        let tx_clockId;
+        function tx_startClock() {
+            tx_clockId = setInterval(function() {
+                let d = new Date();
+                let h = String(d.getHours()).padStart(2, "0");
+                let m = String(d.getMinutes()).padStart(2, "0");
+                let s = String(d.getSeconds()).padStart(2, "0");
+                document.getElementById("tx_clock").innerHTML = h + ":" + m + '<span class="tx_sec">:' + s + '</span>';
+            }, 1000);
+            document.getElementById("tx_clockDot").className = "tx_status-dot running";
+        }
+        tx_startClock();
+
+        // =============== ② 计数器 ===============
+        let tx_counter = 0, tx_counterId = null;
+        function tx_startCounter() {
+            if (tx_counterId) return;
+            tx_counterId = setInterval(function() {
+                tx_counter++;
+                let el = document.getElementById("tx_counter");
+                el.textContent = tx_counter;
+                el.classList.add("bump");
+                setTimeout(function() { el.classList.remove("bump"); }, 100);
+            }, 300);
+        }
+        function tx_stopCounter()  { clearInterval(tx_counterId); tx_counterId = null; }
+        function tx_resetCounter() { tx_stopCounter(); tx_counter = 0; document.getElementById("tx_counter").textContent = "0"; }
+        tx_startCounter();
+
+        // =============== ③ 倒计时 ===============
+        let tx_cdId = null;
+        function tx_startCountdown() {
+            tx_stopCountdown();
+            let tx_remain = 10;
+            let el = document.getElementById("tx_countdown");
+            el.textContent = tx_remain;
+            el.className = "tx_countdown";
+            tx_cdId = setInterval(function() {
+                tx_remain--;
+                el.textContent = tx_remain;
+                if (tx_remain <= 3) el.className = "tx_countdown danger";
+                else if (tx_remain <= 5) el.className = "tx_countdown warning";
+                if (tx_remain <= 0) {
+                    clearInterval(tx_cdId);
+                    tx_cdId = null;
+                    el.textContent = "⏰ 时间到！";
+                    el.className = "tx_countdown warning";
+                }
+            }, 1000);
+        }
+        function tx_stopCountdown() { clearInterval(tx_cdId); tx_cdId = null; }
+
+        // =============== ④ 随机变色 ===============
+        let tx_colorId = null;
+        function tx_randomColor() {
+            let r = Math.floor(Math.random() * 256);
+            let g = Math.floor(Math.random() * 256);
+            let b = Math.floor(Math.random() * 256);
+            return "rgb(" + r + "," + g + "," + b + ")";
+        }
+        function tx_startColor() {
+            if (tx_colorId) return;
+            let box = document.getElementById("tx_colorBox");
+            tx_colorId = setInterval(function() {
+                let c = tx_randomColor();
+                box.style.background = c;
+                box.textContent = c;
+                box.style.color = "#fff";
+            }, 500);
+        }
+        function tx_stopColor() { clearInterval(tx_colorId); tx_colorId = null; }
+        tx_startColor();
+
+        // =============== ⑤ setTimeout ===============
+        let tx_delayBox = document.getElementById("tx_delayBox");
+        function tx_log(msg, ok) {
+            let d = new Date();
+            let t = String(d.getHours()).padStart(2,"0") + ":" +
+                    String(d.getMinutes()).padStart(2,"0") + ":" +
+                    String(d.getSeconds()).padStart(2,"0");
+            let cls = ok ? "tx_log-ok" : "tx_log-line";
+            tx_delayBox.innerHTML += '<div class="' + cls + '">[' + t + '] ' + msg + '</div>';
+            tx_delayBox.scrollTop = tx_delayBox.scrollHeight;
+        }
+        function tx_runTimeout() {
+            tx_log("▶ 点击触发，3 秒后执行 setTimeout...");
+            setTimeout(function() {
+                tx_log("✅ setTimeout 到时间了！只执行这一次。", true);
+            }, 3000);
+        }
+        // 递归 setTimeout 实现"可控循环"（比 setInterval 更准确）
+        let tx_loopCount = 0;
+        function tx_runLoopTimeout() {
+            tx_loopCount = 0;
+            tx_log("▶ 开始递归 setTimeout（每秒 1 次，共 5 次）");
+            function tx_step() {
+                tx_loopCount++;
+                tx_log("✅ 第 " + tx_loopCount + " 次执行");
+                if (tx_loopCount < 5) {
+                    setTimeout(tx_step, 1000);   // 继续
+                } else {
+                    tx_log("🏁 全部完成（共 5 次）", true);
+                }
+            }
+            tx_step();
+        }
+        function tx_clearTimeoutBox() { tx_delayBox.innerHTML = ""; }
+
+        // =============== ⑥ 进度条 ===============
+        let tx_progressId = null, tx_barTimeoutId = null;
+        function tx_startProgress() {
+            if (tx_progressId) return;
+            let pct = 0;
+            let bar = document.getElementById("tx_progress");
+            tx_progressId = setInterval(function() {
+                pct += 1;
+                bar.style.width = pct + "%";
+                bar.textContent = pct + "%";
+                if (pct >= 100) tx_stopProgress();
+            }, 50);
+            // 5 秒后兜底停止
+            tx_barTimeoutId = setTimeout(tx_stopProgress, 5000);
+        }
+        function tx_stopProgress() {
+            clearInterval(tx_progressId);
+            clearTimeout(tx_barTimeoutId);
+            tx_progressId = null; tx_barTimeoutId = null;
+        }
+        function tx_resetProgress() {
+            tx_stopProgress();
+            let bar = document.getElementById("tx_progress");
+            bar.style.width = "0%"; bar.textContent = "0%";
+        }
+    </script>
+</body>
+</html>
