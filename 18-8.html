@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!--
+姓名：唐笑
+日期：2026-11-05
+功能名称：数据大屏 · 电商销售运营中心（三列布局 + 中国地图飞线）
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>18-8 数据大屏 · 电商运营中心</title>
+    <script src="./cdn/echarts.min.js"></script>
+    <script src="./cdn/china.geo.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; }
+        body {
+            background: #060b1a; color: #e0e6ff;
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+
+        /* ===== 全局装饰 ===== */
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                radial-gradient(ellipse at top, #0d2144 0%, transparent 50%),
+                radial-gradient(ellipse at bottom, #1a0d44 0%, transparent 50%);
+            pointer-events: none; z-index: 0;
+        }
+
+        /* ===== 大屏容器 ===== */
+        .tx_screen {
+            position: relative; z-index: 1;
+            width: 100vw; height: 100vh;
+            display: grid;
+            grid-template-rows: 60px 1fr 32px;
+            grid-template-columns: 22% 1fr 22%;
+            grid-template-areas:
+                "header header header"
+                "left   center right"
+                "footer footer footer";
+            gap: 12px;
+            padding: 10px;
+        }
+
+        /* ===== 标题栏 ===== */
+        .tx_header {
+            grid-area: header;
+            background: linear-gradient(180deg, rgba(0,60,180,0.22), rgba(0,20,80,0.05));
+            border: 1px solid rgba(0,212,255,0.28);
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .tx_header::before, .tx_header::after {
+            content: ""; position: absolute; top: 50%; width: 14%; height: 2px;
+            background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+        }
+        .tx_header::before { left: 14%; }
+        .tx_header::after  { right: 14%; }
+        .tx_header h1 {
+            font-size: 22px; letter-spacing: 6px; font-weight: bold;
+            background: linear-gradient(180deg, #ffffff, #00d4ff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0,212,255,0.4);
+        }
+        .tx_header .tx_time {
+            position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+            font-size: 12px; color: #88bbdd; font-family: Consolas, Monaco, monospace;
+        }
+        .tx_header .tx_sub {
+            position: absolute; left: 20px; top: 50%; transform: translateY(-50%);
+            font-size: 12px; color: #88bbdd;
+        }
+
+        /* ===== 面板通用 ===== */
+        .tx_panel {
+            background: linear-gradient(180deg, rgba(0,40,100,0.35), rgba(0,20,60,0.25));
+            border: 1px solid rgba(0,212,255,0.22);
+            border-radius: 4px;
+            position: relative;
+            padding: 8px 10px;
+            display: flex; flex-direction: column;
+        }
+        .tx_panel::before, .tx_panel::after {
+            content: ""; position: absolute; width: 10px; height: 10px;
+            border-color: #00d4ff; border-style: solid;
+        }
+        .tx_panel::before { top: -1px; left: -1px; border-width: 1px 0 0 1px; }
+        .tx_panel::after  { bottom: -1px; right: -1px; border-width: 0 1px 1px 0; }
+
+        .tx_panel-title {
+            font-size: 13px; color: #00d4ff; font-weight: bold;
+            border-left: 3px solid #00d4ff;
+            padding-left: 8px; margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+        .tx_panel-body { flex: 1; min-height: 0; }
+
+        /* ===== 左侧 ===== */
+        .tx_left { grid-area: left; display: grid; grid-template-rows: 1fr 1fr 1fr; gap: 10px; }
+
+        /* KPI 卡片 */
+        .tx_kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .tx_kpi {
+            background: rgba(0,212,255,0.08);
+            border: 1px solid rgba(0,212,255,0.2);
+            border-radius: 4px; padding: 10px; text-align: center;
+        }
+        .tx_kpi .tx_val {
+            font-size: 22px; font-weight: bold;
+            font-family: Consolas, Monaco, monospace;
+            background: linear-gradient(180deg, #fff, #00d4ff);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .tx_kpi .tx_lbl { font-size: 11px; color: #88bbdd; margin-top: 2px; }
+        .tx_kpi .tx_chg { font-size: 10px; margin-top: 2px; }
+        .tx_kpi .tx_chg.up   { color: #34d399; }
+        .tx_kpi .tx_chg.down { color: #f87171; }
+
+        /* ===== 中间 ===== */
+        .tx_center { grid-area: center; display: grid; grid-template-rows: 3fr 1fr; gap: 10px; }
+        .tx_map-chart { width: 100%; height: 100%; }
+        .tx_bottom-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+        /* ===== 右侧 ===== */
+        .tx_right { grid-area: right; display: grid; grid-template-rows: 1fr 1fr 1fr; gap: 10px; }
+
+        /* 排名列表 */
+        .tx_rank-list { font-size: 11px; }
+        .tx_rank-item {
+            display: flex; align-items: center; padding: 6px 8px;
+            border-bottom: 1px dashed rgba(0,212,255,0.15);
+        }
+        .tx_rank-item:last-child { border-bottom: none; }
+        .tx_rank-num {
+            width: 20px; height: 20px; border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: bold; margin-right: 8px;
+            background: rgba(255,255,255,0.08); color: #88bbdd;
+        }
+        .tx_rank-item:nth-child(1) .tx_rank-num { background: #fbbf24; color: #1a1a1a; }
+        .tx_rank-item:nth-child(2) .tx_rank-num { background: #94a3b8; color: #1a1a1a; }
+        .tx_rank-item:nth-child(3) .tx_rank-num { background: #b45309; color: #fff; }
+        .tx_rank-name { flex: 1; color: #cde4ff; }
+        .tx_rank-bar-wrap { width: 80px; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; margin-right: 8px; }
+        .tx_rank-bar { height: 100%; background: linear-gradient(90deg, #00d4ff, #00ffa0); border-radius: 3px; }
+        .tx_rank-val { font-family: Consolas, Monaco, monospace; color: #00d4ff; min-width: 50px; text-align: right; font-size: 10px; }
+
+        /* ===== 底部 ===== */
+        .tx_footer {
+            grid-area: footer;
+            background: linear-gradient(90deg, rgba(0,60,180,0.22), rgba(0,20,80,0.1), rgba(0,60,180,0.22));
+            border: 1px solid rgba(0,212,255,0.2);
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center; gap: 30px;
+            font-size: 11px; color: #88bbdd;
+            font-family: Consolas, Monaco, monospace;
+        }
+        .tx_footer .tx_kpi2 { display: flex; gap: 6px; align-items: center; }
+        .tx_footer .tx_kpi2 .tx_n { color: #00d4ff; font-size: 14px; font-weight: bold; }
+
+        .tx_chart { width: 100%; height: 100%; }
+    </style>
+</head>
+<body>
+    <div class="tx_screen">
+        <!-- ===== 标题栏 ===== -->
+        <div class="tx_header">
+            <span class="tx_sub">电商销售运营中心 · 实时监测平台</span>
+            <h1>🛒 电商销售运营数据大屏</h1>
+            <span class="tx_time" id="tx_clock">--</span>
+        </div>
+
+        <!-- ===== 左侧 ===== -->
+        <div class="tx_left">
+            <div class="tx_panel">
+                <div class="tx_panel-title">① 核心指标 KPI</div>
+                <div class="tx_panel-body">
+                    <div class="tx_kpi-grid">
+                        <div class="tx_kpi">
+                            <div class="tx_val">¥ 8.62亿</div>
+                            <div class="tx_lbl">今日 GMV</div>
+                            <div class="tx_chg up">↑ 12.5%</div>
+                        </div>
+                        <div class="tx_kpi">
+                            <div class="tx_val">38.2万</div>
+                            <div class="tx_lbl">订单数</div>
+                            <div class="tx_chg up">↑ 8.3%</div>
+                        </div>
+                        <div class="tx_kpi">
+                            <div class="tx_val">512.6万</div>
+                            <div class="tx_lbl">访客 UV</div>
+                            <div class="tx_chg up">↑ 15.7%</div>
+                        </div>
+                        <div class="tx_kpi">
+                            <div class="tx_val">4.25%</div>
+                            <div class="tx_lbl">转化率</div>
+                            <div class="tx_chg down">↓ 0.3%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tx_panel">
+                <div class="tx_panel-title">② 近 7 日 GMV 趋势</div>
+                <div class="tx_panel-body"><div class="tx_chart" id="tx_chartL2"></div></div>
+            </div>
+
+            <div class="tx_panel">
+                <div class="tx_panel-title">③ 品类销售占比</div>
+                <div class="tx_panel-body"><div class="tx_chart" id="tx_chartL3"></div></div>
+            </div>
+        </div>
+
+        <!-- ===== 中间 ===== -->
+        <div class="tx_center">
+            <div class="tx_panel">
+                <div class="tx_panel-title">④ 全国销售分布 · 飞线热力图</div>
+                <div class="tx_panel-body"><div class="tx_chart" id="tx_chartMap"></div></div>
+            </div>
+            <div class="tx_bottom-row">
+                <div class="tx_panel">
+                    <div class="tx_panel-title">⑤ 实时订单量</div>
+                    <div class="tx_panel-body"><div class="tx_chart" id="tx_chartB1"></div></div>
+                </div>
+                <div class="tx_panel">
+                    <div class="tx_panel-title">⑥ 用户来源</div>
+                    <div class="tx_panel-body"><div class="tx_chart" id="tx_chartB2"></div></div>
+                </div>
+                <div class="tx_panel">
+                    <div class="tx_panel-title">⑦ 支付方式</div>
+                    <div class="tx_panel-body"><div class="tx_chart" id="tx_chartB3"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== 右侧 ===== -->
+        <div class="tx_right">
+            <div class="tx_panel">
+                <div class="tx_panel-title">⑧ 热销城市 TOP 10</div>
+                <div class="tx_panel-body">
+                    <div class="tx_rank-list" id="tx_rankList"></div>
+                </div>
+            </div>
+
+            <div class="tx_panel">
+                <div class="tx_panel-title">⑨ 渠道流量</div>
+                <div class="tx_panel-body"><div class="tx_chart" id="tx_chartR2"></div></div>
+            </div>
+
+            <div class="tx_panel">
+                <div class="tx_panel-title">⑩ 实时监控仪表</div>
+                <div class="tx_panel-body"><div class="tx_chart" id="tx_chartR3"></div></div>
+            </div>
+        </div>
+
+        <!-- ===== 底部 ===== -->
+        <div class="tx_footer">
+            <div class="tx_kpi2">🔗 数据节点 <span class="tx_n">2,847</span></div>
+            <div class="tx_kpi2">📡 接入设备 <span class="tx_n">128</span></div>
+            <div class="tx_kpi2">💾 数据量 <span class="tx_n">1.28 TB</span></div>
+            <div class="tx_kpi2">⏱ 平均延迟 <span class="tx_n">23 ms</span></div>
+            <div class="tx_kpi2">🟢 系统健康度 <span class="tx_n">99.97%</span></div>
+        </div>
+    </div>
+
+    <script>
+        // ===== 时钟 =====
+        function tx_updateClock() {
+            let d = new Date();
+            let s = d.getFullYear() + "-" +
+                String(d.getMonth()+1).padStart(2,"0") + "-" +
+                String(d.getDate()).padStart(2,"0") + " " +
+                String(d.getHours()).padStart(2,"0") + ":" +
+                String(d.getMinutes()).padStart(2,"0") + ":" +
+                String(d.getSeconds()).padStart(2,"0");
+            document.getElementById("tx_clock").textContent = s;
+        }
+        tx_updateClock(); setInterval(tx_updateClock, 1000);
+
+        // ===== 注册中国地图（用 <script> 引入，file:// 也能加载）=====
+        if (window.tx_chinaGeo) {
+            echarts.registerMap("china", window.tx_chinaGeo);
+            tx_initCharts();
+        } else {
+            console.error("中国地图数据未加载");
+            tx_initCharts();
+        }
+
+        function tx_initCharts() {
+            tx_chartMap();    // 地图（需等 GeoJSON 注册后）
+            tx_chartL2();     // 7 日 GMV
+            tx_chartL3();     // 品类占比
+            tx_chartB1();     // 实时订单
+            tx_chartB2();     // 用户来源
+            tx_chartB3();     // 支付方式
+            tx_chartR2();     // 渠道流量
+            tx_chartR3();     // 仪表
+            tx_rankList();    // 排名
+
+            // 自适应
+            window.addEventListener("resize", () => {
+                document.querySelectorAll(".tx_chart").forEach(el => {
+                    let inst = echarts.getInstanceByDom(el);
+                    if (inst) inst.resize();
+                });
+            });
+        }
+
+        // ===== 地图 + 飞线 + 热力 =====
+        function tx_chartMap() {
+            let el = document.getElementById("tx_chartMap");
+            let chart = echarts.init(el);
+
+            // 主要城市坐标 [lng, lat] + 销售值
+            let cities = [
+                { name: "北京",   val: 968, coord: [116.4074, 39.9042] },
+                { name: "上海",   val: 1052, coord: [121.4737, 31.2304] },
+                { name: "广州",   val: 823,  coord: [113.2644, 23.1291] },
+                { name: "深圳",   val: 792,  coord: [114.0579, 22.5431] },
+                { name: "杭州",   val: 745,  coord: [120.1551, 30.2741] },
+                { name: "成都",   val: 621,  coord: [104.0668, 30.5728] },
+                { name: "武汉",   val: 528,  coord: [114.3055, 30.5931] },
+                { name: "南京",   val: 485,  coord: [118.7969, 32.0603] },
+                { name: "西安",   val: 432,  coord: [108.9402, 34.3416] },
+                { name: "重庆",   val: 418,  coord: [106.5516, 29.5630] },
+                { name: "天津",   val: 395,  coord: [117.1902, 39.1256] },
+                { name: "苏州",   val: 372,  coord: [120.5853, 31.2989] },
+                { name: "长沙",   val: 328,  coord: [112.9388, 28.2282] },
+                { name: "青岛",   val: 295,  coord: [120.3826, 36.0671] },
+                { name: "厦门",   val: 268,  coord: [118.0894, 24.4798] },
+                { name: "沈阳",   val: 232,  coord: [123.4315, 41.8057] },
+                { name: "哈尔滨", val: 198,  coord: [126.5349, 45.8038] },
+                { name: "昆明",   val: 185,  coord: [102.7123, 25.0406] },
+                { name: "乌鲁木齐", val: 145, coord: [87.6168, 43.8256] },
+                { name: "拉萨",   val: 68,   coord: [91.1322, 29.6500] }
+            ];
+
+            // 飞线：北京 作为枢纽，连接各城市
+            let hub = [116.4074, 39.9042];
+            let lines = cities.filter(c => c.name !== "北京").map(c => ({
+                coords: [hub, c.coord],
+                value: c.val
+            }));
+
+            // 省份热力（模拟数据）
+            let provinceData = [
+                { name: "广东", value: 3280 },
+                { name: "江苏", value: 2650 },
+                { name: "浙江", value: 2480 },
+                { name: "上海", value: 2100 },
+                { name: "北京", value: 1980 },
+                { name: "山东", value: 1850 },
+                { name: "四川", value: 1620 },
+                { name: "湖北", value: 1240 },
+                { name: "福建", value: 1180 },
+                { name: "河南", value: 1120 },
+                { name: "湖南", value: 980 },
+                { name: "安徽", value: 920 },
+                { name: "河北", value: 880 },
+                { name: "陕西", value: 820 },
+                { name: "辽宁", value: 760 },
+                { name: "重庆", value: 740 },
+                { name: "天津", value: 680 },
+                { name: "云南", value: 520 },
+                { name: "黑龙江", value: 480 },
+                { name: "广西", value: 420 },
+                { name: "山西", value: 380 },
+                { name: "贵州", value: 320 },
+                { name: "江西", value: 300 },
+                { name: "吉林", value: 280 },
+                { name: "内蒙古", value: 260 },
+                { name: "新疆", value: 240 },
+                { name: "甘肃", value: 180 },
+                { name: "海南", value: 160 },
+                { name: "宁夏", value: 90 },
+                { name: "青海", value: 70 },
+                { name: "西藏", value: 40 }
+            ];
+
+            let option = {
+                tooltip: {
+                    trigger: "item",
+                    backgroundColor: "rgba(0,20,50,0.9)",
+                    borderColor: "#00d4ff",
+                    textStyle: { color: "#fff" }
+                },
+                visualMap: {
+                    left: "left", top: "bottom",
+                    min: 0, max: 3500,
+                    text: ["高", "低"],
+                    textStyle: { color: "#88bbdd" },
+                    inRange: { color: ["#0a2e5c", "#0d5ca8", "#00d4ff", "#00ffa0"] },
+                    calculable: true
+                },
+                geo: {
+                    map: "china",
+                    roam: true,
+                    zoom: 1.2,
+                    itemStyle: {
+                        areaColor: "#0a2550",
+                        borderColor: "#00d4ff66",
+                        borderWidth: 1
+                    },
+                    emphasis: {
+                        itemStyle: { areaColor: "#0d4a8a" },
+                        label: { show: false }
+                    },
+                    label: { show: false }
+                },
+                series: [
+                    // 省份热力
+                    {
+                        name: "省份销售",
+                        type: "map",
+                        map: "china",
+                        geoIndex: 0,
+                        data: provinceData
+                    },
+                    // 城市散点 + 涟漪
+                    {
+                        name: "城市分布",
+                        type: "effectScatter",
+                        coordinateSystem: "geo",
+                        rippleEffect: {
+                            brushType: "stroke",
+                            scale: 3,
+                            period: 4
+                        },
+                        symbolSize: function(v) { return Math.max(6, Math.sqrt(v[2]) * 0.3); },
+                        itemStyle: { color: "#ff6b9d", shadowBlur: 10, shadowColor: "#ff6b9d" },
+                        data: cities.map(c => ({ name: c.name, value: [...c.coord, c.val] }))
+                    },
+                    // 飞线
+                    {
+                        name: "物流飞线",
+                        type: "lines",
+                        coordinateSystem: "geo",
+                        zlevel: 2,
+                        effect: {
+                            show: true, period: 5, trailLength: 0.3,
+                            symbol: "arrow", symbolSize: 6, color: "#00d4ff"
+                        },
+                        lineStyle: {
+                            color: "#00d4ff", width: 1.2, opacity: 0.55, curveness: 0.2
+                        },
+                        data: lines
+                    }
+                ]
+            };
+            chart.setOption(option);
+        }
+
+        // ===== 左侧 L2：7 日 GMV =====
+        function tx_chartL2() {
+            let chart = echarts.init(document.getElementById("tx_chartL2"));
+            let opt = {
+                tooltip: { trigger: "axis" },
+                grid: { top: 20, left: 36, right: 12, bottom: 24 },
+                xAxis: {
+                    type: "category",
+                    data: ["周一", "周二", "周三", "周四", "周五", "周六", "周日"],
+                    axisLine: { lineStyle: { color: "#224466" } },
+                    axisLabel: { color: "#88bbdd", fontSize: 10 }
+                },
+                yAxis: {
+                    type: "value",
+                    axisLine: { show: false },
+                    axisTick: { show: false },
+                    splitLine: { lineStyle: { color: "#1a3355" } },
+                    axisLabel: { color: "#88bbdd", fontSize: 10, formatter: "{value}亿" }
+                },
+                series: [{
+                    type: "bar",
+                    data: [6.2, 6.8, 7.1, 6.9, 8.5, 9.2, 8.6],
+                    barWidth: 16,
+                    itemStyle: {
+                        borderRadius: [3, 3, 0, 0],
+                        color: new echarts.graphic.LinearGradient(0,0,0,1,[
+                            { offset:0, color:"#00d4ff" }, { offset:1, color:"#003366" }
+                        ])
+                    }
+                }]
+            };
+            chart.setOption(opt);
+        }
+
+        // ===== 左侧 L3：品类占比 =====
+        function tx_chartL3() {
+            let chart = echarts.init(document.getElementById("tx_chartL3"));
+            let opt = {
+                tooltip: { trigger: "item" },
+                legend: {
+                    orient: "vertical", right: 4, top: "center",
+                    textStyle: { color: "#88bbdd", fontSize: 10 }, itemWidth: 10, itemHeight: 10
+                },
+                series: [{
+                    type: "pie", radius: ["42%", "68%"], center: ["38%", "50%"],
+                    avoidLabelOverlap: true,
+                    label: { show: false },
+                    emphasis: {
+                        label: { show: true, fontSize: 12, color: "#fff" }
+                    },
+                    labelLine: { show: false },
+                    itemStyle: { borderColor: "#060b1a", borderWidth: 2 },
+                    data: [
+                        { name: "服饰", value: 35 },
+                        { name: "数码", value: 28 },
+                        { name: "美妆", value: 18 },
+                        { name: "食品", value: 12 },
+                        { name: "家电", value: 7 }
+                    ],
+                    color: ["#4facfe", "#43e97b", "#fa709a", "#fee140", "#a18cd1"]
+                }]
+            };
+            chart.setOption(opt);
+        }
+
+        // ===== 底部 B1：实时订单 =====
+        function tx_chartB1() {
+            let chart = echarts.init(document.getElementById("tx_chartB1"));
+            let data = [], times = [];
+            for (let i = 29; i >= 0; i--) {
+                let t = new Date(Date.now() - i * 1000);
+                times.push(String(t.getHours()).padStart(2,"0") + ":" + String(t.getMinutes()).padStart(2,"0") + ":" + String(t.getSeconds()).padStart(2,"0"));
+                data.push(Math.floor(Math.random() * 40 + 20));
+            }
+            let opt = {
+                grid: { top: 18, left: 40, right: 10, bottom: 24 },
+                xAxis: {
+                    type: "category", data: times,
+                    axisLine: { lineStyle: { color: "#224466" } },
+                    axisLabel: { color: "#88bbdd", fontSize: 9, interval: 5 }
+                },
+                yAxis: {
+                    type: "value",
+                    axisLine: { show: false }, splitLine: { lineStyle: { color: "#1a3355" } },
+                    axisLabel: { color: "#88bbdd", fontSize: 10 }
+                },
+                series: [{
+                    type: "line", data: data, smooth: true,
+                    symbol: "none",
+                    lineStyle: { color: "#00ffa0", width: 2 },
+                    areaStyle: {
+                        color: new echarts.graphic.LinearGradient(0,0,0,1,[
+                            { offset:0, color:"#00ffa055" }, { offset:1, color:"#00ffa000" }
+                        ])
+                    }
+                }]
+            };
+            chart.setOption(opt);
+
+            // 模拟实时追加
+            setInterval(() => {
+                data.shift(); data.push(Math.floor(Math.random() * 40 + 20));
+                times.shift();
+                let t = new Date();
+                times.push(String(t.getHours()).padStart(2,"0") + ":" + String(t.getMinutes()).padStart(2,"0") + ":" + String(t.getSeconds()).padStart(2,"0"));
+                chart.setOption({ series: [{ data }] });
+            }, 1000);
+        }
+
+        // ===== 底部 B2：用户来源 =====
+        function tx_chartB2() {
+            let chart = echarts.init(document.getElementById("tx_chartB2"));
+            let opt = {
+                tooltip: { trigger: "item" },
+                legend: { bottom: 2, textStyle: { color: "#88bbdd", fontSize: 9 }, itemWidth: 8, itemHeight: 8 },
+                series: [{
+                    type: "pie", radius: ["35%", "60%"], roseType: "area",
+                    center: ["50%", "45%"],
+                    label: { show: false },
+                    itemStyle: { borderColor: "#060b1a", borderWidth: 1 },
+                    data: [
+                        { name: "直接访问", value: 45 },
+                        { name: "搜索引擎", value: 28 },
+                        { name: "社交媒体", value: 18 },
+                        { name: "付费推广", value: 12 },
+                        { name: "邮件推送", value: 6 }
+                    ],
+                    color: ["#00d4ff", "#43e97b", "#fa709a", "#fee140", "#a18cd1"]
+                }]
+            };
+            chart.setOption(opt);
+        }
+
+        // ===== 底部 B3：支付方式 =====
+        function tx_chartB3() {
+            let chart = echarts.init(document.getElementById("tx_chartB3"));
+            let opt = {
+                tooltip: { trigger: "axis" },
+                grid: { top: 18, left: 60, right: 12, bottom: 18 },
+                xAxis: {
+                    type: "value",
+                    axisLine: { show: false }, splitLine: { lineStyle: { color: "#1a3355" } },
+                    axisLabel: { color: "#88bbdd", fontSize: 10, formatter: "{value}%" }
+                },
+                yAxis: {
+                    type: "category",
+                    data: ["其他", "银行卡", "花呗", "支付宝", "微信"],
+                    axisLine: { lineStyle: { color: "#224466" } },
+                    axisLabel: { color: "#88bbdd", fontSize: 10 }
+                },
+                series: [{
+                    type: "bar", data: [5, 15, 22, 28, 30], barWidth: 12,
+                    itemStyle: {
+                        borderRadius: [0, 3, 3, 0],
+                        color: new echarts.graphic.LinearGradient(0,0,1,0,[
+                            { offset:0, color:"#003366" }, { offset:1, color:"#00d4ff" }
+                        ])
+                    }
+                }]
+            };
+            chart.setOption(opt);
+        }
+
+        // ===== 右侧 R2：渠道流量 =====
+        function tx_chartR2() {
+            let chart = echarts.init(document.getElementById("tx_chartR2"));
+            let opt = {
+                tooltip: { trigger: "axis" },
+                legend: { bottom: 2, textStyle: { color: "#88bbdd", fontSize: 9 } },
+                grid: { top: 28, left: 36, right: 10, bottom: 32 },
+                xAxis: {
+                    type: "category",
+                    data: ["00","04","08","12","16","20","24"],
+                    axisLine: { lineStyle: { color: "#224466" } },
+                    axisLabel: { color: "#88bbdd", fontSize: 9 }
+                },
+                yAxis: {
+                    type: "value",
+                    axisLine: { show: false }, splitLine: { lineStyle: { color: "#1a3355" } },
+                    axisLabel: { color: "#88bbdd", fontSize: 9 }
+                },
+                series: [
+                    {
+                        name: "移动端", type: "line", smooth: true, symbol: "none",
+                        lineStyle: { color: "#00d4ff", width: 2 },
+                        data: [12, 8, 28, 45, 52, 68, 22]
+                    },
+                    {
+                        name: "PC 端", type: "line", smooth: true, symbol: "none",
+                        lineStyle: { color: "#ff6b9d", width: 2 },
+                        data: [8, 5, 18, 35, 42, 55, 15]
+                    }
+                ]
+            };
+            chart.setOption(opt);
+        }
+
+        // ===== 右侧 R3：仪表盘 =====
+        function tx_chartR3() {
+            let chart = echarts.init(document.getElementById("tx_chartR3"));
+            let opt = {
+                series: [
+                    {
+                        name: "CPU", type: "gauge", center: ["25%", "55%"], radius: "55%",
+                        startAngle: 200, endAngle: -20,
+                        progress: { show: true, width: 8 },
+                        axisLine: { lineStyle: { width: 8, color: [[1, "#1a3355"]] } },
+                        pointer: { show: false },
+                        axisTick: { show: false }, splitLine: { show: false }, axisLabel: { show: false },
+                        detail: { valueAnimation: true, fontSize: 14, color: "#00ffa0", formatter: "{value}%" },
+                        title: { show: true, offsetCenter: [0, "-45%"], color: "#88bbdd", fontSize: 11 },
+                        data: [{ value: 68, name: "CPU" }]
+                    },
+                    {
+                        name: "内存", type: "gauge", center: ["50%", "55%"], radius: "55%",
+                        startAngle: 200, endAngle: -20,
+                        progress: { show: true, width: 8 },
+                        axisLine: { lineStyle: { width: 8, color: [[1, "#1a3355"]] } },
+                        pointer: { show: false },
+                        axisTick: { show: false }, splitLine: { show: false }, axisLabel: { show: false },
+                        detail: { valueAnimation: true, fontSize: 14, color: "#00d4ff", formatter: "{value}%" },
+                        title: { show: true, offsetCenter: [0, "-45%"], color: "#88bbdd", fontSize: 11 },
+                        data: [{ value: 54, name: "内存" }]
+                    },
+                    {
+                        name: "网络", type: "gauge", center: ["75%", "55%"], radius: "55%",
+                        startAngle: 200, endAngle: -20,
+                        progress: { show: true, width: 8 },
+                        axisLine: { lineStyle: { width: 8, color: [[1, "#1a3355"]] } },
+                        pointer: { show: false },
+                        axisTick: { show: false }, splitLine: { show: false }, axisLabel: { show: false },
+                        detail: { valueAnimation: true, fontSize: 14, color: "#ff6b9d", formatter: "{value}%" },
+                        title: { show: true, offsetCenter: [0, "-45%"], color: "#88bbdd", fontSize: 11 },
+                        data: [{ value: 42, name: "网络" }]
+                    }
+                ]
+            };
+            chart.setOption(opt);
+        }
+
+        // ===== 排名列表 =====
+        function tx_rankList() {
+            let cities = [
+                { name: "上海", val: 1052 },
+                { name: "北京", val: 968 },
+                { name: "广州", val: 823 },
+                { name: "深圳", val: 792 },
+                { name: "杭州", val: 745 },
+                { name: "成都", val: 621 },
+                { name: "武汉", val: 528 },
+                { name: "南京", val: 485 },
+                { name: "西安", val: 432 },
+                { name: "重庆", val: 418 }
+            ];
+            let max = cities[0].val;
+            let el = document.getElementById("tx_rankList");
+            el.innerHTML = cities.map((c, i) =>
+                '<div class="tx_rank-item">' +
+                    '<div class="tx_rank-num">' + (i+1) + '</div>' +
+                    '<div class="tx_rank-name">' + c.name + '</div>' +
+                    '<div class="tx_rank-bar-wrap"><div class="tx_rank-bar" style="width:' + (c.val/max*100) + '%"></div></div>' +
+                    '<div class="tx_rank-val">' + c.val + ' 万</div>' +
+                '</div>'
+            ).join("");
+        }
+    </script>
+</body>
+</html>

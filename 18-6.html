@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!--
+姓名：唐笑
+日期：2026-11-05
+功能名称：Mermaid 智能客服系统 —— 流程图 (Flowchart) + ER 实体关系图
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>18-6 Mermaid 智能客服系统</title>
+    <script src="./cdn/mermaid.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            min-height: 100vh; padding: 30px 20px; color: #fff;
+        }
+        .tx_container { max-width: 1200px; margin: 0 auto; }
+        .tx_header { text-align: center; margin-bottom: 28px; }
+        .tx_header h1 { font-size: 26px; color: #00d4ff; margin-bottom: 6px; letter-spacing: 2px; }
+        .tx_header p { font-size: 13px; color: #888; }
+
+        .tx_card {
+            background: #ffffff; border-radius: 14px; padding: 28px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4); margin-bottom: 28px;
+            overflow: hidden;
+        }
+        .tx_card-title {
+            font-size: 17px; font-weight: bold; color: #1a1a1a; margin-bottom: 4px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .tx_card-title .tx_badge {
+            font-size: 11px; padding: 3px 10px; border-radius: 12px;
+            font-weight: normal; font-family: Consolas, Monaco, monospace;
+        }
+        .tx_badge.blue   { background: #e3f2fd; color: #1565c0; }
+        .tx_badge.purple { background: #f3e5f5; color: #7b1fa2; }
+        .tx_badge.green  { background: #e8f5e9; color: #2e7d32; }
+        .tx_card-desc { font-size: 12px; color: #7f8c8d; margin-bottom: 18px; }
+
+        .tx_mermaid-wrap {
+            overflow: auto; padding: 10px;
+            background: #fafafa; border-radius: 8px; border: 1px solid #eee;
+        }
+        .tx_mermaid { display: flex; justify-content: center; min-width: 100%; }
+
+        .tx_code-block {
+            background: #0d1117; color: #a6e3a1; border-radius: 8px;
+            padding: 14px 16px; font-family: Consolas, Monaco, monospace; font-size: 11px;
+            line-height: 1.7; margin-top: 16px; max-height: 180px; overflow-y: auto;
+            border: 1px solid #2d2d44;
+        }
+        .tx_code-block .tx_line-num { color: #444; margin-right: 12px; user-select: none; }
+        .tx_code-block .tx_kw { color: #ff79c6; }
+        .tx_code-block .tx_str { color: #f1fa8c; }
+        .tx_code-block .tx_cmt { color: #6272a4; }
+
+        .tx_footer { text-align: center; font-size: 12px; color: #444; margin-top: 10px; }
+
+        /* Mermaid 主题覆盖 */
+        .mermaid .node rect,
+        .mermaid .node polygon,
+        .mermaid .node circle,
+        .mermaid .node ellipse,
+        .mermaid .node path {
+            stroke-width: 2px !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="tx_container">
+        <div class="tx_header">
+            <h1>🧠 Mermaid · 智能客服系统</h1>
+            <p>作者：唐笑 · 24001010932 · 2026-11-05</p>
+            <p style="color:#666;margin-top:4px;">Mermaid 10 · Flowchart 流程图 + ER 实体关系图</p>
+        </div>
+
+        <!-- ========== 图 1：智能客服对话流程图 ========== -->
+        <div class="tx_card">
+            <div class="tx_card-title">
+                ① 智能客服对话流程图
+                <span class="tx_badge blue">Flowchart TD</span>
+                <span class="tx_badge green">subgraph 分组</span>
+            </div>
+            <div class="tx_card-desc">用户发起对话 → 网关 → 意图识别 → RAG 检索 → LLM 生成 → 转人工判定 → 结束</div>
+            <div class="tx_mermaid-wrap">
+                <pre class="mermaid tx_mermaid">
+flowchart TD
+    %% ===== 接入层 =====
+    subgraph A["📡 用户接入层"]
+        direction LR
+        U1["💻 Web Widget"]
+        U2["📱 小程序"]
+        U3["📞 电话 ASR"]
+        U4["💬 App SDK"]
+    end
+
+    %% ===== 网关 =====
+    GW["🔒 API Gateway<br/>JWT · 限流 · WebSocket"]
+
+    %% ===== 核心处理 =====
+    subgraph B["🧠 智能客服中枢"]
+        NLU["NLU 意图识别<br/>BERT 分类模型"]
+        SLOT["槽位提取<br/>实体识别 NER"]
+        DM["对话管理 DM<br/>状态机流转"]
+        EMO["情绪识别<br/>满意度评估"]
+    end
+
+    %% ===== RAG =====
+    subgraph C["📚 RAG 知识增强"]
+        QUERY["Query 改写"]
+        VEC["向量检索<br/>Milvus / FAISS"]
+        RERANK["重排序<br/>Cross-Encoder"]
+        PROMPT["Prompt 组装<br/>上下文 + Top-K 知识"]
+    end
+
+    %% ===== LLM =====
+    subgraph D["🤖 大模型层"]
+        LLM["LLM 生成回答<br/>GPT-4 / LLaMA / LoRA"]
+        EMB["Embedding 模型<br/>向量化用户问题"]
+    end
+
+    %% ===== 数据 =====
+    subgraph E["💾 数据层"]
+        FAQ[("FAQ 知识库<br/>问答对")]
+        VDB[("向量数据库<br/>Milvus")]
+        HIS[("历史对话<br/>MySQL")]
+        SESS[("会话状态<br/>Redis")]
+    end
+
+    %% ===== 转人工 =====
+    AGENT["👤 转人工客服<br/>兜底策略"]
+    END(["✅ 对话结束"])
+
+    %% ===== 连线 =====
+    U1 & U2 & U3 & U4 --> GW
+    GW --> NLU
+
+    NLU --> SLOT
+    SLOT --> DM
+    DM --> EMO
+
+    DM --> QUERY
+    QUERY --> VEC
+    VEC --> FAQ
+    VEC --> VDB
+    VEC --> HIS
+    VDB --> RERANK
+    RERANK --> PROMPT
+    PROMPT --> LLM
+
+    LLM --> DM
+    DM -- "低置信度 / 负向情绪" --> AGENT
+    DM -- "回答用户" --> END
+
+    SESS -.-> DM
+
+    %% ===== 样式 =====
+    classDef user fill:#e3f2fd,stroke:#1565c0,color:#0d47a1
+    classDef gw fill:#ffebee,stroke:#c62828,color:#b71c1c
+    classDef core fill:#fff3e0,stroke:#ef6c00,color:#e65100
+    classDef rag fill:#e8f5e9,stroke:#2e7d32,color:#1b5e20
+    classDef llm fill:#f3e5f5,stroke:#7b1fa2,color:#4a148c
+    classDef db fill:#fce4ec,stroke:#c2185b,color:#880e4f
+    classDef endNode fill:#e0f7fa,stroke:#00695c,color:#004d40
+
+    class U1,U2,U3,U4 user
+    class GW gw
+    class NLU,SLOT,DM,EMO core
+    class QUERY,VEC,RERANK,PROMPT rag
+    class LLM,EMB llm
+    class FAQ,VDB,HIS,SESS db
+    class AGENT,END endNode
+                </pre>
+            </div>
+        </div>
+
+        <!-- ========== 图 2：ER 实体关系图 ========== -->
+        <div class="tx_card">
+            <div class="tx_card-title">
+                ② 智能客服系统 ER 实体关系图
+                <span class="tx_badge purple">erDiagram</span>
+                <span class="tx_badge blue">6 实体 · 10 关系</span>
+            </div>
+            <div class="tx_card-desc">用户 — 会话 — 消息 — 意图 — 知识库 — 工单 实体关系，核心数据模型</div>
+            <div class="tx_mermaid-wrap">
+                <pre class="mermaid tx_mermaid">
+erDiagram
+    %% ===== 用户 =====
+    USER ||--o{ SESSION : "发起"
+    USER {
+        bigint user_id PK
+        string nickname
+        string avatar_url
+        string phone
+        string channel "来源渠道"
+        datetime created_at
+    }
+
+    %% ===== 会话 =====
+    SESSION ||--o{ MESSAGE : "包含"
+    SESSION }o--|| AGENT : "可转人工"
+    SESSION {
+        bigint session_id PK
+        bigint user_id FK
+        string status "active|closed|transferred"
+        int turn_count "轮次"
+        string sentiment "情绪得分"
+        datetime start_time
+        datetime end_time
+    }
+
+    %% ===== 消息 =====
+    MESSAGE }o--|| INTENT : "识别为"
+    MESSAGE {
+        bigint message_id PK
+        bigint session_id FK
+        int seq_num "顺序号"
+        string role "user|assistant|system"
+        text content
+        float confidence "NLU 置信度"
+        datetime created_at
+    }
+
+    %% ===== 意图 =====
+    INTENT {
+        bigint intent_id PK
+        string intent_name "意图名：查订单/退换货..."
+        string intent_type "类别：信息查询/业务办理"
+        text description
+        bigint faq_id FK "关联 FAQ"
+    }
+
+    %% ===== 知识库 =====
+    FAQ ||--o{ INTENT : "对应"
+    FAQ {
+        bigint faq_id PK
+        string question
+        text answer
+        string category "分类"
+        int hit_count "命中次数"
+        float quality_score "质量分"
+        datetime updated_at
+    }
+
+    %% ===== 工单 =====
+    SESSION ||--o{ TICKET : "生成"
+    TICKET {
+        bigint ticket_id PK
+        bigint session_id FK
+        bigint agent_id FK
+        string status "pending|processing|resolved"
+        string priority "priority"
+        text issue_desc
+        datetime created_at
+    }
+
+    %% ===== 人工客服 =====
+    AGENT ||--o{ TICKET : "处理"
+    AGENT {
+        bigint agent_id PK
+        string name
+        string department
+        string status "online|busy|offline"
+        int current_tickets
+    }
+                </pre>
+            </div>
+        </div>
+
+        <div class="tx_footer">
+            18-6 · Mermaid 10 · 智能客服系统 · 流程图 + ER 图 · 唐笑 · 2026
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: "default",
+            securityLevel: "loose",
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: "basis"
+            },
+            er: {
+                useMaxWidth: true,
+                entityPadding: 12
+            }
+        });
+    </script>
+</body>
+</html>

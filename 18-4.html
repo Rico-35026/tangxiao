@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!--
+姓名：唐笑
+日期：2026-11-05
+功能名称：ECharts 数据可视化 —— 悲惨世界人物关系图（环形布局） + Theme Rivers 主题河流
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>18-4 ECharts 可视化</title>
+    <script src="./cdn/echarts.min.js"></script>
+    <script src="./cdn/echarts-gl.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: #f5f7fa; min-height: 100vh; padding: 30px 20px; color: #1a1a1a;
+        }
+        .tx_container { max-width: 1200px; margin: 0 auto; }
+        .tx_header { text-align: center; margin-bottom: 28px; }
+        .tx_header h1 { font-size: 26px; color: #2c3e50; margin-bottom: 6px; }
+        .tx_header p { font-size: 13px; color: #7f8c8d; }
+
+        .tx_card {
+            background: #fff; border-radius: 12px; padding: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06); margin-bottom: 24px;
+        }
+        .tx_card-title {
+            font-size: 16px; font-weight: bold; color: #2c3e50; margin-bottom: 4px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .tx_card-title .tx_badge {
+            font-size: 10px; padding: 2px 10px; border-radius: 10px;
+            background: linear-gradient(135deg, #667eea, #764ba2); color: #fff;
+            font-weight: normal;
+        }
+        .tx_card-desc { font-size: 12px; color: #95a5a6; margin-bottom: 16px; }
+        .tx_chart { width: 100%; height: 520px; }
+
+        .tx_footer { text-align: center; font-size: 12px; color: #bdc3c7; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="tx_container">
+        <div class="tx_header">
+            <h1>📊 ECharts 数据可视化</h1>
+            <p>作者：唐笑 · 24001010932 · 2026-11-05</p>
+        </div>
+
+        <!-- 图 1：悲惨世界人物关系图 -->
+        <div class="tx_card">
+            <div class="tx_card-title">
+                ① 悲惨世界人物关系图 <span class="tx_badge">Les Misérables</span>
+                <span class="tx_badge" style="background:linear-gradient(135deg,#f093fb,#f5576c)">环形布局</span>
+            </div>
+            <div class="tx_card-desc">力导向图 · 环形 circular 布局 · 节点大小=关联数 · 拖拽可移动 · 悬停高亮邻居</div>
+            <div id="tx_chart1" class="tx_chart"></div>
+        </div>
+
+        <!-- 图 2：Line3D 三维折线图 -->
+        <div class="tx_card">
+            <div class="tx_card-title">
+                ② Line3D 三维折线图 <span class="tx_badge">Orthographic</span>
+                <span class="tx_badge" style="background:linear-gradient(135deg,#11998e,#38ef7d)">正交投影 · echarts-gl</span>
+            </div>
+            <div class="tx_card-desc">三维折线 + 正交投影 + 网格地面阴影 + 3D 坐标轴 · 2023 电商月度 GMV 按品类分布</div>
+            <div id="tx_chart2" class="tx_chart"></div>
+        </div>
+
+        <div class="tx_footer">18-4 · ECharts · 唐笑</div>
+    </div>
+
+    <script>
+        // ===== 图 1：悲惨世界人物关系（环形力导向图）=====
+        (function() {
+            let chart1 = echarts.init(document.getElementById("tx_chart1"));
+
+            // 官方 Les Misérables 人物数据（精简版）
+            let categories = [
+                { name: "主角" },
+                { name: "芳汀一家" },
+                { name: "珂赛特一家" },
+                { name: "马吕斯一家" },
+                { name: "德纳第一家" },
+                { name: "法官/警察" },
+                { name: "革命者" }
+            ];
+
+            // 节点：name, symbolSize（根据关联数）
+            let nodes = [
+                { name: "冉阿让",        category: 0 },
+                { name: "芳汀",          category: 1 },
+                { name: "珂赛特",        category: 2 },
+                { name: "马吕斯",        category: 3 },
+                { name: "德纳第",        category: 4 },
+                { name: "爱潘妮",        category: 4 },
+                { name: "沙威",          category: 5 },
+                { name: "米里哀主教",    category: 0 },
+                { name: "泰纳迪埃",      category: 4 },
+                { name: "毕克西博",      category: 2 },
+                { name: "吉尔诺曼",      category: 3 },
+                { name: "彭眉胥",        category: 3 },
+                { name: "安灼拉",        category: 6 },
+                { name: "古费拉克",      category: 6 },
+                { name: "公白飞",        category: 6 },
+                { name: "让·普鲁威",     category: 6 },
+                { name: "弗以伊",        category: 6 },
+                { name: "马利尤斯",      category: 3 },
+                { name: "拉马克将军",    category: 6 }
+            ];
+
+            // 边：source → target，value=强度
+            let links = [
+                { source: "冉阿让", target: "米里哀主教", value: 5 },
+                { source: "冉阿让", target: "芳汀", value: 6 },
+                { source: "冉阿让", target: "珂赛特", value: 9 },
+                { source: "冉阿让", target: "沙威",   value: 7 },
+                { source: "冉阿让", target: "德纳第", value: 5 },
+                { source: "冉阿让", target: "马吕斯", value: 4 },
+                { source: "芳汀",   target: "珂赛特", value: 8 },
+                { source: "芳汀",   target: "德纳第", value: 4 },
+                { source: "珂赛特", target: "马吕斯", value: 9 },
+                { source: "珂赛特", target: "毕克西博", value: 3 },
+                { source: "马吕斯", target: "吉尔诺曼", value: 5 },
+                { source: "马吕斯", target: "彭眉胥",   value: 5 },
+                { source: "马吕斯", target: "安灼拉",   value: 7 },
+                { source: "马吕斯", target: "古费拉克", value: 6 },
+                { source: "马吕斯", target: "公白飞",   value: 5 },
+                { source: "马吕斯", target: "让·普鲁威", value: 4 },
+                { source: "马吕斯", target: "弗以伊",   value: 3 },
+                { source: "德纳第", target: "泰纳迪埃", value: 6 },
+                { source: "德纳第", target: "爱潘妮",   value: 7 },
+                { source: "爱潘妮", target: "马吕斯",   value: 4 },
+                { source: "爱潘妮", target: "安灼拉",   value: 3 },
+                { source: "沙威",   target: "安灼拉",   value: 3 },
+                { source: "安灼拉", target: "公白飞",   value: 6 },
+                { source: "安灼拉", target: "古费拉克", value: 5 },
+                { source: "拉马克将军", target: "安灼拉", value: 4 }
+            ];
+
+            // 计算每个节点的关联数（用于 symbolSize）
+            let tx_linkCount = {};
+            links.forEach(l => {
+                tx_linkCount[l.source] = (tx_linkCount[l.source] || 0) + l.value;
+                tx_linkCount[l.target] = (tx_linkCount[l.target] || 0) + l.value;
+            });
+            let tx_max = Math.max(...Object.values(tx_linkCount));
+            nodes.forEach(n => {
+                let c = tx_linkCount[n.name] || 1;
+                n.symbolSize = Math.max(22, 14 + (c / tx_max) * 40);
+            });
+
+            let option1 = {
+                title: {
+                    text: "《悲惨世界》主要人物关系图",
+                    subtext: "Les Misérables · 环形布局",
+                    left: "center", top: 10,
+                    textStyle: { fontSize: 16, color: "#2c3e50" },
+                    subtextStyle: { color: "#7f8c8d" }
+                },
+                tooltip: {
+                    trigger: "item",
+                    formatter: p => {
+                        if (p.dataType === "edge")
+                            return `<b>${p.data.source}</b> ↔ <b>${p.data.target}</b><br>关联强度：${p.data.value}`;
+                        return `<b>${p.data.name}</b><br>类别：${categories[p.data.category].name}<br>关联度：${tx_linkCount[p.data.name] || 0}`;
+                    }
+                },
+                legend: {
+                    show: true,
+                    bottom: 10, left: "center",
+                    data: categories.map(c => c.name),
+                    textStyle: { fontSize: 11 }
+                },
+                animationDurationUpdate: 1000,
+                animationEasingUpdate: "quinticInOut",
+                series: [{
+                    type: "graph",
+                    layout: "circular",          // ★ 环形布局
+                    circular: {
+                        rotateLabel: true,
+                        startAngle: 90
+                    },
+                    data: nodes,
+                    links: links,
+                    categories: categories,
+                    roam: true,                  // 可拖拽缩放
+                    draggable: true,
+                    focusNodeAdjacency: true,    // 悬停高亮邻居
+                    label: {
+                        show: true,
+                        position: "right",
+                        fontSize: 11,
+                        color: "#2c3e50",
+                        fontFamily: "'Microsoft YaHei', sans-serif"
+                    },
+                    emphasis: {
+                        focus: "adjacency",
+                        lineStyle: { width: 4 }
+                    },
+                    lineStyle: {
+                        color: "source",
+                        curveness: 0.15,
+                        opacity: 0.7,
+                        width: 1.5
+                    },
+                    itemStyle: {
+                        borderColor: "#fff",
+                        borderWidth: 2,
+                        shadowBlur: 10,
+                        shadowColor: "rgba(0,0,0,0.15)"
+                    }
+                }]
+            };
+
+            chart1.setOption(option1);
+            window.addEventListener("resize", () => chart1.resize());
+        })();
+
+        // ===== 图 2：Line3D 三维折线图（正交投影）=====
+        (function() {
+            let chart2 = echarts.init(document.getElementById("tx_chart2"));
+
+            // x = 月份 (0~11), y = 品类 (0~4), z = GMV (流量值)
+            let tx_categories = ["数码", "食品", "服饰", "家电", "美妆"];
+            let tx_months = ["1月","2月","3月","4月","5月","6月","7月","8月","9月","10月","11月","12月"];
+            let tx_colors = ["#4facfe", "#43e97b", "#fa709a", "#fee140", "#a18cd1"];
+
+            // 每品类一条折线（12 个点）
+            // 2023 各品类月度 GMV（单位：亿元，示例数据）
+            let tx_seriesData = [
+                { name: "数码", color: "#4facfe", data: [80,120,60,55,95,200,70,65,100,75,260,150] },
+                { name: "食品", color: "#43e97b", data: [160,90,55,70,110,80,65,140,180,95,70,100] },
+                { name: "服饰", color: "#fa709a", data: [180,55,150,110,60,160,75,120,80,100,300,170] },
+                { name: "家电", color: "#fee140", data: [130,55,90,60,55,220,70,65,100,180,250,90] },
+                { name: "美妆", color: "#a18cd1", data: [70,140,190,60,110,85,60,130,75,80,280,120] }
+            ];
+
+            // 为每条线生成 [[x,y,z], [x,y,z], ...]
+            let tx_lineSeries = tx_seriesData.map((s, yi) => ({
+                type: "line3D",
+                name: s.name,
+                lineStyle: {
+                    width: 3,
+                    color: s.color,
+                    opacity: 0.9
+                },
+                itemStyle: { color: s.color },
+                emphasis: {
+                    itemStyle: { size: 8 }
+                },
+                data: s.data.map((z, xi) => [xi, yi, z])   // [月份索引, 品类索引, 流量]
+            }));
+
+            let option2 = {
+                title: {
+                    text: "2023 电商品类月度 GMV · 三维折线",
+                    subtext: "Line3D · Orthographic Projection · 正交投影",
+                    left: "center", top: 5,
+                    textStyle: { fontSize: 16, color: "#2c3e50" },
+                    subtextStyle: { color: "#7f8c8d" }
+                },
+                tooltip: {
+                    formatter: p => {
+                        let d = p.value; // [x, y, z]
+                        return `<b>${tx_categories[d[1]]}</b><br>` +
+                            `时间：${tx_months[d[0]]}<br>` +
+                            `GMV：${d[2]} 亿元`;
+                    }
+                },
+                legend: {
+                    data: tx_seriesData.map(s => s.name),
+                    bottom: 10,
+                    textStyle: { fontSize: 11 },
+                    itemWidth: 18, itemHeight: 10
+                },
+                grid3D: {
+                    // 四边距让 3D 盒子居中占满
+                    left: "8%",
+                    right: "8%",
+                    top: "15%",
+                    bottom: "18%",
+                    depth: 240,
+                    // ★ 正交投影
+                    viewControl: {
+                        projection: "orthographic",
+                        alpha: 25,
+                        beta: 40,
+                        distance: 350,
+                        autoRotate: true,
+                        autoRotateSpeed: 8,
+                        autoRotateAfterStill: 3
+                    },
+                    axisLine: { lineStyle: { color: "#888" } },
+                    axisLabel: {
+                        color: "#2c3e50",
+                        fontSize: 12,
+                        fontFamily: "'Microsoft YaHei', sans-serif"
+                    },
+                    splitLine: { lineStyle: { color: "#e0e0e0" } },
+                    environment: "default",
+                    boxWidth: 160, boxDepth: 160, boxHeight: 160,
+                    light: {
+                        main: { color: "#fff", intensity: 1.2, shadow: true },
+                        ambient: { color: "#fff", intensity: 0.3 }
+                    }
+                },
+                xAxis3D: {
+                    type: "category",
+                    data: tx_months,
+                    name: "月份", nameTextStyle: { color: "#2c3e50" }
+                },
+                yAxis3D: {
+                    type: "category",
+                    data: tx_categories,
+                    name: "品类", nameTextStyle: { color: "#2c3e50" }
+                },
+                zAxis3D: {
+                    type: "value",
+                    name: "GMV (亿元)",
+                    min: 0, max: 320,
+                    nameTextStyle: { color: "#2c3e50" }
+                },
+                series: tx_lineSeries
+            };
+
+            chart2.setOption(option2);
+            window.addEventListener("resize", () => chart2.resize());
+        })();
+    </script>
+</body>
+</html>

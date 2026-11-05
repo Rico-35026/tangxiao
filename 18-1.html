@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!--
+姓名：唐笑
+日期：2026-11-05
+功能名称：Canvas 粒子动画 —— 重力水平线 + 粒子下落堆积
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>18-1 Canvas 粒子动画 · 唐笑</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #05050f; overflow: hidden;
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        canvas { display: block; }
+
+        .tx_hud {
+            position: fixed; top: 20px; left: 20px; z-index: 10;
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 18px 22px;
+            color: #e0e0ff;
+            min-width: 220px;
+            pointer-events: none; user-select: none;
+        }
+        .tx_hud h1 {
+            font-size: 16px; font-weight: bold; margin-bottom: 10px;
+            background: linear-gradient(90deg, #00d4ff, #ff6b9d, #a78bfa);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .tx_hud .tx_row { display: flex; justify-content: space-between; font-size: 11px; color: #99a; margin-top: 4px; }
+        .tx_hud .tx_row .tx_val { color: #cde; font-family: Consolas, Monaco, monospace; }
+        .tx_hud .tx_tip { font-size: 10px; color: #668; margin-top: 10px; line-height: 1.6; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; }
+        .tx_hud .tx_tip kbd { background: rgba(255,255,255,0.1); padding: 1px 5px; border-radius: 3px; font-size: 10px; }
+
+        .tx_ctrl {
+            position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 8px; z-index: 10;
+            background: rgba(255,255,255,0.04);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 30px;
+            padding: 8px 10px;
+        }
+        .tx_btn {
+            background: transparent; border: none; color: #8899aa;
+            padding: 8px 16px; border-radius: 20px; font-size: 12px;
+            cursor: pointer; font-family: inherit;
+            transition: all 0.25s;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .tx_btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+        .tx_btn.active {
+            background: linear-gradient(135deg, #00d4ff33, #a78bfa33);
+            color: #fff; border: 1px solid rgba(120,180,255,0.4);
+            box-shadow: 0 0 16px rgba(0,212,255,0.25);
+        }
+        .tx_btn .tx_dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+        .tx_sign {
+            position: fixed; bottom: 20px; right: 24px; z-index: 10;
+            font-size: 10px; color: #445; text-align: right; line-height: 1.7;
+            pointer-events: none; user-select: none;
+        }
+        .tx_sign .tx_name {
+            font-size: 13px; color: #668; letter-spacing: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="tx_hud">
+        <h1>✦ Aurora · 极光粒子</h1>
+        <div class="tx_row"><span>文字</span><span class="tx_val" id="tx_curText">唐笑</span></div>
+        <div class="tx_row"><span>粒子</span><span class="tx_val" id="tx_count">--</span></div>
+        <div class="tx_row"><span>模式</span><span class="tx_val" id="tx_mode">排斥</span></div>
+        <div class="tx_row"><span>FPS</span><span class="tx_val" id="tx_fps">--</span></div>
+        <div class="tx_tip">
+            移动鼠标 → 粒子散开<br>
+            <kbd>Shift</kbd> + 移动 → 粒子吸引<br>
+            点击按钮 → 切换文字<br>
+            <kbd>G</kbd> → 重力下落堆积<br>
+            <kbd>L</kbd> → 切换连线
+        </div>
+    </div>
+
+    <div class="tx_ctrl">
+        <button class="tx_btn active" onclick="tx_showText(this,'唐笑')"><span class="tx_dot"></span>唐笑</button>
+        <button class="tx_btn" onclick="tx_showText(this,'Hello')"><span class="tx_dot"></span>Hello</button>
+        <button class="tx_btn" onclick="tx_showText(this,'24001010932')"><span class="tx_dot"></span>学号</button>
+        <button class="tx_btn" onclick="tx_showText(this,'✨ 18-1 ✨')"><span class="tx_dot"></span>标题</button>
+        <button class="tx_btn" onclick="tx_toggleGravity(this)" id="tx_gravityBtn"><span class="tx_dot"></span>🌍 重力</button>
+        <button class="tx_btn" onclick="tx_toggleLinks(this)" id="tx_linksBtn"><span class="tx_dot"></span>🔗 连线</button>
+    </div>
+
+    <div class="tx_sign">
+        <div class="tx_name">TANG XIAO</div>
+        <div>24001010932 · 2026</div>
+    </div>
+
+    <canvas id="tx_canvas"></canvas>
+
+    <script>
+    "use strict";
+
+    const tx_canvas = document.getElementById("tx_canvas");
+    const tx_ctx = tx_canvas.getContext("2d");
+    let tx_W = 0, tx_H = 0, tx_DPR = 1;
+
+    // ===== 物理参数 =====
+    const TX_GRAVITY = 0.55;           // 重力加速度（像素/帧²）
+    const TX_FRICTION_FLOOR = 0.85;    // 地面摩擦
+    let TX_FLOOR_Y = 0;                // 水平线 Y 坐标（动态）
+
+    // 离屏背景
+    const tx_bgCanvas = document.createElement("canvas");
+    const tx_bgCtx = tx_bgCanvas.getContext("2d");
+
+    let tx_stars = null;
+    const TX_STAR_COUNT = 80;
+
+    function tx_resize() {
+        tx_W = window.innerWidth;
+        tx_H = window.innerHeight;
+        tx_DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+        tx_canvas.width = tx_W * tx_DPR;
+        tx_canvas.height = tx_H * tx_DPR;
+        tx_canvas.style.width = tx_W + "px";
+        tx_canvas.style.height = tx_H + "px";
+        tx_ctx.setTransform(tx_DPR, 0, 0, tx_DPR, 0, 0);
+
+        tx_bgCanvas.width = tx_W * tx_DPR;
+        tx_bgCanvas.height = tx_H * tx_DPR;
+        tx_bgCtx.setTransform(tx_DPR, 0, 0, tx_DPR, 0, 0);
+
+        // 水平线在画布底部 80% 的位置（留出一些底部边距）
+        TX_FLOOR_Y = tx_H * 0.82;
+
+        tx_buildBackground();
+    }
+
+    function tx_buildBackground() {
+        const g = tx_bgCtx.createRadialGradient(tx_W/2, tx_H/2, 0, tx_W/2, tx_H/2, Math.max(tx_W,tx_H)/1.2);
+        g.addColorStop(0, "#0f0f2a");
+        g.addColorStop(0.5, "#080818");
+        g.addColorStop(1, "#02020a");
+        tx_bgCtx.fillStyle = g;
+        tx_bgCtx.fillRect(0, 0, tx_W, tx_H);
+
+        const aur = tx_bgCtx.createLinearGradient(0, 0, 0, tx_H * 0.5);
+        aur.addColorStop(0, "rgba(0,212,255,0.05)");
+        aur.addColorStop(0.5, "rgba(167,139,250,0.025)");
+        aur.addColorStop(1, "transparent");
+        tx_bgCtx.fillStyle = aur;
+        tx_bgCtx.fillRect(0, 0, tx_W, tx_H * 0.5);
+
+        tx_stars = new Float32Array(TX_STAR_COUNT * 5);
+        for (let i = 0; i < TX_STAR_COUNT; i++) {
+            const idx = i * 5;
+            tx_stars[idx]     = Math.random() * tx_W;
+            tx_stars[idx + 1] = Math.random() * tx_H;
+            tx_stars[idx + 2] = Math.random() * 1.2 + 0.3;
+            tx_stars[idx + 3] = Math.random() * Math.PI * 2;
+            tx_stars[idx + 4] = Math.random() * 0.02 + 0.005;
+        }
+    }
+
+    function tx_drawBackground(t) {
+        tx_ctx.drawImage(tx_bgCanvas, 0, 0, tx_W, tx_H);
+
+        // 闪烁星星
+        for (let i = 0; i < TX_STAR_COUNT; i++) {
+            const idx = i * 5;
+            const a = 0.3 + Math.sin(t * tx_stars[idx + 4] + tx_stars[idx + 3]) * 0.4;
+            tx_ctx.globalAlpha = a;
+            tx_ctx.fillStyle = "#ffffff";
+            tx_ctx.beginPath();
+            tx_ctx.arc(tx_stars[idx], tx_stars[idx + 1], tx_stars[idx + 2], 0, Math.PI * 2);
+            tx_ctx.fill();
+        }
+        tx_ctx.globalAlpha = 1;
+
+        // ===== 绘制水平线（开启重力时才明显）=====
+        if (tx_gravityOn) {
+            // 发光地板上方的渐变
+            const floorGlow = tx_ctx.createLinearGradient(0, TX_FLOOR_Y - 30, 0, TX_FLOOR_Y + 60);
+            floorGlow.addColorStop(0, "rgba(0,212,255,0)");
+            floorGlow.addColorStop(0.4, "rgba(0,212,255,0.08)");
+            floorGlow.addColorStop(1, "rgba(0,212,255,0)");
+            tx_ctx.fillStyle = floorGlow;
+            tx_ctx.fillRect(0, TX_FLOOR_Y - 30, tx_W, 90);
+
+            // 地板本身：渐变填充条 + 细线
+            const floorGrad = tx_ctx.createLinearGradient(0, TX_FLOOR_Y, 0, tx_H);
+            floorGrad.addColorStop(0, "rgba(0,212,255,0.25)");
+            floorGrad.addColorStop(0.1, "rgba(0,212,255,0.08)");
+            floorGrad.addColorStop(1, "rgba(0,0,0,0)");
+            tx_ctx.fillStyle = floorGrad;
+            tx_ctx.fillRect(0, TX_FLOOR_Y, tx_W, tx_H - TX_FLOOR_Y);
+
+            // 发光水平线
+            tx_ctx.save();
+            tx_ctx.shadowColor = "#00d4ff";
+            tx_ctx.shadowBlur = 12;
+            tx_ctx.strokeStyle = "rgba(0,212,255,0.85)";
+            tx_ctx.lineWidth = 2;
+            tx_ctx.beginPath();
+            tx_ctx.moveTo(0, TX_FLOOR_Y);
+            tx_ctx.lineTo(tx_W, TX_FLOOR_Y);
+            tx_ctx.stroke();
+            tx_ctx.restore();
+
+            // 刻度线（增加地板质感）
+            tx_ctx.strokeStyle = "rgba(0,212,255,0.2)";
+            tx_ctx.lineWidth = 1;
+            for (let gx = 20; gx < tx_W; gx += 40) {
+                tx_ctx.beginPath();
+                tx_ctx.moveTo(gx, TX_FLOOR_Y);
+                tx_ctx.lineTo(gx, TX_FLOOR_Y + 8);
+                tx_ctx.stroke();
+            }
+        }
+    }
+
+    // ===== 粒子数据 =====
+    let tx_particles = [];
+    const tx_colors = [
+        "#00d4ff", "#79ffd6", "#a78bfa", "#ff6b9d",
+        "#fbbf24", "#34d399", "#60a5fa", "#f472b6",
+        "#22d3ee", "#c084fc", "#fcd34d", "#fb7185"
+    ];
+
+    // ===== 更新单个粒子 =====
+    function tx_updateParticle(p, t, mx, my, mouseOn, mode) {
+        if (!tx_gravityOn) {
+            // === 文字模式：弹簧回到目标点 ===
+            const ax = (p.tx - p.x) * p.k;
+            const ay = (p.ty - p.y) * p.k;
+            p.vx = (p.vx + ax) * p.friction;
+            p.vy = (p.vy + ay) * p.friction;
+        } else {
+            // === 重力模式：垂直下落 + 鼠标排斥/吸引 ===
+            p.vy += TX_GRAVITY;
+
+            // 鼠标作用（保留！用户可以拨开下落的粒子）
+            if (mouseOn) {
+                const dx = p.x - mx, dy = p.y - my;
+                const d2 = dx*dx + dy*dy;
+                if (d2 < 16900) { // 130²
+                    const d = Math.sqrt(d2);
+                    const strength = (1 - d / 130);
+                    const fx = (dx / d) * strength * 4;
+                    const fy = (dy / d) * strength * 4;
+                    if (mode === "repel") {
+                        p.vx += fx; p.vy += fy;
+                    } else {
+                        p.vx -= fx * 0.7; p.vy -= fy * 0.7;
+                    }
+                }
+            }
+
+            p.vx *= 0.92; // 水平速度逐渐衰减
+        }
+
+        // === 地板碰撞（直接停住，不弹跳）===
+        if (tx_gravityOn) {
+            const floorAt = TX_FLOOR_Y - p.size;
+
+            if (p.y >= floorAt) {
+                p.y = floorAt;
+                p.vy = 0;                    // 垂直速度直接清零
+                p.vx *= TX_FRICTION_FLOOR;   // 地面摩擦
+                if (Math.abs(p.vx) < 0.05) p.vx = 0;
+            }
+            // 空中：只受重力，不再加弹簧力
+        }
+
+        // === 更新位置 ===
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // === 左右墙边界 ===
+        if (tx_gravityOn) {
+            if (p.x < p.size) { p.x = p.size; p.vx = -p.vx * 0.4; }
+            else if (p.x > tx_W - p.size) { p.x = tx_W - p.size; p.vx = -p.vx * 0.4; }
+        }
+
+        // === 速度 → 尺寸 ===
+        const speed = Math.sqrt(p.vx*p.vx + p.vy*p.vy);
+        p.size = p.baseSize + Math.min(speed * 0.25, 2.2);
+
+        // === 闪烁系数 ===
+        const distX = p.x - p.tx, distY = p.y - p.ty;
+        p.twinkle = Math.max(0, 1 - (distX*distX + distY*distY) / 1600);
+        p.alpha = 0.55 + Math.sin(t * 0.003 + p.phase) * 0.2 + p.twinkle * 0.25;
+        if (p.alpha < 0.15) p.alpha = 0.15;
+        else if (p.alpha > 1) p.alpha = 1;
+    }
+
+    function tx_drawParticles() {
+        for (let i = 0; i < tx_particles.length; i++) {
+            const p = tx_particles[i];
+            tx_ctx.globalAlpha = p.alpha;
+            tx_ctx.fillStyle = p.color;
+            tx_ctx.beginPath();
+            tx_ctx.arc(p.x | 0, p.y | 0, p.size, 0, Math.PI * 2);
+            tx_ctx.fill();
+        }
+        tx_ctx.globalAlpha = 1;
+    }
+
+    // ===== 连线 =====
+    let tx_showLinks = false;
+    const TX_LINK_DIST = 45;
+    const TX_LINK_DIST_SQ = TX_LINK_DIST * TX_LINK_DIST;
+
+    function tx_drawLinks() {
+        const cellSize = TX_LINK_DIST;
+        const grid = new Map();
+
+        for (let i = 0; i < tx_particles.length; i++) {
+            const p = tx_particles[i];
+            const cx = Math.floor(p.x / cellSize);
+            const cy = Math.floor(p.y / cellSize);
+            const key = cx + "," + cy;
+            if (!grid.has(key)) grid.set(key, []);
+            grid.get(key).push(i);
+        }
+
+        for (let i = 0; i < tx_particles.length; i++) {
+            const p = tx_particles[i];
+            const cx = Math.floor(p.x / cellSize);
+            const cy = Math.floor(p.y / cellSize);
+
+            for (let ddx = -1; ddx <= 1; ddx++) {
+                for (let ddy = -1; ddy <= 1; ddy++) {
+                    const cell = grid.get((cx + ddx) + "," + (cy + ddy));
+                    if (!cell) continue;
+                    for (let k = 0; k < cell.length; k++) {
+                        const j = cell[k];
+                        if (j <= i) continue;
+                        const a = p, b = tx_particles[j];
+                        const dx = a.x - b.x, dy = a.y - b.y;
+                        const distSq = dx*dx + dy*dy;
+                        if (distSq < TX_LINK_DIST_SQ) {
+                            const op = (1 - Math.sqrt(distSq) / TX_LINK_DIST) * 0.25;
+                            tx_ctx.globalAlpha = op;
+                            tx_ctx.strokeStyle = "#64c8ff";
+                            tx_ctx.lineWidth = 0.5;
+                            tx_ctx.beginPath();
+                            tx_ctx.moveTo(a.x, a.y);
+                            tx_ctx.lineTo(b.x, b.y);
+                            tx_ctx.stroke();
+                        }
+                    }
+                }
+            }
+        }
+        tx_ctx.globalAlpha = 1;
+    }
+
+    // ===== 采样文字 =====
+    function tx_sampleText(text) {
+        const c = document.createElement("canvas");
+        const cx = c.getContext("2d");
+        const fontSize = Math.min(tx_W / (text.length === 1 ? 2 : text.length * 0.9), 260);
+        c.width = tx_W; c.height = tx_H;
+        cx.fillStyle = "#fff";
+        cx.font = `bold ${fontSize}px 'Microsoft YaHei', 'PingFang SC', sans-serif`;
+        cx.textAlign = "center"; cx.textBaseline = "middle";
+        cx.fillText(text, tx_W / 2, tx_H / 2);
+
+        const img = cx.getImageData(0, 0, tx_W, tx_H).data;
+        const points = [];
+        const gap = Math.max(3, Math.floor(fontSize / 55));
+
+        for (let y = 0; y < tx_H; y += gap) {
+            const rowOffset = y * tx_W;
+            for (let x = 0; x < tx_W; x += gap) {
+                if (img[(rowOffset + x) * 4 + 3] > 128) {
+                    points.push(x, y);
+                }
+            }
+        }
+        return points;
+    }
+
+    function tx_showText(btn, text) {
+        if (btn) {
+            document.querySelectorAll(".tx_ctrl .tx_btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+        }
+        document.getElementById("tx_curText").textContent = text;
+
+        const flatPoints = tx_sampleText(text);
+        const newLen = flatPoints.length / 2;
+
+        while (tx_particles.length < newLen) {
+            const i = tx_particles.length;
+            tx_particles.push({
+                x: Math.random() * tx_W,
+                y: Math.random() * tx_H * 0.5,  // 初始位置在屏幕上半部分
+                vx: (Math.random() - 0.5) * 2,
+                vy: (Math.random() - 0.5) * 2,
+                tx: flatPoints[i*2],
+                ty: flatPoints[i*2+1],
+                friction: 0.86,
+                k: 0.055,
+                color: tx_colors[i % tx_colors.length],
+                baseSize: 1.8,
+                size: 1.8,
+                phase: Math.random() * Math.PI * 2,
+                twinkle: 0,
+                alpha: 0.7
+            });
+        }
+        if (tx_particles.length > newLen) {
+            tx_particles.length = newLen;
+        }
+
+        for (let i = 0; i < newLen; i++) {
+            const p = tx_particles[i];
+            p.tx = flatPoints[i*2];
+            p.ty = flatPoints[i*2+1];
+            p.color = tx_colors[i % tx_colors.length];
+        }
+
+        document.getElementById("tx_count").textContent = newLen;
+    }
+
+    // ===== 状态 =====
+    let tx_gravityOn = false;
+    let tx_mouseOn = false;
+    let tx_mode = "repel";
+    let tx_mx = 0, tx_my = 0;
+
+    function tx_toggleGravity(btn) {
+        tx_gravityOn = !tx_gravityOn;
+        if (btn) btn.classList.toggle("active", tx_gravityOn);
+
+        // 切到重力模式时：粒子从当前位置直接往下掉
+        if (tx_gravityOn) {
+            for (let i = 0; i < tx_particles.length; i++) {
+                const p = tx_particles[i];
+                // 保留当前 x 位置（来自文字形状），让它直接垂直下落
+                p.vx *= 0.1;            // 水平速度先清零
+                p.vy = Math.random();   // 给个很小的初速度，错开落地时间
+            }
+        } else {
+            // 切回文字模式：给初速度让粒子散开汇聚
+            for (let i = 0; i < tx_particles.length; i++) {
+                const p = tx_particles[i];
+                p.vx = (Math.random() - 0.5) * 4;
+                p.vy = (Math.random() - 0.5) * 4;
+            }
+        }
+    }
+
+    function tx_toggleLinks(btn) {
+        tx_showLinks = !tx_showLinks;
+        if (btn) btn.classList.toggle("active", tx_showLinks);
+    }
+
+    // ===== 事件 =====
+    window.addEventListener("mousemove", e => {
+        tx_mx = e.clientX; tx_my = e.clientY; tx_mouseOn = true;
+    }, { passive: true });
+    window.addEventListener("mouseleave", () => tx_mouseOn = false);
+    window.addEventListener("touchmove", e => {
+        tx_mx = e.touches[0].clientX;
+        tx_my = e.touches[0].clientY;
+        tx_mouseOn = true;
+    }, { passive: true });
+
+    window.addEventListener("keydown", e => {
+        if (e.key === "Shift") {
+            tx_mode = "attract";
+            document.getElementById("tx_mode").textContent = "吸引";
+        }
+        if (e.key === "g" || e.key === "G") tx_toggleGravity(document.getElementById("tx_gravityBtn"));
+        if (e.key === "l" || e.key === "L") tx_toggleLinks(document.getElementById("tx_linksBtn"));
+    });
+    window.addEventListener("keyup", e => {
+        if (e.key === "Shift") {
+            tx_mode = "repel";
+            document.getElementById("tx_mode").textContent = "排斥";
+        }
+    });
+
+    window.addEventListener("resize", () => {
+        tx_resize();
+        tx_showText(null, document.getElementById("tx_curText").textContent);
+    });
+
+    // ===== 主循环 =====
+    let tx_last = performance.now();
+    let tx_fps = 0, tx_lastFpsUpdate = 0;
+
+    function tx_loop(now) {
+        requestAnimationFrame(tx_loop);
+        tx_last = now;
+
+        // 绘制背景（含水平线）
+        tx_drawBackground(now);
+
+        // 连线
+        if (tx_showLinks && tx_particles.length > 0) {
+            tx_drawLinks();
+        }
+
+        // 更新 + 绘制
+        for (let i = 0; i < tx_particles.length; i++) {
+            tx_updateParticle(tx_particles[i], now, tx_mx, tx_my, tx_mouseOn, tx_mode);
+        }
+        tx_drawParticles();
+
+        // FPS
+        tx_fps++;
+        if (now - tx_lastFpsUpdate >= 500) {
+            tx_fpsEl.textContent = Math.round(tx_fps * 1000 / (now - tx_lastFpsUpdate));
+            tx_fps = 0;
+            tx_lastFpsUpdate = now;
+        }
+    }
+
+    const tx_fpsEl = document.getElementById("tx_fps");
+    tx_resize();
+    tx_showText(null, "唐笑");
+    requestAnimationFrame(tx_loop);
+    </script>
+</body>
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<!--
+姓名：唐笑
+日期：2026-11-05
+功能名称：Canvas 绘制电商系统架构图（前端 → 网关 → 服务层 → 数据层 → 基础设施）
+-->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>18-2 Canvas 电商架构图</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #1a1a2e; min-height: 100vh;
+            font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+            overflow: auto;
+        }
+        .tx_header {
+            text-align: center; padding: 20px; color: #fff;
+            background: linear-gradient(90deg, #16213e, #0f3460);
+        }
+        .tx_header h1 { font-size: 22px; color: #00d4ff; margin-bottom: 4px; }
+        .tx_header p { font-size: 12px; color: #888; }
+
+        .tx_wrap { position: relative; padding: 20px; overflow: auto; }
+        canvas {
+            background: #0d1117; border-radius: 12px;
+            display: block; margin: 0 auto;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        }
+
+        .tx_legend {
+            max-width: 900px; margin: 20px auto 0;
+            display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;
+        }
+        .tx_legend .tx_item {
+            display: flex; align-items: center; gap: 6px;
+            font-size: 12px; color: #ccc;
+        }
+        .tx_legend .tx_dot {
+            width: 12px; height: 12px; border-radius: 3px;
+        }
+
+        .tx_tooltip {
+            position: fixed; background: #fff; color: #333; padding: 8px 12px;
+            border-radius: 6px; font-size: 12px; pointer-events: none;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 100;
+            display: none; max-width: 220px; line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="tx_header">
+        <h1>🏬 电商系统架构图</h1>
+        <p>Canvas 原生绘制 · 作者：唐笑 · 2026</p>
+        <p style="color:#666;margin-top:6px;">🖱 鼠标悬停模块查看详情</p>
+    </div>
+
+    <div class="tx_wrap">
+        <canvas id="tx_canvas"></canvas>
+    </div>
+
+    <div class="tx_legend">
+        <div class="tx_item"><div class="tx_dot" style="background:#ff6b9d"></div>客户端</div>
+        <div class="tx_item"><div class="tx_dot" style="background:#ff9800"></div>网关层</div>
+        <div class="tx_item"><div class="tx_dot" style="background:#00d4ff"></div>业务服务层</div>
+        <div class="tx_item"><div class="tx_dot" style="background:#a78bfa"></div>数据层</div>
+        <div class="tx_item"><div class="tx_dot" style="background:#34d399"></div>基础设施</div>
+        <div class="tx_item"><div class="tx_dot" style="background:#888"></div>第三方服务</div>
+    </div>
+
+    <div class="tx_tooltip" id="tx_tip"></div>
+
+    <script>
+        const tx_cv = document.getElementById("tx_canvas");
+        const tx_ct = tx_cv.getContext("2d");
+        const tx_tip = document.getElementById("tx_tip");
+
+        const tx_W = 1100, tx_H = 1050;
+        tx_cv.width = tx_W; tx_cv.height = tx_H;
+
+        // ===== 架构数据 =====
+        // 每个节点：{ x, y, w, h, title, desc, color }
+        // 按层次布局（从上到下）
+        const tx_nodes = [
+            // ---- 第 1 层：客户端 ----
+            { x: 60,  y: 40,  w: 200, h: 70, title: "💻 Web 端",      desc: "Vue3 + Vite\nSSR / 静态资源 CDN",           color: "#ff6b9d" },
+            { x: 300, y: 40,  w: 200, h: 70, title: "📱 小程序",       desc: "微信 / 抖音 / Taro\nApp 内购",             color: "#ff6b9d" },
+            { x: 540, y: 40,  w: 200, h: 70, title: "📱 Android/iOS",  desc: "Flutter / React Native\n原生推送",          color: "#ff6b9d" },
+            { x: 780, y: 40,  w: 200, h: 70, title: "🖥 PC 管理后台",   desc: "Admin 运营平台\n权限控制",                  color: "#ff6b9d" },
+
+            // ---- 第 2 层：网关 ----
+            { x: 300, y: 160, w: 500, h: 70, title: "🌐 API 网关 (Nginx / Kong)", desc: "SSL 卸载 · 限流熔断 · JWT 鉴权 · 路由分发 · 负载均衡", color: "#ff9800" },
+
+            // ---- 第 3 层：业务服务 ----
+            { x: 40,  y: 290, w: 200, h: 70, title: "🛒 商品服务",    desc: "SPU/SKU\n库存 · 价格",                     color: "#00d4ff" },
+            { x: 260, y: 290, w: 200, h: 70, title: "📝 订单服务",    desc: "下单 · 拆单\n状态机",                     color: "#00d4ff" },
+            { x: 480, y: 290, w: 200, h: 70, title: "💳 支付服务",    desc: "微信 / 支付宝\n对账 · 退款",                color: "#00d4ff" },
+            { x: 700, y: 290, w: 200, h: 70, title: "👤 用户服务",    desc: "注册登录\n积分 · 会员",                    color: "#00d4ff" },
+            { x: 920, y: 290, w: 160, h: 70, title: "📦 物流服务",    desc: "快递追踪\n仓储 WMS",                      color: "#00d4ff" },
+
+            { x: 40,  y: 380, w: 200, h: 70, title: "🔍 搜索服务",    desc: "Elasticsearch\n全文 · 筛选",                color: "#00d4ff" },
+            { x: 260, y: 380, w: 200, h: 70, title: "📢 营销服务",    desc: "优惠券 · 秒杀\n拼团 · 满减",                color: "#00d4ff" },
+            { x: 480, y: 380, w: 200, h: 70, title: "⭐ 评价服务",    desc: "评论 · 晒单\n打分",                       color: "#00d4ff" },
+            { x: 700, y: 380, w: 200, h: 70, title: "🛡 风控服务",    desc: "反作弊\n限流 · 黑名单",                    color: "#00d4ff" },
+            { x: 920, y: 380, w: 160, h: 70, title: "🤖 推荐引擎",    desc: "协同过滤\n个性化",                         color: "#00d4ff" },
+
+            // ---- 第 4 层：数据层 ----
+            { x: 40,  y: 520, w: 220, h: 70, title: "🗄 MySQL 主从",   desc: "订单 / 用户 · 分库分表\n读写分离",           color: "#a78bfa" },
+            { x: 290, y: 520, w: 220, h: 70, title: "📦 Redis 集群",   desc: "缓存 · 分布式锁\n排行榜 · Session",          color: "#a78bfa" },
+            { x: 540, y: 520, w: 220, h: 70, title: "📊 MongoDB",      desc: "商品详情 · 评价\n灵活 Schema",               color: "#a78bfa" },
+            { x: 790, y: 520, w: 270, h: 70, title: "🔍 Elasticsearch",desc: "商品搜索 · 日志分析\n倒排索引",              color: "#a78bfa" },
+
+            { x: 40,  y: 610, w: 220, h: 70, title: "📨 RabbitMQ",     desc: "异步解耦 · 削峰填谷\n订单 → 支付/物流",     color: "#a78bfa" },
+            { x: 290, y: 610, w: 220, h: 70, title: "📈 Kafka",        desc: "日志采集 · 行为埋点\n实时数据流",             color: "#a78bfa" },
+            { x: 540, y: 610, w: 220, h: 70, title: "🧊 HBase",        desc: "海量历史订单\n宽表存储",                     color: "#a78bfa" },
+            { x: 790, y: 610, w: 270, h: 70, title: "📄 OSS / MinIO",  desc: "商品图片 · 视频\n静态资源",                  color: "#a78bfa" },
+
+            // ---- 第 5 层：基础设施 ----
+            { x: 40,  y: 750, w: 220, h: 70, title: "☸ Kubernetes",   desc: "容器编排 · 弹性伸缩\n滚动发布",              color: "#34d399" },
+            { x: 290, y: 750, w: 220, h: 70, title: "🐳 Docker",       desc: "镜像打包\n环境一致性",                       color: "#34d399" },
+            { x: 540, y: 750, w: 220, h: 70, title: "📊 Prometheus",   desc: "监控 · 告警 · Grafana\nAPM 链路追踪",         color: "#34d399" },
+            { x: 790, y: 750, w: 270, h: 70, title: "📜 ELK",          desc: "日志收集 · Logstash\nKibana 可视化",          color: "#34d399" },
+
+            { x: 40,  y: 840, w: 220, h: 70, title: "☁ CDN",          desc: "静态资源加速\n边缘缓存",                     color: "#34d399" },
+            { x: 290, y: 840, w: 220, h: 70, title: "🌐 DNS + WAF",   desc: "域名解析 · 防火墙\nDDoS 防护",                color: "#34d399" },
+            { x: 540, y: 840, w: 220, h: 70, title: "🔑 Vault",        desc: "密钥管理\n敏感配置",                         color: "#34d399" },
+            { x: 790, y: 840, w: 270, h: 70, title: "🗂 GitLab + CI",  desc: "代码仓库 · 自动构建\n单元测试 · 部署",        color: "#34d399" },
+
+            // ---- 右侧：第三方 ----
+            { x: 920, y: 160, w: 160, h: 70, title: "💳 微信/支付宝", desc: "支付通道",   color: "#888" },
+            { x: 920, y: 520, w: 160, h: 70, title: "📧 SMS 网关",    desc: "短信验证码",  color: "#888" },
+            { x: 920, y: 610, w: 160, h: 70, title: "📧 邮件服务",    desc: "SMTP 发送",   color: "#888" },
+        ];
+
+        // ===== 绘制 =====
+        function tx_roundRect(x, y, w, h, r) {
+            tx_ct.beginPath();
+            tx_ct.moveTo(x + r, y);
+            tx_ct.lineTo(x + w - r, y);
+            tx_ct.quadraticCurveTo(x + w, y, x + w, y + r);
+            tx_ct.lineTo(x + w, y + h - r);
+            tx_ct.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            tx_ct.lineTo(x + r, y + h);
+            tx_ct.quadraticCurveTo(x, y + h, x, y + h - r);
+            tx_ct.lineTo(x, y + r);
+            tx_ct.quadraticCurveTo(x, y, x + r, y);
+            tx_ct.closePath();
+        }
+
+        function tx_drawNode(n, highlight) {
+            // 发光效果
+            if (highlight) {
+                tx_ct.shadowColor = n.color;
+                tx_ct.shadowBlur = 18;
+            }
+
+            // 渐变背景
+            let grad = tx_ct.createLinearGradient(n.x, n.y, n.x, n.y + n.h);
+            grad.addColorStop(0, n.color + "33");
+            grad.addColorStop(1, n.color + "10");
+            tx_ct.fillStyle = grad;
+            tx_roundRect(n.x, n.y, n.w, n.h, 10);
+            tx_ct.fill();
+
+            // 边框
+            tx_ct.strokeStyle = n.color + (highlight ? "ff" : "99");
+            tx_ct.lineWidth = highlight ? 2.5 : 1.5;
+            tx_ct.stroke();
+
+            tx_ct.shadowBlur = 0;
+
+            // 色块条
+            tx_ct.fillStyle = n.color;
+            tx_roundRect(n.x + 12, n.y + 12, 4, n.h - 24, 2);
+            tx_ct.fill();
+
+            // 标题
+            tx_ct.fillStyle = "#fff";
+            tx_ct.font = "bold 14px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+            tx_ct.textAlign = "left";
+            tx_ct.textBaseline = "top";
+            tx_ct.fillText(n.title, n.x + 24, n.y + 14);
+
+            // 描述（支持 \n）
+            tx_ct.fillStyle = "#bbb";
+            tx_ct.font = "11px -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif";
+            let lines = n.desc.split("\n");
+            lines.forEach((line, i) => {
+                tx_ct.fillText(line, n.x + 24, n.y + 36 + i * 14);
+            });
+        }
+
+        // 连线（虚线）
+        function tx_drawArrow(x1, y1, x2, y2, color) {
+            tx_ct.strokeStyle = color + "aa";
+            tx_ct.lineWidth = 1.5;
+            tx_ct.setLineDash([6, 4]);
+            tx_ct.beginPath();
+            tx_ct.moveTo(x1, y1);
+            // 折线路径
+            let midY = (y1 + y2) / 2;
+            tx_ct.lineTo(x1, midY);
+            tx_ct.lineTo(x2, midY);
+            tx_ct.lineTo(x2, y2);
+            tx_ct.stroke();
+            tx_ct.setLineDash([]);
+
+            // 箭头
+            tx_ct.fillStyle = color;
+            tx_ct.beginPath();
+            tx_ct.moveTo(x2, y2);
+            tx_ct.lineTo(x2 - 5, y2 - 8);
+            tx_ct.lineTo(x2 + 5, y2 - 8);
+            tx_ct.closePath();
+            tx_ct.fill();
+        }
+
+        // 层标签
+        const tx_layers = [
+            { y: 75,  label: "① 客户端层",    color: "#ff6b9d" },
+            { y: 195, label: "② 网关层",      color: "#ff9800" },
+            { y: 330, label: "③ 业务服务层",  color: "#00d4ff" },
+            { y: 565, label: "④ 数据存储层",  color: "#a78bfa" },
+            { y: 795, label: "⑤ 基础设施层",  color: "#34d399" },
+        ];
+
+        function tx_drawLayerLabel(y, label, color) {
+            tx_ct.fillStyle = color;
+            tx_ct.font = "bold 13px -apple-system, sans-serif";
+            tx_ct.textAlign = "left";
+            tx_ct.textBaseline = "middle";
+            tx_ct.fillText(label, 10, y);
+
+            tx_ct.strokeStyle = color + "55";
+            tx_ct.lineWidth = 1;
+            tx_ct.setLineDash([4, 4]);
+            tx_ct.beginPath();
+            tx_ct.moveTo(120, y);
+            tx_ct.lineTo(tx_W - 10, y);
+            tx_ct.stroke();
+            tx_ct.setLineDash([]);
+        }
+
+        function tx_drawAll(hoverId) {
+            tx_ct.clearRect(0, 0, tx_W, tx_H);
+
+            // 层标签
+            tx_layers.forEach(l => tx_drawLayerLabel(l.y, l.label, l.color));
+
+            // 连线：客户端 → 网关
+            for (let i = 0; i < 4; i++) {
+                let top = tx_nodes[i];
+                tx_drawArrow(top.x + top.w / 2, top.y + top.h,
+                             tx_nodes[4].x + tx_nodes[4].w / 2, tx_nodes[4].y,
+                             "#ff6b9d");
+            }
+            // 连线：网关 → 业务层（5~14）
+            for (let i = 5; i <= 14; i++) {
+                let b = tx_nodes[i];
+                tx_drawArrow(tx_nodes[4].x + tx_nodes[4].w / 2, tx_nodes[4].y + tx_nodes[4].h,
+                             b.x + b.w / 2, b.y, "#ff9800");
+            }
+            // 连线：业务层 → 数据层（15~22）
+            for (let i = 15; i <= 22; i++) {
+                let d = tx_nodes[i];
+                // 找最近的业务节点
+                let bIdx = 5 + ((i - 15) % 5);
+                let b = tx_nodes[bIdx];
+                tx_drawArrow(b.x + b.w / 2, b.y + b.h,
+                             d.x + d.w / 2, d.y, "#00d4ff");
+            }
+            // 连线：数据层 → 基础设施（23~30）
+            for (let i = 23; i <= 30; i++) {
+                let inf = tx_nodes[i];
+                let dIdx = 15 + ((i - 23) % 8);
+                let d = tx_nodes[dIdx];
+                tx_drawArrow(d.x + d.w / 2, d.y + d.h,
+                             inf.x + inf.w / 2, inf.y, "#a78bfa");
+            }
+
+            // 第三方连接
+            [[0, 31],[2, 32],[2, 33]].forEach(([bi, ti]) => {
+                tx_drawArrow(tx_nodes[bi].x + tx_nodes[bi].w,
+                             tx_nodes[bi].y + tx_nodes[bi].h / 2,
+                             tx_nodes[ti].x, tx_nodes[ti].y + tx_nodes[ti].h / 2,
+                             "#888");
+            });
+
+            // 绘制节点
+            tx_nodes.forEach((n, i) => tx_drawNode(n, i === hoverId));
+        }
+
+        tx_drawAll(-1);
+
+        // ===== 交互 =====
+        function tx_hitTest(x, y) {
+            for (let i = tx_nodes.length - 1; i >= 0; i--) {
+                let n = tx_nodes[i];
+                if (x >= n.x && x <= n.x + n.w && y >= n.y && y <= n.y + n.h) return i;
+            }
+            return -1;
+        }
+
+        tx_cv.addEventListener("mousemove", e => {
+            let rect = tx_cv.getBoundingClientRect();
+            let scaleX = tx_cv.width / rect.width;
+            let scaleY = tx_cv.height / rect.height;
+            let x = (e.clientX - rect.left) * scaleX;
+            let y = (e.clientY - rect.top) * scaleY;
+
+            let idx = tx_hitTest(x, y);
+            tx_drawAll(idx);
+
+            if (idx >= 0) {
+                let n = tx_nodes[idx];
+                tx_tip.style.display = "block";
+                tx_tip.style.left = (e.clientX + 14) + "px";
+                tx_tip.style.top  = (e.clientY + 14) + "px";
+                tx_tip.innerHTML = '<b style="color:' + n.color + '">' + n.title + '</b><br>' +
+                    n.desc.replace(/\n/g, "<br>");
+                tx_cv.style.cursor = "pointer";
+            } else {
+                tx_tip.style.display = "none";
+                tx_cv.style.cursor = "default";
+            }
+        });
+
+        tx_cv.addEventListener("mouseleave", () => {
+            tx_drawAll(-1);
+            tx_tip.style.display = "none";
+        });
+
+        // 自适应缩放显示
+        function tx_fit() {
+            let maxW = Math.min(window.innerWidth - 40, 1100);
+            tx_cv.style.width = maxW + "px";
+            tx_cv.style.height = (maxW / tx_W * tx_H) + "px";
+        }
+        tx_fit();
+        window.addEventListener("resize", tx_fit);
+    </script>
+</body>
+</html>
